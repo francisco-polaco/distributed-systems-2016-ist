@@ -1,10 +1,9 @@
 package pt.upa.transporter;
 
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.ws.TransporterPort;
 
 import javax.xml.ws.Endpoint;
-
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
 public class TransporterApplication {
 
