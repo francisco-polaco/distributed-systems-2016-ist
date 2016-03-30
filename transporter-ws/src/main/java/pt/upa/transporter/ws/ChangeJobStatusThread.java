@@ -1,6 +1,5 @@
 package pt.upa.transporter.ws;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 /**
