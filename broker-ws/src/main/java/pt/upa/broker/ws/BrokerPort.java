@@ -22,9 +22,7 @@ public class BrokerPort implements BrokerPortType{
     }
 
     @Override
-    public String requestTransport(String origin
-                    String destination,
-                    int price)
+    public String requestTransport(String origin, String destination, int price)
             throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception, UnknownLocationFault_Exception {
     return null;
     }
