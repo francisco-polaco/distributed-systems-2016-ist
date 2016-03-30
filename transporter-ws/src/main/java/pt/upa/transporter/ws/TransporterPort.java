@@ -5,6 +5,7 @@ import java.util.*;
 
 import static pt.upa.transporter.ws.JobStateView.ACCEPTED;
 import static pt.upa.transporter.ws.JobStateView.PROPOSED;
+import static pt.upa.transporter.ws.JobStateView.REJECTED;
 
 @WebService(
         endpointInterface="pt.upa.transporter.ws.TransporterPortType",
@@ -14,7 +15,7 @@ import static pt.upa.transporter.ws.JobStateView.PROPOSED;
         targetNamespace="http://ws.transporter.upa.pt/",
         serviceName="TransporterService"
 )
-public class TransporterPort implements TransporterPortType{
+public class TransporterPort implements TransporterPortType {
 
     private static final int DEFAULT_PRICE = 7;
     private static final String NORTH = "Norte";
@@ -48,7 +49,8 @@ public class TransporterPort implements TransporterPortType{
     }
 
     @Override
-    public JobView requestJob(String origin, String destination, int price) throws BadLocationFault_Exception, BadPriceFault_Exception {
+    public JobView requestJob(String origin, String destination, int price) throws BadLocationFault_Exception,
+            BadPriceFault_Exception {
         if(isAInvalidRegion(origin) || isAInvalidRegion(destination)){
             throw new BadLocationFault_Exception("Unknown Region.", new BadLocationFault());
         }else if(price < 0){
@@ -95,25 +97,23 @@ public class TransporterPort implements TransporterPortType{
 
     @Override
     public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
-        if(!mJobs.containsKey(id)){
-            throw new BadJobFault_Exception("Unknown ID", new BadJobFault());
+        if(!mJobs.containsKey(id) || mJobs.get(id).getJobState() != PROPOSED){
+            // This verification will avoid unnecessary work
+            throw new BadJobFault_Exception("Unknown ID or Job is already accepted.", new BadJobFault());
         }
-        JobView jobView = null; // If we dont need to return this, we should return always null;
+        JobView jobView = mJobs.get(id);
         if(accept) {
-            jobView = mJobs.get(id);
             jobView.setJobState(ACCEPTED);
-            mJobs.put(id, jobView);
             (new ChangeJobStatusThread(jobView)).run();
+        }else{
+            jobView.setJobState(REJECTED);
         }
         return jobView;
     }
 
     @Override
     public JobView jobStatus(String id) {
-        if(mJobs.containsKey(id))
-            return mJobs.get(id);
-        else
-            return null;
+        return mJobs.get(id);
     }
 
     @Override

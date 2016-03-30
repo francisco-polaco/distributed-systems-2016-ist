@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class ChangeJobStatusThread extends Thread {
 
-    public static final int BOUND = 4001;
+    private static final int BOUND = 4001;
     private JobView mJobView;
 
     public ChangeJobStatusThread(JobView jobView){
