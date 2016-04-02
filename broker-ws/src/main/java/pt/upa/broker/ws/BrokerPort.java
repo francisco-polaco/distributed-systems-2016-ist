@@ -1,8 +1,7 @@
 package pt.upa.broker.ws;
 
-import javax.jws.WebParam;
 import javax.jws.WebService;
-import java.util.List;
+import java.util.*;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",
@@ -18,7 +17,8 @@ public class BrokerPort implements BrokerPortType{
 
     @Override
     public String ping(String name){
-                    return null;
+        System.out.println("Received: " + name);
+        return "Ping: " + name;
     }
 
     @Override
