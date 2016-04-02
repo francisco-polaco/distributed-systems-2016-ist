@@ -44,7 +44,7 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public String ping(String name) {
         System.out.println("Received: " + name);
-        return "Ping: " + Calendar.DAY_OF_MONTH + "/" + Calendar.MONTH + "/" + Calendar.YEAR +
+        return mCompanyName + ": " + Calendar.DAY_OF_MONTH + "/" + Calendar.MONTH + "/" + Calendar.YEAR +
                 " ---> " + Calendar.HOUR_OF_DAY + ":" + Calendar.MINUTE + ":" + Calendar.SECOND;
     }
 
