@@ -48,10 +48,6 @@ public class TransporterClientApplication {
 		Map<String, Object> requestContext = bindingProvider.getRequestContext();
 		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 
-		String result = port.ping("Ola!");
-		System.out.println(result);
-
-
-
+		//TransporterClient.ping(port, "hello");
 	}
 }

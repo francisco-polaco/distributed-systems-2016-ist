@@ -47,7 +47,5 @@ public class BrokerClientApplication {
 		Map<String, Object> requestContext = bindingProvider.getRequestContext();
 		requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
 
-		String result = port.ping("Test");
-		System.out.println(result);
 	}
 }
