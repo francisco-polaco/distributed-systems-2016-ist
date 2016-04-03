@@ -2,10 +2,9 @@ package pt.upa.transporter.ws;
 
 import javax.jws.WebService;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static pt.upa.transporter.ws.JobStateView.ACCEPTED;
-import static pt.upa.transporter.ws.JobStateView.PROPOSED;
-import static pt.upa.transporter.ws.JobStateView.REJECTED;
+import static pt.upa.transporter.ws.JobStateView.*;
 
 @WebService(
         endpointInterface="pt.upa.transporter.ws.TransporterPortType",
@@ -25,7 +24,7 @@ public class TransporterPort implements TransporterPortType {
     private long idSeed = 0;
     private String mCompanyName;
 
-    private TreeMap<String, JobView> mJobs = new TreeMap<>();
+    private ConcurrentHashMap<String, JobView> mJobs = new ConcurrentHashMap<>();
     private ArrayList<String> mLocations = new ArrayList<>();
     private Random mRandom = new Random();
 
@@ -44,8 +43,12 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public String ping(String name) {
         System.out.println("Received: " + name);
-        return mCompanyName + ": " + Calendar.DAY_OF_MONTH + "/" + Calendar.MONTH + "/" + Calendar.YEAR +
-                " ---> " + Calendar.HOUR_OF_DAY + ":" + Calendar.MINUTE + ":" + Calendar.SECOND;
+        GregorianCalendar rightNow = new GregorianCalendar();
+        return mCompanyName + ": " +  rightNow.get(Calendar.HOUR_OF_DAY) + ":" +
+                rightNow.get(Calendar.MINUTE) + ":" + rightNow.get(Calendar.SECOND) +
+                " --- " +
+                rightNow.get(Calendar.DAY_OF_MONTH) + "/" + rightNow.get(Calendar.MONTH) + "/" +
+                rightNow.get(Calendar.YEAR);
     }
 
     @Override
@@ -59,8 +62,9 @@ public class TransporterPort implements TransporterPortType {
         JobView jobView = null;
         if(isOneOfMyLocations(origin) || isOneOfMyLocations(destination) || price <= 100){
             jobView = new JobView();
+            String id = Long.toString(idSeed++);
             jobView.setJobDestination(destination);
-            jobView.setJobIdentifier(Long.toString(idSeed++));
+            jobView.setJobIdentifier(id);
             jobView.setCompanyName(mCompanyName);
             jobView.setJobOrigin(origin);
             jobView.setJobState(PROPOSED);
@@ -82,6 +86,7 @@ public class TransporterPort implements TransporterPortType {
                 }
 
             }
+            mJobs.put(id, jobView);
         }
         return jobView;
     }
@@ -101,6 +106,7 @@ public class TransporterPort implements TransporterPortType {
             // This verification will avoid unnecessary work
             throw new BadJobFault_Exception("Unknown ID or Job is already accepted.", new BadJobFault());
         }
+
         JobView jobView = mJobs.get(id);
         if(accept) {
             jobView.setJobState(ACCEPTED);
