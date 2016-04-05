@@ -25,7 +25,11 @@ public class BrokerPort implements BrokerPortType{
 
     private long idSeed = 0;
 
-	// TODO
+
+    public BrokerPort(String uddiURL) throws JAXRException {
+        super();
+        getAllTransporters(uddiURL);
+    }
 
     @Override
     public String ping(String name){
@@ -47,24 +51,32 @@ public class BrokerPort implements BrokerPortType{
             jobOffers.put(transport.getId(), transport);
         }
 
-
+        jobDecision();
 
     return null;
     }
 
     @Override
     public TransportView viewTransport(String id)  throws UnknownTransportFault_Exception{
-        return null;
+        updateView(jobOffers.get(id));
+        return jobOffers.get(id);
     }
 
     @Override
     public List<TransportView> listTransports(){
-        return null;
+        ArrayList<TransportView> result = new ArrayList<>();
+        for(TransportView entry : jobOffers.values()) {
+            updateView(entry);
+            result.add(entry);
+        }
+        return result;
     }
 
     @Override
     public void clearTransports(){
-
+        for(TransporterClient transporters : allTransporters.values())
+            transporters.clearJobs();
+        jobOffers.clear();
     }
 
     public void getAllTransporters(String uddiURL) throws JAXRException {
@@ -87,7 +99,7 @@ public class BrokerPort implements BrokerPortType{
         transport.setState(REQUESTED);
     }
 
-    public void jobDecision() {
+    private void jobDecision() {
         TransportView bestOffer = null;
 
         for (TransportView offer : jobOffers.values()){
@@ -105,6 +117,16 @@ public class BrokerPort implements BrokerPortType{
         }
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(bestOffer.getId(), true);
         bestOffer.setState(BOOKED);
+    }
+
+    public void updateView(TransportView transport){
+        JobView job = allTransporters.get(transport.getTransporterCompany()).jobStatus(transport.getId());
+        if(job.getJobState().value() == "HEADING")
+            transport.setState(HEADING);
+        if(job.getJobState().value() == "ONGOING")
+            transport.setState(ONGOING);
+        if(job.getJobState().value() == "COMPLETED")
+            transport.setState(COMPLETED);
     }
 
 }
