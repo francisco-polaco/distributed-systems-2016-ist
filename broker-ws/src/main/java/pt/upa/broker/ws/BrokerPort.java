@@ -20,9 +20,8 @@ import java.util.List;
 )
 public class BrokerPort implements BrokerPortType{
 
-    private ArrayList<TransporterClient> allTransporters = new ArrayList<>();
-    //private ArrayList<JobView> jobOffers = new ArrayList<>();
-    private ArrayList<TransportView> jobOffers = new ArrayList<>();
+    private TreeMap<String, TransporterClient> allTransporters = new TreeMap<>();
+    private TreeMap<String, TransportView> jobOffers = new TreeMap<>();
 
     private long idSeed = 0;
 
@@ -40,11 +39,15 @@ public class BrokerPort implements BrokerPortType{
             UnknownLocationFault_Exception {
 
 
-        for (TransporterClient transporter : allTransporters){
+        for (TransporterClient transporter : allTransporters.values()){
             TransportView transport = creatTransportView(origin, destination, price, transporter.getName());
-            jobOffers.add(transport);
-            transporter.requestJob(transport.getOrigin(),transport.getDestination(),transport.getPrice());
+            JobView Offer = transporter.requestJob(transport.getOrigin(),transport.getDestination(),transport.getPrice());
+            transport.setPrice(Offer.getJobPrice());
+            transport.setState(BUDGETED);
+            jobOffers.put(transport.getId(), transport);
         }
+
+
 
     return null;
     }
@@ -69,7 +72,7 @@ public class BrokerPort implements BrokerPortType{
         Collection<String> endpointAddress = uddiNaming.list("UpaTransp%");
         for (String endpAdd :  endpointAddress) {
             TransporterClient transporter = new TransporterClient(uddiURL, endpAdd);
-            allTransporters.add(transporter);
+            allTransporters.put(transporter.getName(), transporter);
         }
     }
 
@@ -83,6 +86,27 @@ public class BrokerPort implements BrokerPortType{
         transport.setId(id);
         transport.setState(REQUESTED);
     }
+
+    public void jobDecision() {
+        TransportView bestOffer = null;
+
+        for (TransportView offer : jobOffers.values()){
+            if (bestOffer == null)
+                bestOffer = offer;
+            if(bestOffer.getPrice() > offer.getPrice()){
+                allTransporters.get(bestOffer.getTransporterCompany()).decideJob(bestOffer.getId(), false);
+                bestOffer.setState(FAILED);
+                bestOffer = offer;
+            }
+            else{
+                allTransporters.get(offer.getTransporterCompany()).decideJob(offer.getId(), false);
+                offer.setState(FAILED);
+            }
+        }
+        allTransporters.get(bestOffer.getTransporterCompany()).decideJob(bestOffer.getId(), true);
+        bestOffer.setState(BOOKED);
+    }
+
 }
 
 
