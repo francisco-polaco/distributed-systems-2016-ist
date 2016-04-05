@@ -5,6 +5,7 @@ import javax.xml.registry.JAXRException;
 import java.util.*;
 
 import pt.upa.transporter.ws.JobView;
+import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import java.util.List;
@@ -20,9 +21,10 @@ import java.util.List;
 public class BrokerPort implements BrokerPortType{
 
     private ArrayList<TransporterClient> allTransporters = new ArrayList<>();
-    private ArrayList<JobView> jobOffers = new ArrayList<>();
-    private ArrayList<JobView> jobAceppted = new ArrayList<>();
-    private ArrayList<JobView> jobRejected = new ArrayList<>();
+    //private ArrayList<JobView> jobOffers = new ArrayList<>();
+    private ArrayList<TransportView> jobOffers = new ArrayList<>();
+
+    private long idSeed = 0;
 
 	// TODO
 
@@ -36,22 +38,14 @@ public class BrokerPort implements BrokerPortType{
     public String requestTransport(String origin, String destination, int price)
             throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception,
             UnknownLocationFault_Exception {
-        JobView bestOffer = new JobView();
-        for (TransporterClient transporter : allTransporters)
-            jobOffers.add(transporter.requestJob(origin, destination, price));
-        for (JobView Offer : jobOffers) {
-            if (bestOffer.getJobPrice() > Offer.getJobPrice()) {
-                allTransporters.get(jobOffers.indexOf(bestOffer)).decideJob(bestOffer.getJobIdentifier(), false);
-                jobRejected.add(bestOffer);
-                bestOffer = Offer;
-            } else {
-                allTransporters.get(jobOffers.indexOf(Offer)).decideJob(Offer.getJobIdentifier(), false);
-                jobRejected.add(Offer);
-            }
+
+
+        for (TransporterClient transporter : allTransporters){
+            TransportView transport = creatTransportView(origin, destination, price, transporter.getName());
+            jobOffers.add(transport);
+            transporter.requestJob(transport.getOrigin(),transport.getDestination(),transport.getPrice());
         }
-        allTransporters.get(jobOffers.indexOf(bestOffer)).decideJob(bestOffer.getJobIdentifier(), true);
-        jobAceppted.add(bestOffer);
-        jobOffers.clear();
+
     return null;
     }
 
@@ -77,6 +71,17 @@ public class BrokerPort implements BrokerPortType{
             TransporterClient transporter = new TransporterClient(uddiURL, endpAdd);
             allTransporters.add(transporter);
         }
+    }
+
+    public TransportView creatTransportView(String origin, String destination, int price, String companyName){
+        TransportView transport = new TransportView();
+        String id = Long.toString(idSeed++);
+        transport.setTransporterCompany(companyName);
+        transport.setDestination(destination);
+        transport.setOrigin(origin);
+        transport.setPrice(price);
+        transport.setId(id);
+        transport.setState(REQUESTED);
     }
 }
 
