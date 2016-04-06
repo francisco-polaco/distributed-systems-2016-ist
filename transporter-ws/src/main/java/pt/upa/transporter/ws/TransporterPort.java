@@ -17,12 +17,10 @@ import static pt.upa.transporter.ws.JobStateView.*;
 public class TransporterPort implements TransporterPortType {
 
     private static final int DEFAULT_PRICE = 7;
-    private static final String NORTH = "Norte";
-    private static final String CENTER = "Centro";
-    private static final String SOUTH = "Sul";
 
-    private long idSeed = 0;
+    private static long idSeed = 0;
     private String mCompanyName;
+    private boolean mNorthRegion;
 
     private ConcurrentHashMap<String, JobView> mJobs = new ConcurrentHashMap<>();
     private ArrayList<String> mLocations = new ArrayList<>();
@@ -36,8 +34,17 @@ public class TransporterPort implements TransporterPortType {
     public TransporterPort(String companyName){
         mCompanyName = companyName;
         int serverId = Integer.parseInt(companyName.substring(14));
-        mLocations.add(CENTER);
-        mLocations.add((serverId % 2 == 0) ? NORTH : SOUTH);
+        mLocations.addAll(Arrays.asList("Lisboa",
+                "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
+        if(serverId % 2 == 0){
+            mLocations.addAll(Arrays.asList("Porto",
+                    "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
+            mNorthRegion = true;
+        } else {
+            mLocations.addAll(Arrays.asList("Setubal",
+                    "Evora", "Portalegre", "Beja", "Faro"));
+            mNorthRegion = false;
+        }
     }
 
     @Override
@@ -58,47 +65,43 @@ public class TransporterPort implements TransporterPortType {
             throw new BadLocationFault_Exception("Unknown Region.", new BadLocationFault());
         }else if(price < 0){
             throw new BadPriceFault_Exception("Price is below 0.", new BadPriceFault());
-        }
-        JobView jobView = null;
-        if(isOneOfMyLocations(origin) || isOneOfMyLocations(destination) || price <= 100){
-            jobView = new JobView();
-            String id = Long.toString(idSeed++);
-            jobView.setJobDestination(destination);
-            jobView.setJobIdentifier(id);
-            jobView.setCompanyName(mCompanyName);
-            jobView.setJobOrigin(origin);
-            jobView.setJobState(PROPOSED);
-            if(price <= 10) {
-                jobView.setJobPrice(DEFAULT_PRICE);
-            }else if(mLocations.contains(NORTH)){ // even id
-                //TODO : Refactor
-                if(price % 2 == 0){
-                    jobView.setJobPrice(mRandom.nextInt(price));
-                }else{
-                    jobView.setJobPrice(mRandom.nextInt(price) + price);
-                }
-            }else{ //odd id
-                if(price % 2 == 0){
-                    jobView.setJobPrice(mRandom.nextInt(price) + price);
+        }else {
+            JobView jobView = null;
+            if (price <= 100) {
+                jobView = new JobView();
+                String id = Long.toString(TransporterPort.idSeed++);
+                jobView.setJobDestination(destination);
+                jobView.setJobIdentifier(id);
+                jobView.setCompanyName(mCompanyName);
+                jobView.setJobOrigin(origin);
+                jobView.setJobState(PROPOSED);
 
-                }else{
-                    jobView.setJobPrice(mRandom.nextInt(price));
-                }
+                if (price <= 10)
+                    jobView.setJobPrice(DEFAULT_PRICE);
 
+                else if (mNorthRegion) { // even id
+                    //TODO : Refactor
+                    if (price % 2 == 0)
+                        jobView.setJobPrice(mRandom.nextInt(price));
+                    else
+                        jobView.setJobPrice(mRandom.nextInt(price) + price);
+
+                } else { //odd id
+                    if (price % 2 == 0)
+                        jobView.setJobPrice(mRandom.nextInt(price) + price);
+                    else
+                        jobView.setJobPrice(mRandom.nextInt(price));
+                }
+                mJobs.put(id, jobView);
             }
-            mJobs.put(id, jobView);
+            return jobView;
         }
-        return jobView;
     }
 
     private boolean isAInvalidRegion(String location) {
-        return !(location.equals(NORTH) || location.equals(CENTER)
-                || location.equals(SOUTH));
+        return !mLocations.contains(location);
     }
 
-    private boolean isOneOfMyLocations(String location) {
-        return mLocations.contains(location);
-    }
 
     @Override
     public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
@@ -111,9 +114,8 @@ public class TransporterPort implements TransporterPortType {
         if(accept) {
             jobView.setJobState(ACCEPTED);
             (new ChangeJobStatusThread(jobView)).run();
-        }else{
+        }else
             jobView.setJobState(REJECTED);
-        }
         return jobView;
     }
 
