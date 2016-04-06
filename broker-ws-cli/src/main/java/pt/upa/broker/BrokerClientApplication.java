@@ -27,5 +27,6 @@ public class BrokerClientApplication {
 
 		BrokerClient clnt = new BrokerClient(args[0], args[1]);
 
+		clnt.ping("Ola");
 	}
 }

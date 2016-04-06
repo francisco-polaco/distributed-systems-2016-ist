@@ -31,10 +31,10 @@ public class BrokerClient {
 
         System.out.println("Creating stub ...");
         BrokerService service = new BrokerService();
-        BrokerPortType port = service.getBrokerPort();
+        mPort = service.getBrokerPort();
 
         System.out.println("Setting endpoint address ...");
-        BindingProvider bindingProvider = (BindingProvider) port;
+        BindingProvider bindingProvider = (BindingProvider) mPort;
         Map<String, Object> requestContext = bindingProvider.getRequestContext();
         requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
     }
