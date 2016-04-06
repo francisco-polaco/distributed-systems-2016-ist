@@ -4,7 +4,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 
 /** Test suite */
-public abstract class AbstractTest {
+public interface AbstractTest {
 
     // static members
 
@@ -23,12 +23,9 @@ public abstract class AbstractTest {
 
     // initialization and clean-up for each test
     @Before
-    public abstract void setUp();
+    public void setUp();
 
     @After
-    public abstract void tearDown();
+    public void tearDown();
 
-    // tests
-    @Test
-    public abstract void test();
 }
