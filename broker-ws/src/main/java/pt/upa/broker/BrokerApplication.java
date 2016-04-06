@@ -21,7 +21,7 @@ public class BrokerApplication {
 		Endpoint endpoint = null;
 		UDDINaming uddiNaming = null;
 		try {
-			BrokerPort port = new BrokerPort();
+			BrokerPort port = new BrokerPort(uddiURL);
 			endpoint = Endpoint.create(port);
 
 			// publish endpoint
@@ -62,5 +62,7 @@ public class BrokerApplication {
 				System.out.printf("Caught exception when deleting: %s%n", e);
 			}
 		}
+
+
 	}
 }
