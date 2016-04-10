@@ -40,25 +40,27 @@ public class BrokerClientTest implements AbstractTest {
 
     @Test
     public void requestTransport(){
-        String result = client.requestTransport("Lisboa", "Porto", 80);
+        String result = client.requestTransport("Lisboa", "Porto", 10);
         assertNotNull(result);
     }
 
     @Test
     public void viewTransport(){
-        String id = client.requestTransport("Lisboa", "Porto", 80);
+        String id = client.requestTransport("Lisboa", "Porto", 10);
         TransportView result = client.viewTransport(id);
         assertNotNull(result);
     }
 
     @Test
     public void listTransports(){
+        client.requestTransport("Lisboa", "Porto", 10);
         List<TransportView> result = client.listTransports(mPort);
-        assertNotNull(result);
+        assertEquals("error", 1, result.size());
     }
 
     @Test
     public void clearTransports(){
+        client.requestTransport("Lisboa", "Porto", 10);
         client.clearTransports(mPort);
         List<TransportView> result = client.listTransports(mPort);
         assertEquals("error", 0, result.size());

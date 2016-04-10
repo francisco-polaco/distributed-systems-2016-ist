@@ -1,6 +1,9 @@
 package pt.upa.transporter.ws.it;
 
 import org.junit.*;
+
+import javax.xml.registry.JAXRException;
+
 import static org.junit.Assert.*;
 
 /** Test suite */
@@ -23,7 +26,7 @@ public interface AbstractTest {
 
     // initialization and clean-up for each test
     @Before
-    public void setUp();
+    public void setUp() throws JAXRException;
 
     @After
     public void tearDown();
