@@ -4,6 +4,9 @@ import javax.jws.WebService;
 import javax.xml.registry.JAXRException;
 import java.util.*;
 
+import pt.upa.transporter.ws.BadJobFault_Exception;
+import pt.upa.transporter.ws.BadLocationFault_Exception;
+import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
 import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
@@ -52,7 +55,7 @@ public class BrokerPort implements BrokerPortType{
     @Override
     public String requestTransport(String origin, String destination, int price)
             throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception,
-            UnknownLocationFault_Exception {
+            UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
 
         if(invalidPrice(price))
             throw new InvalidPriceFault_Exception("Price is below 0.", new InvalidPriceFault());
@@ -133,7 +136,7 @@ public class BrokerPort implements BrokerPortType{
         return transport;
     }
 
-    private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception{
+    private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception, BadJobFault_Exception {
         TransportView bestOffer = null;
 
         for (TransportView offer : jobOffers.values()){
