@@ -74,9 +74,7 @@ public class BrokerPort implements BrokerPortType{
         if(!JobOffer)
             throw new UnavailableTransportFault_Exception("No Transport Available", new UnavailableTransportFault());
 
-        jobDecision(price);
-
-    return null;
+        return jobDecision(price).getId();
     }
 
     @Override
@@ -131,7 +129,7 @@ public class BrokerPort implements BrokerPortType{
         return transport;
     }
 
-    private void jobDecision(int price) throws UnavailableTransportPriceFault_Exception{
+    private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception{
         TransportView bestOffer = null;
 
         for (TransportView offer : jobOffers.values()){
@@ -152,6 +150,8 @@ public class BrokerPort implements BrokerPortType{
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(bestOffer.getId(), true);
         bestOffer.setState(BOOKED);
+
+        return bestOffer;
     }
 
     public void updateView(TransportView transport){
