@@ -39,6 +39,10 @@ public class BrokerPort implements BrokerPortType{
         getAllTransporters(uddiURL);
     }
 
+    public BrokerPort(TreeMap<String, TransporterClient> transporters){
+        allTransporters = transporters;
+    }
+
     @Override
     public String ping(String name){
         System.out.println("Received: " + name);

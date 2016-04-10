@@ -21,7 +21,6 @@ public class TransporterClient{
 
         System.out.printf("Looking for '%s'%n", name);
         String endpointAddress = uddiNaming.lookup(name);
-        // FIXME uddiNaming.list("UpaTransp%")
         if (endpointAddress == null) {
             System.out.println("Not found!");
             return;
@@ -39,6 +38,9 @@ public class TransporterClient{
         requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
     }
 
+    public TransporterClient(TransporterPortType port){
+        mPort = port;
+    }
 
     public String ping(String message) {
         return mPort.ping(message);
