@@ -63,7 +63,7 @@ public class TransporterClientTest implements AbstractTest{
     public void listJobs(){
         client.requestJob("Lisboa", "Porto", 10);
         List<JobView> result = client.listJobs();
-        assertEquals("error", 1, result.size());
+        assertEquals("job not in the list", 1, result.size());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class TransporterClientTest implements AbstractTest{
         client.requestJob("Lisboa", "Porto", 10);
         client.clearJobs();
         List<JobView> result = client.listJobs();
-        assertEquals("error", 0, result.size());
+        assertEquals("job not deleted from the list", 0, result.size());
     }
 
 

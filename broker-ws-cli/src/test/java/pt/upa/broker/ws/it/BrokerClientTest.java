@@ -55,7 +55,7 @@ public class BrokerClientTest implements AbstractTest {
     public void listTransports(){
         client.requestTransport("Lisboa", "Porto", 10);
         List<TransportView> result = client.listTransports(mPort);
-        assertEquals("error", 1, result.size());
+        assertEquals("transport not in the list", 1, result.size());
     }
 
     @Test
@@ -63,7 +63,7 @@ public class BrokerClientTest implements AbstractTest {
         client.requestTransport("Lisboa", "Porto", 10);
         client.clearTransports(mPort);
         List<TransportView> result = client.listTransports(mPort);
-        assertEquals("error", 0, result.size());
+        assertEquals("transport not deleted from the list", 0, result.size());
     }
 
     //ERRORCASES
