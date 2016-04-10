@@ -4,7 +4,6 @@ import javax.jws.WebService;
 import javax.xml.registry.JAXRException;
 import java.util.*;
 
-import jdk.nashorn.internal.scripts.JO;
 import pt.upa.transporter.ws.JobView;
 import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
@@ -23,6 +22,7 @@ public class BrokerPort implements BrokerPortType{
 
     private TreeMap<String, TransporterClient> allTransporters = new TreeMap<>();
     private TreeMap<String, TransportView> jobOffers = new TreeMap<>();
+    private TreeMap<String, String> IdConvTable = new TreeMap<>();
     private ArrayList<String> North = new ArrayList<>(Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
     private ArrayList<String> Center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
     private ArrayList<String> South =  new ArrayList<>(Arrays.asList("Setubal", "Evora", "Portalegre", "Beja", "Faro"));
@@ -64,6 +64,7 @@ public class BrokerPort implements BrokerPortType{
                 transport.setPrice(Offer.getJobPrice());
                 transport.setState(BUDGETED);
                 jobOffers.put(transport.getId(), transport);
+                IdConvTable.put(transport.getId(),Offer.getJobIdentifier());
                 setJobOffer(true);
             }
             else
@@ -154,7 +155,7 @@ public class BrokerPort implements BrokerPortType{
     }
 
     public void updateView(TransportView transport){
-        JobView job = allTransporters.get(transport.getTransporterCompany()).jobStatus(transport.getId());
+        JobView job = allTransporters.get(transport.getTransporterCompany()).jobStatus(IdConvTable.get(transport.getId()));
         if(job.getJobState().value() == "HEADING")
             transport.setState(HEADING);
         if(job.getJobState().value() == "ONGOING")
