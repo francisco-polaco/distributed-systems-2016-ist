@@ -45,30 +45,16 @@ public class BrokerClient {
     }
 
 
-    public String requestTransport(String origin, String destination, int price){
-        String request = "";
-        try{
-            request = mPort.requestTransport(origin, destination, price);
-        }catch(InvalidPriceFault_Exception e) {
-            System.err.println(e.getMessage());
-        }catch (UnavailableTransportFault_Exception e){
-            System.err.println(e.getMessage());
-        }catch(UnavailableTransportPriceFault_Exception e) {
-            System.err.println(e.getMessage());
-        }catch (UnknownLocationFault_Exception e){
-            System.err.println(e.getMessage());
-        }
+    public String requestTransport(String origin, String destination, int price) throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+        String request = null;
+        request = mPort.requestTransport(origin, destination, price);
         return request;
     }
 
 
-    public TransportView viewTransport(String id){
+    public TransportView viewTransport(String id) throws UnknownTransportFault_Exception {
         TransportView transportView = null;
-        try {
-            transportView = mPort.viewTransport(id);
-        }catch(UnknownTransportFault_Exception e) {
-            System.err.println(e.getMessage());
-        }
+        transportView = mPort.viewTransport(id);
         return transportView;
     }
 
