@@ -40,34 +40,34 @@ public class TransporterClientTest implements AbstractTest{
     }
 
     @Test
-    public void requestJob(){
+    public void requestJob() throws BadLocationFault_Exception, BadPriceFault_Exception {
         JobView result = client.requestJob("Lisboa", "Porto", 10);
         assertNotNull(result);
     }
 
     @Test
-    public void decideJob(){
+    public void decideJob() throws BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
         JobView id = client.requestJob("Lisboa", "Porto", 10);
         JobView result = client.decideJob(id.getJobIdentifier(), true);
         assertNotNull(result);
     }
 
     @Test
-    public void jobStatus(){
+    public void jobStatus() throws BadLocationFault_Exception, BadPriceFault_Exception {
         JobView id = client.requestJob("Lisboa", "Porto", 10);
         JobView result = client.jobStatus(id.getJobIdentifier());
         assertNotNull(result);
     }
 
     @Test
-    public void listJobs(){
+    public void listJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
         client.requestJob("Lisboa", "Porto", 10);
         List<JobView> result = client.listJobs();
         assertEquals("job not in the list", 1, result.size());
     }
 
     @Test
-    public void clearJobs(){
+    public void clearJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
         client.requestJob("Lisboa", "Porto", 10);
         client.clearJobs();
         List<JobView> result = client.listJobs();
@@ -77,17 +77,17 @@ public class TransporterClientTest implements AbstractTest{
 
     //ERRORCASES
     @Test(expected = BadLocationFault_Exception.class)
-    public void requestJobWithInvalidLocation(){
+    public void requestJobWithInvalidLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
         client.requestJob("Lisboa", "Vila Franca de Xira", 10);
     }
 
     @Test(expected = BadPriceFault_Exception.class)
-    public void requestJobWithInvalidPrice(){
+    public void requestJobWithInvalidPrice() throws BadLocationFault_Exception, BadPriceFault_Exception {
         client.requestJob("Lisboa", "Porto", -1);
     }
 
     @Test(expected = BadJobFault_Exception.class)
-    public void decideJobWithInvalidID(){
+    public void decideJobWithInvalidID() throws BadJobFault_Exception {
         client.decideJob("potato", true);
     }
 }

@@ -47,25 +47,15 @@ public class TransporterClient{
     }
 
 
-    public JobView requestJob(String origin, String destination, int price){
+    public JobView requestJob(String origin, String destination, int price) throws BadLocationFault_Exception, BadPriceFault_Exception {
         JobView jobView = null;
-        try{
-            jobView = mPort.requestJob(origin, destination, price);
-        }catch(BadLocationFault_Exception e) {
-            System.err.println(e.getMessage());
-        }catch (BadPriceFault_Exception e){
-            System.err.println(e.getMessage());
-        }
+        jobView = mPort.requestJob(origin, destination, price);
         return jobView;
     }
 
-    public JobView decideJob(String id, boolean accept){
+    public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
         JobView jobView = null;
-        try{
-            jobView = mPort.decideJob(id, accept);
-        }catch(BadJobFault_Exception e) {
-            System.err.println(e.getMessage());
-        }
+        jobView = mPort.decideJob(id, accept);
         return jobView;
     }
 

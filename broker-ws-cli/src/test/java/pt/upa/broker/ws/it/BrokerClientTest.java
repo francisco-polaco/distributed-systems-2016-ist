@@ -39,27 +39,27 @@ public class BrokerClientTest implements AbstractTest {
     }
 
     @Test
-    public void requestTransport(){
+    public void requestTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         String result = client.requestTransport("Lisboa", "Porto", 10);
         assertNotNull(result);
     }
 
     @Test
-    public void viewTransport(){
+    public void viewTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnknownTransportFault_Exception {
         String id = client.requestTransport("Lisboa", "Porto", 10);
         TransportView result = client.viewTransport(id);
         assertNotNull(result);
     }
 
     @Test
-    public void listTransports(){
+    public void listTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         client.requestTransport("Lisboa", "Porto", 10);
         List<TransportView> result = client.listTransports(mPort);
         assertEquals("transport not in the list", 1, result.size());
     }
 
     @Test
-    public void clearTransports(){
+    public void clearTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         client.requestTransport("Lisboa", "Porto", 10);
         client.clearTransports(mPort);
         List<TransportView> result = client.listTransports(mPort);
@@ -67,20 +67,23 @@ public class BrokerClientTest implements AbstractTest {
     }
 
     //ERRORCASES
-    @Test(expected = UnavailableTransportPriceFault_Exception.class)
-    public void requestTransportWithInvalidPrice(){
+    @Test(expected = UnavailableTransportFault_Exception.class)
+    public void requestTransportWithHighPrice() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+        client.requestTransport("Lisboa", "Porto", 200);
+    }
+
+    @Test(expected = InvalidPriceFault_Exception.class)
+    public void requestTransportWithInvalidPrice() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         client.requestTransport("Lisboa", "Porto", -1);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
-    public void requestTransportToUnknownLocation(){
+    public void requestTransportToUnknownLocation() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         client.requestTransport("Lisboa", "Vila Franca de Xira", 10);
     }
 
     @Test(expected = UnknownTransportFault_Exception.class)
-    public void viewTransportWithInvalidID(){
+    public void viewTransportWithInvalidID() throws UnknownTransportFault_Exception {
         client.viewTransport("potato");
     }
-
-
 }
