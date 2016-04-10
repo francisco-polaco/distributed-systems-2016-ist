@@ -46,7 +46,7 @@ public class BrokerClient {
 
 
     public String requestTransport(String origin, String destination, int price){
-        String request = "";
+        String request = null;
         try{
             request = mPort.requestTransport(origin, destination, price);
         }catch(InvalidPriceFault_Exception e) {
