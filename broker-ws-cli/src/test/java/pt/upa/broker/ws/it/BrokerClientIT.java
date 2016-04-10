@@ -12,7 +12,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
-public class BrokerClientTest implements AbstractTest {
+public class BrokerClientIT implements AbstractTest {
 
     private static BrokerClient client;
 

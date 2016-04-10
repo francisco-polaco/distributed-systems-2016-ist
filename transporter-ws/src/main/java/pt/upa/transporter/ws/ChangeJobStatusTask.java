@@ -18,7 +18,6 @@ public class ChangeJobStatusTask extends TimerTask {
     private int mStatePointer;
     private Random mRandom;
     private ReentrantLock mLock;
-    // scheduling the task at interval
 
 
     public ChangeJobStatusTask(JobView jobView){
