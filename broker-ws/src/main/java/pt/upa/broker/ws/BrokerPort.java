@@ -64,7 +64,7 @@ public class BrokerPort implements BrokerPortType{
             TransportView transport = creatTransportView(origin, destination, price, companyName);
             JobView Offer = allTransporters.get(companyName).requestJob(transport.getOrigin(),
                     transport.getDestination(),transport.getPrice());
-            if(Offer != null){
+            if((Offer != null) && !(Offer.getJobState().value().equals("REJECTED"))){
                 transport.setPrice(Offer.getJobPrice());
                 transport.setState(BUDGETED);
                 jobOffers.put(transport.getId(), transport);
@@ -151,6 +151,7 @@ public class BrokerPort implements BrokerPortType{
         }
 
         if(bestOffer.getPrice() > price)
+
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(bestOffer.getId(), true);
         bestOffer.setState(BOOKED);

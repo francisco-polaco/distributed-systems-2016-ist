@@ -23,7 +23,7 @@ public interface AbstractTest {
 
     // initialization and clean-up for each test
     @Before
-    public void setUp();
+    public void setUp() throws BadLocationFault_Exception, BadPriceFault_Exception;
 
     @After
     public void tearDown();
