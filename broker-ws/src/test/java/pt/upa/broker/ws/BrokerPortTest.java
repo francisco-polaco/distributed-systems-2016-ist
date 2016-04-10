@@ -3,40 +3,49 @@ package pt.upa.broker.ws;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import pt.upa.transporter.ws.JobStateView;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.TransporterPort;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by xxlxpto on 06-04-2016.
  */
-public class BrokerPortTest implements AbstractTest {
+public class BrokerPortTest {
 
-    private BrokerPort mBrokerPort;
+
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        // TODO
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+        // TODO
+    }
 
     @Before
-    @Override
     public void setUp() {
-        /*mTransporterPort = new TransporterClient("UpaTransporter1");*/
     }
 
     @After
-    @Override
     public void tearDown() {
-        mBrokerPort = null;
+
     }
 
-    @Test
-    public void testMocks(@Mocked final TransporterClient transporterClient) throws Exception {
+    /* Tests that only requires one Transporter */
 
+    @Test
+    public void simpleAccept(@Mocked final TransporterClient transporterClient) throws Exception {
         // Preparation code not specific to JMockit, if any.
         final String ORIGIN = "Lisboa";
         final String DESTINATION = "Porto";
@@ -47,7 +56,6 @@ public class BrokerPortTest implements AbstractTest {
         // an "expectation block"
         // One or more invocations to mocked types, causing expectations to be recorded.
         new Expectations() {{
-
             transporterClient.requestJob(ORIGIN, DESTINATION, PRICE);
             JobView jb = new JobView();
             jb.setJobState(JobStateView.PROPOSED);
@@ -71,9 +79,9 @@ public class BrokerPortTest implements AbstractTest {
         // Unit under test is exercised.
         TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
         transporterClientTreeMap.put(NAME, transporterClient);
-        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+        BrokerPort mBrokerPort = new BrokerPort(transporterClientTreeMap);
 
-        String returnedFromTest = brokerPort.requestTransport(ORIGIN, DESTINATION, PRICE);
+        String returnedFromTest = mBrokerPort.requestTransport(ORIGIN, DESTINATION, PRICE);
 
         // One or more invocations to mocked types, causing expectations to be verified.
         new Verifications() {{
@@ -82,42 +90,178 @@ public class BrokerPortTest implements AbstractTest {
             transporterClient.decideJob(ID, true); maxTimes = 1;
         }};
 
+
         // Additional verification code, if any, either here or before the verification block.
-        final String EXPECTED = String.format("%s",
-                ID);
-        assertEquals(EXPECTED, returnedFromTest);
+        final String EXPECTED = String.format("%s", ID);
+        assertEquals("The Correct ID was not returned.", EXPECTED, returnedFromTest);
+
+        List<TransportView> transports = mBrokerPort.listTransports();
+        boolean itWorks = false;
+        TransportView transport = null;
+
+        for(TransportView tv : transports){
+            if(tv.getId().equals(EXPECTED)){
+                itWorks = true;
+                transport = tv;
+            }
+        }
+
+        assertEquals("Job wasn't listed.", itWorks, true);
+        assertEquals("Job wasn't booked.", TransportStateView.BOOKED, transport.getState());
+
     }
 
-   /* @Test
-    public void jobWasCreated() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        JobView test;
-        test = mTransporterPort.requestJob("Porto", "Lisboa", 50);
-        assertEquals("Job was not created successfully", test, mTransporterPort.jobStatus(test.getJobIdentifier()));
+    @Test(expected = UnavailableTransportFault_Exception.class)
+    public void simpleReject(@Mocked final TransporterClient transporterClient) throws Exception {
+
+        // Preparation code not specific to JMockit, if any.
+        final String ORIGIN = "Lisboa";
+        final String DESTINATION = "Porto";
+        final String NAME = "UpaTransporter1";
+        final int PRICE = 7;
+
+        new Expectations() {{
+            transporterClient.requestJob(ORIGIN, DESTINATION, PRICE);
+            result = null;
+        }};
+
+        // Unit under test is exercised.
+        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        transporterClientTreeMap.put(NAME, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        brokerPort.requestTransport(ORIGIN, DESTINATION, PRICE);
+
+        new Verifications() {{
+            transporterClient.requestJob(ORIGIN, DESTINATION, PRICE); maxTimes = 1;
+        }};
+
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void wrongDestination(@Mocked final TransporterClient transporterClient) throws Exception {
+
+        final String ORIGIN = "Lisboa";
+        final String DESTINATION = "Canal Caveira";
+        final String NAME = "UpaTransporter1";
+        final int PRICE = 7;
+
+
+        // Unit under test is exercised.
+        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        transporterClientTreeMap.put(NAME, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        brokerPort.requestTransport(ORIGIN, DESTINATION, PRICE);
+
+
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void wrongOrigin(@Mocked final TransporterClient transporterClient) throws Exception {
+
+        final String ORIGIN = "Corral de Moinas";
+        final String DESTINATION = "Lisboa";
+        final String NAME = "UpaTransporter1";
+        final int PRICE = 7;
+
+
+        // Unit under test is exercised.
+        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        transporterClientTreeMap.put(NAME, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        brokerPort.requestTransport(ORIGIN, DESTINATION, PRICE);
+
+
+    }
+
+    @Test(expected = InvalidPriceFault_Exception.class)
+    public void wrongPrice(@Mocked final TransporterClient transporterClient) throws Exception {
+
+        final String ORIGIN = "Porto";
+        final String DESTINATION = "Lisboa";
+        final String NAME = "UpaTransporter1";
+        final int PRICE = -7;
+
+
+        // Unit under test is exercised.
+        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        transporterClientTreeMap.put(NAME, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        brokerPort.requestTransport(ORIGIN, DESTINATION, PRICE);
+
+
+    }
+
+
+
+
+    /* =======================================================
+    *                       Small tests
+    *  ======================================================= */
+    /*@Test
+    public void pingTest(@Mocked final TransporterClient transporterClient){
+        final String NAME = "UpaTransporter1";
+        final String HELLO = "Hello!";
+       final String HOLA = "Hola!";
+        new Expectations() {{
+            transporterClient.ping(HELLO);
+            result = HOLA;
+        }};
+
+        // Unit under test is exercised.
+        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        transporterClientTreeMap.put(NAME, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        String returnedFromTest = brokerPort.ping(HELLO);
+
+        // One or more invocations to mocked types, causing expectations to be verified.
+        new Verifications() {{
+            // Verifies that zero or one invocations occurred, with the specified argument value:
+            transporterClient.ping(HELLO); maxTimes = 1;
+        }};
+
+
+        // Additional verification code, if any, either here or before the verification block.
+        final String EXPECTED = String.format("%s", HOLA);
+        assertEquals("Server didn't answer", EXPECTED, returnedFromTest);
+
+    }*/
+
+    @Test
+    public void listTest(@Mocked final TransporterClient transporterClient){
+        final String NAME = "UpaTransporter1";
+
+
+        // Unit under test is exercised.
+        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        transporterClientTreeMap.put(NAME, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        List<TransportView> returnedFromTest = brokerPort.listTransports();
+
+        assertNotNull("List was null", returnedFromTest);
 
     }
 
     @Test
-    public void jobWithPriceAbove100() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        JobView test;
-        test = mTransporterPort.requestJob("Porto", "Lisboa", 200);
-        assertNull("JobView was not null.", test);
-    }
+    public void clearTest(@Mocked final TransporterClient transporterClient){
+        final String NAME = "UpaTransporter1";
 
-    *//* Como e que se faz um test para ver se o preco orcamentado e menor ?*//*
 
-    @Test(expected = BadLocationFault_Exception.class)
-    public void jobWithInvalidOrigin() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPort.requestJob("Orgrimmar", "Lisboa", 50);
-    }
+        // Unit under test is exercised.
+        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        transporterClientTreeMap.put(NAME, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
-    @Test(expected = BadLocationFault_Exception.class)
-    public void jobWithInvalidDestination() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPort.requestJob("Porto", "Stormwind", 50);
-    }
+        brokerPort.clearTransports();
+        List<TransportView> returnedFromTest = brokerPort.listTransports();
 
-    @Test(expected = BadPriceFault_Exception.class)
-    public void jobWithInvalidPrice() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPort.requestJob("Porto", "Lisboa", -5);
+
+        assertEquals("List wasn't cleared", returnedFromTest.size(), 0);
+
     }
-*/
 }
