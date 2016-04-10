@@ -113,7 +113,7 @@ public class TransporterPort implements TransporterPortType {
         JobView jobView = mJobs.get(id);
         if(accept) {
             jobView.setJobState(ACCEPTED);
-            (new ChangeJobStatusThread(jobView)).run();
+            new ChangeJobStatusTask(jobView);
         }else
             jobView.setJobState(REJECTED);
         return jobView;
