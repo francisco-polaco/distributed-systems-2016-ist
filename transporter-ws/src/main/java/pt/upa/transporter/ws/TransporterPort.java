@@ -24,6 +24,7 @@ public class TransporterPort implements TransporterPortType {
 
     private ConcurrentHashMap<String, JobView> mJobs = new ConcurrentHashMap<>();
     private ArrayList<String> mLocations = new ArrayList<>();
+    private ArrayList<String> mKnownLocations = new ArrayList<>();
     private Random mRandom = new Random();
 
 
@@ -40,11 +41,16 @@ public class TransporterPort implements TransporterPortType {
             mLocations.addAll(Arrays.asList("Porto",
                     "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
             mNorthRegion = true;
+            mKnownLocations.addAll(Arrays.asList("Setubal",
+                    "Evora", "Portalegre", "Beja", "Faro"));
         } else {
             mLocations.addAll(Arrays.asList("Setubal",
                     "Evora", "Portalegre", "Beja", "Faro"));
             mNorthRegion = false;
+            mKnownLocations.addAll(Arrays.asList("Porto",
+                    "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
         }
+        mKnownLocations.addAll(mLocations);
     }
 
     @Override
@@ -67,7 +73,7 @@ public class TransporterPort implements TransporterPortType {
             throw new BadPriceFault_Exception("Price is below 0.", new BadPriceFault());
         }else {
             JobView jobView = null;
-            if (price <= 100) {
+            if (price <= 100 && (doIWorkHere(origin) || doIWorkHere(destination))) {
                 jobView = new JobView();
                 String id = Long.toString(TransporterPort.idSeed++);
                 jobView.setJobDestination(destination);
@@ -99,7 +105,11 @@ public class TransporterPort implements TransporterPortType {
     }
 
     private boolean isAInvalidRegion(String location) {
-        return !mLocations.contains(location);
+        return !mKnownLocations.contains(location);
+    }
+
+    private boolean doIWorkHere(String location) {
+        return mLocations.contains(location);
     }
 
 
@@ -113,7 +123,7 @@ public class TransporterPort implements TransporterPortType {
         JobView jobView = mJobs.get(id);
         if(accept) {
             jobView.setJobState(ACCEPTED);
-            (new ChangeJobStatusThread(jobView)).run();
+            new ChangeJobStatusTask(jobView);
         }else
             jobView.setJobState(REJECTED);
         return jobView;

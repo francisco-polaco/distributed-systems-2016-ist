@@ -55,7 +55,7 @@ public class BrokerPort implements BrokerPortType{
     @Override
     public String requestTransport(String origin, String destination, int price)
             throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception,
-            UnknownLocationFault_Exception, BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
+            UnknownLocationFault_Exception {
 
         if(invalidPrice(price))
             throw new InvalidPriceFault_Exception("Price is below 0.", new InvalidPriceFault());
@@ -65,13 +65,19 @@ public class BrokerPort implements BrokerPortType{
 
         for (String companyName : allTransporters.keySet()){
             TransportView transport = creatTransportView(origin, destination, price, companyName);
-            JobView Offer = allTransporters.get(companyName).requestJob(transport.getOrigin(),
-                    transport.getDestination(),transport.getPrice());
-            if((Offer != null) && !(Offer.getJobState().value().equals("REJECTED"))){
-                transport.setPrice(Offer.getJobPrice());
+            JobView offer = null;
+            try{
+                offer = allTransporters.get(companyName).requestJob(transport.getOrigin(),
+                        transport.getDestination(),transport.getPrice());
+            }catch (Exception e){
+                // FIXME: JP
+                e.getMessage();
+            }
+            if((offer != null) && !(offer.getJobState().value().equals("REJECTED"))){
+                transport.setPrice(offer.getJobPrice());
                 transport.setState(BUDGETED);
                 jobOffers.put(transport.getId(), transport);
-                IdConvTable.put(transport.getId(),Offer.getJobIdentifier());
+                IdConvTable.put(transport.getId(),offer.getJobIdentifier());
                 setJobOffer(true);
             }
             else
@@ -80,8 +86,14 @@ public class BrokerPort implements BrokerPortType{
 
         if(!JobOffer)
             throw new UnavailableTransportFault_Exception("No Transport Available", new UnavailableTransportFault());
-
-        return jobDecision(price).getId();
+        // FIXME: JP
+        String id = null;
+        try{
+            id = jobDecision(price).getId();
+        }catch (BadJobFault_Exception e){
+            e.getMessage();
+        }
+        return id;
     }
 
     @Override
