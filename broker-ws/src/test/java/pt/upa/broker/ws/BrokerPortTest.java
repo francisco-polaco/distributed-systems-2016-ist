@@ -1,6 +1,7 @@
 package pt.upa.broker.ws;
 
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Verifications;
 import org.junit.*;
@@ -201,10 +202,10 @@ public class BrokerPortTest {
     *  ======================================================= */
 
     @Test
-    public void multipleAccept(@Mocked final TransporterClient transporterClient1,
-                               @Mocked final TransporterClient transporterClient2,
-                               @Mocked final TransporterClient transporterClient3,
-                               @Mocked final TransporterClient transporterClient4) throws Exception {
+    public void multipleAccept(@Mocked @Injectable final TransporterClient transporterClient1,
+                               @Mocked @Injectable final TransporterClient transporterClient2,
+                               @Mocked @Injectable final TransporterClient transporterClient3,
+                               @Mocked @Injectable final TransporterClient transporterClient4) throws Exception {
         // Preparation code not specific to JMockit, if any.
         final String ORIGIN = "Lisboa";
         final String DESTINATION = "Porto";
@@ -223,7 +224,7 @@ public class BrokerPortTest {
             jb1.setJobDestination(DESTINATION);
             jb1.setJobOrigin(ORIGIN);
             jb1.setJobIdentifier(IDs[0]);
-            jb1.setCompanyName(NAME+1);
+            jb1.setCompanyName(NAME + 1);
             result = jb1;
 
             transporterClient2.requestJob(ORIGIN, DESTINATION, CUSTOMER_PRICE);
@@ -258,42 +259,42 @@ public class BrokerPortTest {
 
             transporterClient1.decideJob(IDs[0], false);
             JobView jb11 = new JobView();
-            jb2.setJobState(JobStateView.REJECTED);
-            jb2.setJobPrice(PRICES[0]);
-            jb2.setJobDestination(DESTINATION);
-            jb2.setJobOrigin(ORIGIN);
-            jb2.setJobIdentifier(IDs[0]);
-            jb2.setCompanyName(NAME + 1);
+            jb11.setJobState(JobStateView.REJECTED);
+            jb11.setJobPrice(PRICES[0]);
+            jb11.setJobDestination(DESTINATION);
+            jb11.setJobOrigin(ORIGIN);
+            jb11.setJobIdentifier(IDs[0]);
+            jb11.setCompanyName(NAME + 1);
             result = jb11;
             
             transporterClient2.decideJob(IDs[1], false);
             JobView jb22 = new JobView();
-            jb2.setJobState(JobStateView.REJECTED);
-            jb2.setJobPrice(PRICES[1]);
-            jb2.setJobDestination(DESTINATION);
-            jb2.setJobOrigin(ORIGIN);
-            jb2.setJobIdentifier(IDs[1]);
-            jb2.setCompanyName(NAME + 2);
+            jb22.setJobState(JobStateView.REJECTED);
+            jb22.setJobPrice(PRICES[1]);
+            jb22.setJobDestination(DESTINATION);
+            jb22.setJobOrigin(ORIGIN);
+            jb22.setJobIdentifier(IDs[1]);
+            jb22.setCompanyName(NAME + 2);
             result = jb22;
             
             transporterClient3.decideJob(IDs[2], true);
             JobView jb33 = new JobView();
-            jb2.setJobState(JobStateView.ACCEPTED);
-            jb2.setJobPrice(PRICES[2]);
-            jb2.setJobDestination(DESTINATION);
-            jb2.setJobOrigin(ORIGIN);
-            jb2.setJobIdentifier(IDs[2]);
-            jb2.setCompanyName(NAME + 3);
+            jb33.setJobState(JobStateView.ACCEPTED);
+            jb33.setJobPrice(PRICES[2]);
+            jb33.setJobDestination(DESTINATION);
+            jb33.setJobOrigin(ORIGIN);
+            jb33.setJobIdentifier(IDs[2]);
+            jb33.setCompanyName(NAME + 3);
             result = jb33;
             
             transporterClient4.decideJob(IDs[3], false);
             JobView jb44 = new JobView();
-            jb2.setJobState(JobStateView.REJECTED);
-            jb2.setJobPrice(PRICES[3]);
-            jb2.setJobDestination(DESTINATION);
-            jb2.setJobOrigin(ORIGIN);
-            jb2.setJobIdentifier(IDs[3]);
-            jb2.setCompanyName(NAME + 4);
+            jb44.setJobState(JobStateView.REJECTED);
+            jb44.setJobPrice(PRICES[3]);
+            jb44.setJobDestination(DESTINATION);
+            jb44.setJobOrigin(ORIGIN);
+            jb44.setJobIdentifier(IDs[3]);
+            jb44.setCompanyName(NAME + 4);
             result = jb44;
             
         }};
@@ -312,17 +313,17 @@ public class BrokerPortTest {
         // One or more invocations to mocked types, causing expectations to be verified.
         new Verifications() {{
             // Verifies that zero or one invocations occurred, with the specified argument value:
-            transporterClient1.requestJob(ORIGIN, DESTINATION, CUSTOMER_PRICE); maxTimes = 1;
+           transporterClient1.requestJob(ORIGIN, DESTINATION, CUSTOMER_PRICE); maxTimes = 1;
             transporterClient2.requestJob(ORIGIN, DESTINATION, CUSTOMER_PRICE); maxTimes = 1;
             transporterClient3.requestJob(ORIGIN, DESTINATION, CUSTOMER_PRICE); maxTimes = 1;
             transporterClient4.requestJob(ORIGIN, DESTINATION, CUSTOMER_PRICE); maxTimes = 1;
             //transporterClient1.decideJob(IDs[0], true); maxTimes = 0;
-           /* transporterClient1.decideJob(IDs[0], false); maxTimes = 1;
+          //  transporterClient1.decideJob(IDs[0], false); maxTimes = 1;
             //transporterClient2.decideJob(IDs[1], true); maxTimes = 0;
-            transporterClient2.decideJob(IDs[1], false); maxTimes = 1;
+            //transporterClient2.decideJob(IDs[1], false); maxTimes = 1;
             transporterClient3.decideJob(IDs[2], true); maxTimes = 1;
             //transporterClient4.decideJob(IDs[3], true); maxTimes = 0;
-            transporterClient4.decideJob(IDs[3], false); maxTimes = 1;*/
+            //transporterClient4.decideJob(IDs[3], false); maxTimes = 1;
         }};
 
 
@@ -337,8 +338,8 @@ public class BrokerPortTest {
             if(tv.getId().equals(EXPECTED)){
                 itWorks = true;
                 assertEquals("Job wasn't booked.", TransportStateView.BOOKED, tv.getState());
-            }
-            assertEquals("Job wasn't set as failed.", TransportStateView.FAILED, tv.getState());
+            }else
+                assertEquals("Job wasn't set as failed.", TransportStateView.FAILED, tv.getState());
         }
 
         assertEquals("Job wasn't listed.", itWorks, true);

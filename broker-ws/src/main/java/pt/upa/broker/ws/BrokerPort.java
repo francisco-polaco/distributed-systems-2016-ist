@@ -5,8 +5,6 @@ import javax.xml.registry.JAXRException;
 import java.util.*;
 
 import pt.upa.transporter.ws.BadJobFault_Exception;
-import pt.upa.transporter.ws.BadLocationFault_Exception;
-import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
 import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
@@ -44,6 +42,7 @@ public class BrokerPort implements BrokerPortType{
 
     public BrokerPort(TreeMap<String, TransporterClient> transporters){
         allTransporters = transporters;
+        System.out.println("Tamanho da cena: " + transporters.size());
     }
 
     @Override
@@ -63,25 +62,29 @@ public class BrokerPort implements BrokerPortType{
         if(isInalidLocation(origin) || isInalidLocation(destination))
             throw new UnknownLocationFault_Exception("Unknown Location.", new UnknownLocationFault());
 
+        System.out.println(allTransporters.keySet());
         for (String companyName : allTransporters.keySet()){
-            TransportView transport = creatTransportView(origin, destination, price, companyName);
+            TransportView transport = createTransportView(origin, destination, price, companyName);
             JobView offer = null;
             try{
                 offer = allTransporters.get(companyName).requestJob(transport.getOrigin(),
                         transport.getDestination(),transport.getPrice());
             }catch (Exception e){
                 // FIXME: JP
-                e.getMessage();
+                System.out.println(e.getMessage());
             }
             if((offer != null) && !(offer.getJobState().value().equals("REJECTED"))){
+                //FIXME
                 transport.setPrice(offer.getJobPrice());
                 transport.setState(BUDGETED);
                 jobOffers.put(transport.getId(), transport);
-                IdConvTable.put(transport.getId(),offer.getJobIdentifier());
+                IdConvTable.put(transport.getId(), offer.getJobIdentifier());
                 setJobOffer(true);
+
             }
-            else
+            else {
                 transport.setState(FAILED);
+            }
         }
 
         if(!JobOffer)
@@ -98,6 +101,9 @@ public class BrokerPort implements BrokerPortType{
 
     @Override
     public TransportView viewTransport(String id)  throws UnknownTransportFault_Exception{
+        if(!jobOffers.containsKey(id)){
+            throw new UnknownTransportFault_Exception(id, new UnknownTransportFault());
+        }
         updateView(jobOffers.get(id));
         return jobOffers.get(id);
     }
@@ -136,7 +142,7 @@ public class BrokerPort implements BrokerPortType{
         return companyName;
     }
 
-    public TransportView creatTransportView(String origin, String destination, int price, String companyName){
+    public TransportView createTransportView(String origin, String destination, int price, String companyName){
         TransportView transport = new TransportView();
         String id = Long.toString(idSeed++);
         transport.setTransporterCompany(companyName);
@@ -149,25 +155,33 @@ public class BrokerPort implements BrokerPortType{
     }
 
     private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception, BadJobFault_Exception {
-        TransportView bestOffer = null;
 
-        for (TransportView offer : jobOffers.values()){
-            if (bestOffer == null)
+        TransportView bestOffer = null;
+        ArrayList<TransportView> t = new ArrayList<>();
+        t.addAll(jobOffers.values());
+
+        for (TransportView offer : t){
+            if (bestOffer == null) {
                 bestOffer = offer;
+            }
+
             if(bestOffer.getPrice() > offer.getPrice()){
+
                 allTransporters.get(bestOffer.getTransporterCompany()).decideJob(IdConvTable.get(bestOffer.getId()), false);
                 bestOffer.setState(FAILED);
                 bestOffer = offer;
-            }
-            else{
+            } else{
+
                 allTransporters.get(offer.getTransporterCompany()).decideJob(IdConvTable.get(offer.getId()), false);
                 offer.setState(FAILED);
             }
         }
 
-        if(bestOffer.getPrice() > price)
-
+        if(bestOffer.getPrice() > price) {
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
+        }
+
+
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(IdConvTable.get(bestOffer.getId()), true);
         bestOffer.setState(BOOKED);
 
