@@ -63,7 +63,7 @@ public class TransporterPortTest implements AbstractTest {
 
     @Test
     public void requestJobPriceEven(){
-        int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",9).getJobPrice();
+        //int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",9).getJobPrice();
         assertEquals("List doesn't have the right Jobs.", mTransporterPortImp.listJobs().size(), 1);
     }
 
