@@ -56,7 +56,7 @@ public class TransporterPort implements TransporterPortType {
 
     @Override
     public String ping(String name) {
-        System.out.println("Received: " + name);
+        System.out.println("Ping Received: " + name);
         GregorianCalendar rightNow = new GregorianCalendar();
         return mCompanyName + ": " +  rightNow.get(Calendar.HOUR_OF_DAY) + ":" +
                 rightNow.get(Calendar.MINUTE) + ":" + rightNow.get(Calendar.SECOND) +
@@ -124,7 +124,7 @@ public class TransporterPort implements TransporterPortType {
         JobView jobView = mJobs.get(id);
         if(accept) {
             jobView.setJobState(ACCEPTED);
-            new ChangeJobStatusTask(jobView, mRandom);
+            new ChangeJobStatusTask(jobView, mRandom, 0);
         }else
             jobView.setJobState(REJECTED);
         return jobView;
