@@ -39,6 +39,10 @@ public class BrokerClient {
         requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
     }
 
+    public BrokerPortType getPort(){
+        return mPort;
+    }
+
 
     public String ping(String message) {
         return mPort.ping(message);
@@ -59,12 +63,12 @@ public class BrokerClient {
     }
 
 
-    public List<TransportView> listTransports(TransporterPortType port) {
+    public List<TransportView> listTransports(BrokerPortType port) {
         return mPort.listTransports();
     }
 
 
-    public void clearTransports(TransporterPortType port) {
+    public void clearTransports(BrokerPortType port) {
         mPort.clearTransports();
     }
 }

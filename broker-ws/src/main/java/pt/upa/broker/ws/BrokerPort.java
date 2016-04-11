@@ -94,7 +94,7 @@ public class BrokerPort implements BrokerPortType{
         try{
             id = jobDecision(price).getId();
         }catch (BadJobFault_Exception e){
-            e.getMessage();
+            System.out.println(e.getMessage());
         }
         return id;
     }

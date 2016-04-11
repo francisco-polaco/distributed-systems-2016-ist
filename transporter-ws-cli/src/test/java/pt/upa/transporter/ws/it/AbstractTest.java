@@ -4,6 +4,8 @@ import org.junit.*;
 
 import javax.xml.registry.JAXRException;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 
 /** Test suite */
@@ -26,7 +28,7 @@ public interface AbstractTest {
 
     // initialization and clean-up for each test
     @Before
-    public void setUp() throws JAXRException;
+    public void setUp() throws JAXRException, IOException;
 
     @After
     public void tearDown();
