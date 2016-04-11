@@ -143,12 +143,12 @@ public class BrokerPort implements BrokerPortType{
             if (bestOffer == null)
                 bestOffer = offer;
             if(bestOffer.getPrice() > offer.getPrice()){
-                allTransporters.get(bestOffer.getTransporterCompany()).decideJob(bestOffer.getId(), false);
+                allTransporters.get(bestOffer.getTransporterCompany()).decideJob(IdConvTable.get(bestOffer.getId()), false);
                 bestOffer.setState(FAILED);
                 bestOffer = offer;
             }
             else{
-                allTransporters.get(offer.getTransporterCompany()).decideJob(offer.getId(), false);
+                allTransporters.get(offer.getTransporterCompany()).decideJob(IdConvTable.get(offer.getId()), false);
                 offer.setState(FAILED);
             }
         }
@@ -156,7 +156,7 @@ public class BrokerPort implements BrokerPortType{
         if(bestOffer.getPrice() > price)
 
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
-        allTransporters.get(bestOffer.getTransporterCompany()).decideJob(bestOffer.getId(), true);
+        allTransporters.get(bestOffer.getTransporterCompany()).decideJob(IdConvTable.get(bestOffer.getId()), true);
         bestOffer.setState(BOOKED);
 
         return bestOffer;

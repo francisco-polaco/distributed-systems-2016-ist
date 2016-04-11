@@ -62,6 +62,12 @@ public class TransporterPortTest implements AbstractTest {
     }
 
     @Test
+    public void requestJobPriceEven(){
+        int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",9).getJobPrice();
+        assertEquals("List doesn't have the right Jobs.", mTransporterPortImp.listJobs().size(), 1);
+    }
+
+    @Test
     public void JobImp(){
         assertNotNull("Job didn't exist.",  mTransporterPortImp.jobStatus(_idImp));
     }
@@ -74,6 +80,7 @@ public class TransporterPortTest implements AbstractTest {
     @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidDestinationImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
         mTransporterPortImp.requestJob("Lisboa", "Braga", 50);
+
     }
 
     @Test(expected = BadPriceFault_Exception.class)
