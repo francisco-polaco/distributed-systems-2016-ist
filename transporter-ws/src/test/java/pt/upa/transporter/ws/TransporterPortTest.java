@@ -79,7 +79,7 @@ public class TransporterPortTest implements AbstractTest {
 
     @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidDestinationImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortImp.requestJob("Lisboa", "Braga", 50);
+        mTransporterPortImp.requestJob("Lisboa", "Bragaa", 50);
 
     }
 
@@ -99,12 +99,12 @@ public class TransporterPortTest implements AbstractTest {
 //-------------------------- Par ---------------------------------------------------------------------------
     @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidOriginPar() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortPar.requestJob("Beja", "Lisboa", 50);
+        mTransporterPortPar.requestJob("Bejaaa", "Lisboa", 50);
     }
 
     @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidDestinationPar() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortPar.requestJob("Lisboa", "Faro", 50);
+        mTransporterPortPar.requestJob("Lisboa", "Faraoh", 50);
     }
 
     @Test(expected = BadPriceFault_Exception.class)

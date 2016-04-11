@@ -3,6 +3,7 @@ package pt.upa.transporter.ws;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -16,14 +17,14 @@ public class ChangeJobStatusTask extends TimerTask {
     private JobView mJobView;
     private Timer mTimer;
     private int mStatePointer;
-    private Random mRandom;
-    private ReentrantLock mLock;
+    private ThreadLocalRandom mRandom;
+    private static ReentrantLock mLock;
 
 
-    public ChangeJobStatusTask(JobView jobView){
+    public ChangeJobStatusTask(JobView jobView, ThreadLocalRandom random){
         mJobView = jobView;
         mTimer = new Timer();
-        mRandom = new Random();
+        mRandom = random;
         mLock = new ReentrantLock();
         mStatePointer = 0;
         mTimer.schedule(this, mRandom.nextInt(BOUND));

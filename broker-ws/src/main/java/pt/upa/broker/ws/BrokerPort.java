@@ -27,7 +27,6 @@ public class BrokerPort implements BrokerPortType{
     private ArrayList<String> center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
     private ArrayList<String> south =  new ArrayList<>(Arrays.asList("Setubal", "Evora", "Portalegre", "Beja", "Faro"));
     private long idSeed = 0;
-    private boolean jobOffer = false;
 
 
     public BrokerPort() {
@@ -68,7 +67,7 @@ public class BrokerPort implements BrokerPortType{
 
         if(isInvalidLocation(origin) || isInvalidLocation(destination))
             throw new UnknownLocationFault_Exception("Unknown Location.", new UnknownLocationFault());
-
+        boolean jobOffer = false;
         for (String companyName : allTransporters.keySet()){
             TransportView transport = createTransportView(origin, destination, price, companyName);
             JobView offer = null;
@@ -85,7 +84,7 @@ public class BrokerPort implements BrokerPortType{
                 transport.setState(BUDGETED);
                 jobOffers.put(transport.getId(), transport);
                 idConvTable.put(transport.getId(), offer.getJobIdentifier());
-                setJobOffer(true);
+                jobOffer = true;
 
             }
             else {
@@ -129,6 +128,8 @@ public class BrokerPort implements BrokerPortType{
         for(TransporterClient transporters : allTransporters.values())
             transporters.clearJobs();
         jobOffers.clear();
+        idConvTable.clear();
+        idSeed = 0;
     }
 
     private void getAllTransporters(String uddiURL) throws JAXRException {
@@ -216,8 +217,6 @@ public class BrokerPort implements BrokerPortType{
         return (price < 0);
     }
 
-    private void setJobOffer(boolean s) {
-        jobOffer = s;}
 
 }
 

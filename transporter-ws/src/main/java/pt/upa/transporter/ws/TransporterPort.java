@@ -3,6 +3,7 @@ package pt.upa.transporter.ws;
 import javax.jws.WebService;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static pt.upa.transporter.ws.JobStateView.*;
 
@@ -25,7 +26,7 @@ public class TransporterPort implements TransporterPortType {
     private ConcurrentHashMap<String, JobView> mJobs = new ConcurrentHashMap<>();
     private ArrayList<String> mLocations = new ArrayList<>();
     private ArrayList<String> mKnownLocations = new ArrayList<>();
-    private Random mRandom = new Random();
+    private ThreadLocalRandom mRandom =  ThreadLocalRandom.current();
 
 
     public TransporterPort(){
@@ -123,7 +124,7 @@ public class TransporterPort implements TransporterPortType {
         JobView jobView = mJobs.get(id);
         if(accept) {
             jobView.setJobState(ACCEPTED);
-            new ChangeJobStatusTask(jobView);
+            new ChangeJobStatusTask(jobView, mRandom);
         }else
             jobView.setJobState(REJECTED);
         return jobView;
@@ -146,6 +147,7 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public void clearJobs() {
         mJobs.clear();
+        idSeed = 0;
     }
 
 
