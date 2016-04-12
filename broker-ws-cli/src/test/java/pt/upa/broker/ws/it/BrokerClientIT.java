@@ -67,22 +67,18 @@ public class BrokerClientIT {
     @Test
     public void requestTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         String result = client.requestTransport("Lisboa", "Porto", 10);
+        System.out.println("=======================================1");
+        System.out.println(result);
         assertNotNull(result);
     }
 
     @Test
     public void viewTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnknownTransportFault_Exception {
         String id = client.requestTransport("Lisboa", "Porto", 10);
+        System.out.println("=======================================2");
+        System.out.println(id);
         TransportView result = client.viewTransport(id);
         assertNotNull(result);
-    }
-
-    @Test
-    public void listTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
-        client.clearTransports(client.getPort());
-        client.requestTransport("Lisboa", "Porto", 10);
-        List<TransportView> result = client.listTransports(client.getPort());
-        assertEquals("transport not in the list", 1, result.size());
     }
 
     @Test
