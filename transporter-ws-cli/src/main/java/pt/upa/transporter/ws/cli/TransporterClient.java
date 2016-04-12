@@ -54,9 +54,7 @@ public class TransporterClient{
     }
 
     public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
-        JobView jobView = null;
-        jobView = mPort.decideJob(id, accept);
-        return jobView;
+        return mPort.decideJob(id, accept);
     }
 
 

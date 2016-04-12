@@ -84,8 +84,8 @@ public class BrokerClientIT {
     @Test
     public void clearTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         client.requestTransport("Lisboa", "Porto", 10);
-        client.clearTransports(client.getPort());
-        List<TransportView> result = client.listTransports(client.getPort());
+        client.clearTransports();
+        List<TransportView> result = client.listTransports();
         assertEquals("transport not deleted from the list", 0, result.size());
     }
 

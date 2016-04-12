@@ -31,7 +31,7 @@ public class ChangeJobStatusTask extends TimerTask {
     }
 
     public void run() {
-        System.out.println("Welcome to the best TimerTask! This will be the " + mStatePointer + 1 + "th time.");
+        System.out.println("Welcome to the best TimerTask! This will be the " + (mStatePointer + 1) + "th time.");
         mLock.lock();
         mJobView.setJobState(states[mStatePointer++]);
         mLock.unlock();

@@ -63,12 +63,12 @@ public class BrokerClient {
     }
 
 
-    public List<TransportView> listTransports(BrokerPortType port) {
+    public List<TransportView> listTransports() {
         return mPort.listTransports();
     }
 
 
-    public void clearTransports(BrokerPortType port) {
+    public void clearTransports() {
         mPort.clearTransports();
     }
 }
