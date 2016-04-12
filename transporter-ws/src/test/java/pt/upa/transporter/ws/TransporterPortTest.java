@@ -34,6 +34,18 @@ public class TransporterPortTest implements AbstractTest {
         mTransporterPortImp = null;
     }
 
+    @Test(expected = BadLocationFault_Exception.class)
+    public void jobWithInvalidOrigin() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        mTransporterPortPar.requestJob("Espanha", "Lisboa", 50);
+    }
+
+    @Test(expected = BadLocationFault_Exception.class)
+    public void jobWithInvalidDestination() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        mTransporterPortPar.requestJob("Lisboa", "Praga", 50);
+    }
+
+
+
    /* @Test
     public void jobWasCreated() throws BadLocationFault_Exception, BadPriceFault_Exception {
         assertEquals("Job was not created successfully", test, mTransporterPort.jobStatus(test.getJobIdentifier()));*/
@@ -72,15 +84,14 @@ public class TransporterPortTest implements AbstractTest {
         assertNotNull("Job didn't exist.",  mTransporterPortImp.jobStatus(_idImp));
     }
 
-    @Test(expected = BadLocationFault_Exception.class)
-    public void jobWithInvalidOriginImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortImp.requestJob("Port", "Lisboa", 50);
+    @Test
+    public void jobWithInvalidOriginImp(){
+       assertNull("Origin out of range", mTransporterPortImp.requestJob("Port", "Lisboa", 50));
     }
 
     @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidDestinationImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
         mTransporterPortImp.requestJob("Lisboa", "Braga", 50);
-
     }
 
     @Test(expected = BadPriceFault_Exception.class)
