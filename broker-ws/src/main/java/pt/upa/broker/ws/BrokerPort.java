@@ -22,6 +22,7 @@ public class BrokerPort implements BrokerPortType{
 
     private TreeMap<String, TransporterClient> allTransporters = new TreeMap<>();
     private TreeMap<String, TransportView> jobOffers = new TreeMap<>();
+    private TreeMap<String, TransportView> jobOffers_aux = new TreeMap<>();
     private TreeMap<String, String> idConvTable = new TreeMap<>();
     private ArrayList<String> north = new ArrayList<>(Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
     private ArrayList<String> center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
@@ -82,7 +83,7 @@ public class BrokerPort implements BrokerPortType{
                 //FIXME
                 transport.setPrice(offer.getJobPrice());
                 transport.setState(BUDGETED);
-                jobOffers.put(transport.getId(), transport);
+                jobOffers_aux.put(transport.getId(), transport);
                 idConvTable.put(transport.getId(), offer.getJobIdentifier());
                 jobOffer = true;
 
@@ -163,7 +164,7 @@ public class BrokerPort implements BrokerPortType{
     private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception, BadJobFault_Exception {
 
         ArrayList<TransportView> transportViews = new ArrayList<>();
-        transportViews.addAll(jobOffers.values());
+        transportViews.addAll(jobOffers_aux.values());
 
         Collections.sort(transportViews, new Comparator<TransportView>() {
             @Override
@@ -179,6 +180,7 @@ public class BrokerPort implements BrokerPortType{
             if(!offer.equals(bestOffer)) {
                 offer.setState(FAILED);
                 allTransporters.get(offer.getTransporterCompany()).decideJob(idConvTable.get(offer.getId()), false);
+                jobOffers.put(offer.getId(),offer);
             }
 
         }
@@ -186,11 +188,17 @@ public class BrokerPort implements BrokerPortType{
         if(bestOffer.getPrice() > price) {
             bestOffer.setState(FAILED);
             allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), false);
+            jobOffers.put(bestOffer.getId(),bestOffer);
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
         }
 
         bestOffer.setState(BOOKED);
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
+<<<<<<< HEAD
+        jobOffers.put(bestOffer.getId(),bestOffer);
+        jobOffers_aux.clear();
+=======
+>>>>>>> 23c4e51c8feeea3ab77fe64fef3e20ee2e64fd16
         return bestOffer;
     }
 
