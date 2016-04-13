@@ -92,11 +92,11 @@ public class TransporterPort implements TransporterPortType {
                     if (price % 2 == 0)
                         jobView.setJobPrice(mRandom.nextInt(price));
                     else
-                        jobView.setJobPrice(mRandom.nextInt(price) + price);
+                        jobView.setJobPrice(100 - mRandom.nextInt(price));
 
                 } else { //odd id
                     if (price % 2 == 0)
-                        jobView.setJobPrice(mRandom.nextInt(price) + price);
+                        jobView.setJobPrice(100 - mRandom.nextInt(price));
                     else
                         jobView.setJobPrice(mRandom.nextInt(price));
                 }
