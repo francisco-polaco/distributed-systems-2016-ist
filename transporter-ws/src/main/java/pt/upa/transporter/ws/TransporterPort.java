@@ -4,6 +4,7 @@ import javax.jws.WebService;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static pt.upa.transporter.ws.JobStateView.*;
 
@@ -19,7 +20,7 @@ public class TransporterPort implements TransporterPortType {
 
     private static final int DEFAULT_PRICE = 7;
 
-    private static long idSeed = 0;
+    private static AtomicLong idSeed = new AtomicLong(0);
     private String mCompanyName;
     private boolean mNorthRegion;
 
@@ -76,7 +77,7 @@ public class TransporterPort implements TransporterPortType {
             JobView jobView = null;
             if (price <= 100 && (doIWorkHere(origin) || doIWorkHere(destination))) {
                 jobView = new JobView();
-                String id = Long.toString(TransporterPort.idSeed++);
+                String id = Long.toString(TransporterPort.idSeed.getAndIncrement());
                 jobView.setJobDestination(destination);
                 jobView.setJobIdentifier(id);
                 jobView.setCompanyName(mCompanyName);
@@ -147,7 +148,7 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public void clearJobs() {
         mJobs.clear();
-        idSeed = 0;
+        idSeed.set(0);
     }
 
 
