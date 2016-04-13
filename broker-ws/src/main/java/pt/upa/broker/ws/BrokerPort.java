@@ -166,14 +166,15 @@ public class BrokerPort implements BrokerPortType{
         ArrayList<TransportView> transportViews = new ArrayList<>();
         transportViews.addAll(jobOffers_aux.values());
 
-        Collections.sort(transportViews, new Comparator<TransportView>() {
-            @Override
-            public int compare(TransportView o1, TransportView o2) {
-                return o1.getPrice() - o2.getPrice();
-            }
-        });
-
-        //TODO -> CASO EM QUE O PRIMEIRO CASO ESTA ACEITE
+        if(transportViews.size() > 1) {
+            Collections.sort(transportViews, new Comparator<TransportView>() {
+                @Override
+                public int compare(TransportView o1, TransportView o2) {
+                    return o1.getPrice() - o2.getPrice();
+                }
+            });
+        }
+        //TODO -> CASO EM QUE O PRIMEIRO CASO ESTA ACEITE what??
         TransportView bestOffer = transportViews.get(0);
 
         for (TransportView offer : transportViews){
