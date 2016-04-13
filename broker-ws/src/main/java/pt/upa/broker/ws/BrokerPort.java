@@ -5,13 +5,10 @@ import javax.xml.registry.JAXRException;
 import java.util.*;
 
 import pt.upa.transporter.ws.BadJobFault_Exception;
-import pt.upa.transporter.ws.BadLocationFault_Exception;
-import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
 import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import java.util.List;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",
@@ -25,15 +22,14 @@ public class BrokerPort implements BrokerPortType{
 
     private TreeMap<String, TransporterClient> allTransporters = new TreeMap<>();
     private TreeMap<String, TransportView> jobOffers = new TreeMap<>();
-    private TreeMap<String, String> IdConvTable = new TreeMap<>();
-    private ArrayList<String> North = new ArrayList<>(Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
-    private ArrayList<String> Center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
-    private ArrayList<String> South =  new ArrayList<>(Arrays.asList("Setubal", "Evora", "Portalegre", "Beja", "Faro"));
+    private TreeMap<String, String> idConvTable = new TreeMap<>();
+    private ArrayList<String> north = new ArrayList<>(Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
+    private ArrayList<String> center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
+    private ArrayList<String> south =  new ArrayList<>(Arrays.asList("Setubal", "Evora", "Portalegre", "Beja", "Faro"));
     private long idSeed = 0;
-    private boolean JobOffer = false;
 
 
-    public BrokerPort() throws JAXRException {
+    public BrokerPort() {
         super();
     }
 
@@ -48,8 +44,17 @@ public class BrokerPort implements BrokerPortType{
 
     @Override
     public String ping(String name){
-        System.out.println("Received: " + name);
-        return "Ping: " + name;
+        System.out.println("Received Ping: " + name);
+        GregorianCalendar rightNow = new GregorianCalendar();
+        String result = "Broker: " + rightNow.get(Calendar.HOUR_OF_DAY) + ":" +
+                rightNow.get(Calendar.MINUTE) + ":" + rightNow.get(Calendar.SECOND) +
+                " --- " +
+                rightNow.get(Calendar.DAY_OF_MONTH) + "/" + rightNow.get(Calendar.MONTH) + "/" +
+                rightNow.get(Calendar.YEAR);;
+        for(String key : allTransporters.keySet()){
+            result += allTransporters.get(key).ping(name);
+        }
+        return result;
     }
 
     @Override
@@ -60,44 +65,50 @@ public class BrokerPort implements BrokerPortType{
         if(invalidPrice(price))
             throw new InvalidPriceFault_Exception("Price is below 0.", new InvalidPriceFault());
 
-        if(isInalidLocation(origin) || isInalidLocation(destination))
+        if(isInvalidLocation(origin) || isInvalidLocation(destination))
             throw new UnknownLocationFault_Exception("Unknown Location.", new UnknownLocationFault());
-
+        boolean jobOffer = false;
         for (String companyName : allTransporters.keySet()){
-            TransportView transport = creatTransportView(origin, destination, price, companyName);
+            TransportView transport = createTransportView(origin, destination, price, companyName);
             JobView offer = null;
             try{
                 offer = allTransporters.get(companyName).requestJob(transport.getOrigin(),
                         transport.getDestination(),transport.getPrice());
             }catch (Exception e){
                 // FIXME: JP
-                e.getMessage();
+                System.out.println(e.getMessage());
             }
             if((offer != null) && !(offer.getJobState().value().equals("REJECTED"))){
+                //FIXME
                 transport.setPrice(offer.getJobPrice());
                 transport.setState(BUDGETED);
                 jobOffers.put(transport.getId(), transport);
-                IdConvTable.put(transport.getId(),offer.getJobIdentifier());
-                setJobOffer(true);
+                idConvTable.put(transport.getId(), offer.getJobIdentifier());
+                jobOffer = true;
+
             }
-            else
+            else {
                 transport.setState(FAILED);
+            }
         }
 
-        if(!JobOffer)
+        if(!jobOffer)
             throw new UnavailableTransportFault_Exception("No Transport Available", new UnavailableTransportFault());
         // FIXME: JP
         String id = null;
         try{
             id = jobDecision(price).getId();
         }catch (BadJobFault_Exception e){
-            e.getMessage();
+            System.out.println(e.getMessage());
         }
         return id;
     }
 
     @Override
     public TransportView viewTransport(String id)  throws UnknownTransportFault_Exception{
+        if(!jobOffers.containsKey(id)){
+            throw new UnknownTransportFault_Exception(id, new UnknownTransportFault());
+        }
         updateView(jobOffers.get(id));
         return jobOffers.get(id);
     }
@@ -117,9 +128,11 @@ public class BrokerPort implements BrokerPortType{
         for(TransporterClient transporters : allTransporters.values())
             transporters.clearJobs();
         jobOffers.clear();
+        idConvTable.clear();
+        idSeed = 0;
     }
 
-    public void getAllTransporters(String uddiURL) throws JAXRException {
+    private void getAllTransporters(String uddiURL) throws JAXRException {
         UDDINaming uddiNaming = new UDDINaming(uddiURL);
         Collection<String> endpointAddress = uddiNaming.list("UpaTransporter%");
         for (String endpAdd :  endpointAddress) {
@@ -132,11 +145,10 @@ public class BrokerPort implements BrokerPortType{
         String[] companyPort = endpAdd.split("/");
         companyPort = companyPort[2].split(":");
         int companyNumber = Integer.parseInt(companyPort[1]) - 8080;
-        String companyName = "UpaTransporter" + companyNumber;
-        return companyName;
+        return "UpaTransporter" + companyNumber;
     }
 
-    public TransportView creatTransportView(String origin, String destination, int price, String companyName){
+    private TransportView createTransportView(String origin, String destination, int price, String companyName){
         TransportView transport = new TransportView();
         String id = Long.toString(idSeed++);
         transport.setTransporterCompany(companyName);
@@ -149,50 +161,62 @@ public class BrokerPort implements BrokerPortType{
     }
 
     private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception, BadJobFault_Exception {
-        TransportView bestOffer = null;
 
-        for (TransportView offer : jobOffers.values()){
-            if (bestOffer == null)
-                bestOffer = offer;
-            if(bestOffer.getPrice() > offer.getPrice()){
-                allTransporters.get(bestOffer.getTransporterCompany()).decideJob(IdConvTable.get(bestOffer.getId()), false);
-                bestOffer.setState(FAILED);
-                bestOffer = offer;
+
+        ArrayList<TransportView> transportViews = new ArrayList<>();
+        transportViews.addAll(jobOffers.values());
+
+        Collections.sort(transportViews, new Comparator<TransportView>() {
+            @Override
+            public int compare(TransportView o1, TransportView o2) {
+                return o1.getPrice() - o2.getPrice();
             }
-            else{
-                allTransporters.get(offer.getTransporterCompany()).decideJob(IdConvTable.get(offer.getId()), false);
+        });
+
+        TransportView bestOffer = transportViews.get(0);
+
+        for (TransportView offer : transportViews){
+            if(!offer.equals(bestOffer)) {
                 offer.setState(FAILED);
+                allTransporters.get(offer.getTransporterCompany()).decideJob(idConvTable.get(offer.getId()), false);
             }
         }
 
-        if(bestOffer.getPrice() > price)
-
+        if(bestOffer.getPrice() > price) {
+            bestOffer.setState(FAILED);
+            allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), false);
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
-        allTransporters.get(bestOffer.getTransporterCompany()).decideJob(IdConvTable.get(bestOffer.getId()), true);
+        }
+
         bestOffer.setState(BOOKED);
+        allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
 
         return bestOffer;
     }
 
-    public void updateView(TransportView transport){
-        JobView job = allTransporters.get(transport.getTransporterCompany()).jobStatus(IdConvTable.get(transport.getId()));
-        if(job.getJobState().value() == "HEADING")
-            transport.setState(HEADING);
-        if(job.getJobState().value() == "ONGOING")
-            transport.setState(ONGOING);
-        if(job.getJobState().value() == "COMPLETED")
-            transport.setState(COMPLETED);
+    private void updateView(TransportView transport){
+        JobView job = allTransporters.get(transport.getTransporterCompany()).jobStatus(idConvTable.get(transport.getId()));
+        switch (job.getJobState().value()) {
+            case "HEADING":
+                transport.setState(HEADING);
+                break;
+            case "ONGOING":
+                transport.setState(ONGOING);
+                break;
+            case "COMPLETED":
+                transport.setState(COMPLETED);
+                break;
+        }
     }
 
-    private boolean isInalidLocation(String location){
-        return !(North.contains(location) || South.contains(location) || Center.contains(location));
+    private boolean isInvalidLocation(String location){
+        return !(north.contains(location) || south.contains(location) || center.contains(location));
     }
 
     private boolean invalidPrice(int price){
         return (price < 0);
     }
 
-    private void setJobOffer(boolean s) {JobOffer = s;}
 
 }
 

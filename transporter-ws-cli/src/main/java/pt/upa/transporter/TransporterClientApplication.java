@@ -24,5 +24,7 @@ public class TransporterClientApplication {
 
 		TransporterClient clnt = new TransporterClient(args[0], args[1]);
 		System.out.println(clnt.ping("hello"));
+		clnt.decideJob(clnt.requestJob("Lisboa", "Porto", 7).getJobIdentifier(), true);
+
 	}
 }

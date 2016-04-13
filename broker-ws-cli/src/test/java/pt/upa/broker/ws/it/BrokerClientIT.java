@@ -1,10 +1,15 @@
 package pt.upa.broker.ws.it;
 
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
 import pt.upa.transporter.ws.TransporterPortType;
+
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.xml.registry.JAXRException;
 import java.util.List;
@@ -12,22 +17,43 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
-public class BrokerClientIT implements AbstractTest {
+public class BrokerClientIT {
+
+    private static final String TEST_PROP_FILE = "/test.properties";
 
     private static BrokerClient client;
 
-    private static String uddiURL = "";             //TODO WHAT DO???
-    private static String name = "";                //TODO
-    private static TransporterPortType mPort = null;//TODO
+    private static Properties props = null;
+
+    private static String uddiURL = "";
+    private static String name = "";
 
     //SETUP
-    @Override
-    public void setUp() throws JAXRException {
+    @BeforeClass
+    public static void oneTimeSetUp() throws IOException {
+        props = new Properties();
+        try {
+            props.load(BrokerClientIT.class.getResourceAsStream(TEST_PROP_FILE));
+        } catch (IOException e) {
+            final String msg = String.format("Could not load properties file {}", TEST_PROP_FILE);
+            System.out.println(msg);
+            throw e;
+        }
+        uddiURL = props.getProperty("uddi.url");
+        name = props.getProperty("ws.name");
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+    }
+
+    @BeforeClass
+    public static void setUp() throws JAXRException, IOException {
         client = new BrokerClient(uddiURL, name);
     }
 
-    @Override
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         client = null;
     }
 
@@ -53,16 +79,17 @@ public class BrokerClientIT implements AbstractTest {
 
     @Test
     public void listTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+        client.clearTransports(client.getPort());
         client.requestTransport("Lisboa", "Porto", 10);
-        List<TransportView> result = client.listTransports(mPort);
+        List<TransportView> result = client.listTransports(client.getPort());
         assertEquals("transport not in the list", 1, result.size());
     }
 
     @Test
     public void clearTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         client.requestTransport("Lisboa", "Porto", 10);
-        client.clearTransports(mPort);
-        List<TransportView> result = client.listTransports(mPort);
+        client.clearTransports(client.getPort());
+        List<TransportView> result = client.listTransports(client.getPort());
         assertEquals("transport not deleted from the list", 0, result.size());
     }
 

@@ -4,9 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Created by xxlxpto on 06-04-2016.
@@ -36,15 +34,39 @@ public class TransporterPortTest implements AbstractTest {
 
     @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidOrigin() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortPar.requestJob("Espanha", "Lisboa", 50);
+        mTransporterPortImp.requestJob("Lisboooa", "Braga", 50);
     }
 
     @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidDestination() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortPar.requestJob("Lisboa", "Praga", 50);
+        mTransporterPortImp.requestJob("Lisboa", "Bragaa", 50);
     }
 
+    @Test(expected = BadPriceFault_Exception.class)
+    public void jobWithInvalidPrice() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        mTransporterPortImp.requestJob("Faro", "Lisboa", -5);
+    }
 
+    @Test
+    public void jobWithPriceAbove() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        assertNull("Price Bellow 100", mTransporterPortImp.requestJob("Faro", "Lisboa", 101));
+    }
+
+    @Test
+    public void getJob(){
+        assertNotNull("Job didn't exist.",  mTransporterPortPar.jobStatus(_idPar));
+    }
+
+    @Test
+    public void listJob(){
+        assertEquals("List doesn't have the right Jobs.", mTransporterPortPar.listJobs().size(), 1);
+    }
+
+    @Test
+    public void clearJob(){
+        mTransporterPortPar.clearJobs();
+        assertEquals("Didn't delete all jobs.", mTransporterPortPar.listJobs().size(), 0);
+    }
 
    /* @Test
     public void jobWasCreated() throws BadLocationFault_Exception, BadPriceFault_Exception {
@@ -69,74 +91,53 @@ public class TransporterPortTest implements AbstractTest {
  //-------------------------- IMPAR ---------------------------------------------------------------------------
 
     @Test
-    public void listJobImp(){
-        assertEquals("List doesn't have the right Jobs.", mTransporterPortImp.listJobs().size(), 1);
+    public void requestJobPriceOddImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        boolean lowprice = false;
+        int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",19).getJobPrice();
+        if ( price < 19)
+            lowprice = true;
+        assertTrue("Price is above the client price", lowprice);
     }
 
     @Test
-    public void requestJobPriceEven(){
-        //int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",9).getJobPrice();
-        assertEquals("List doesn't have the right Jobs.", mTransporterPortImp.listJobs().size(), 1);
+    public void requestJobPriceEvenImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        boolean  highprice = false;
+        int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",18).getJobPrice();
+        if ( price > 18)
+            highprice = true;
+        assertTrue("Price is below the client price",  highprice);
     }
 
     @Test
-    public void JobImp(){
-        assertNotNull("Job didn't exist.",  mTransporterPortImp.jobStatus(_idImp));
-    }
-
-    @Test
-    public void jobWithInvalidOriginImp(){
-       assertNull("Origin out of range", mTransporterPortImp.requestJob("Port", "Lisboa", 50));
-    }
-
-    @Test(expected = BadLocationFault_Exception.class)
-    public void jobWithInvalidDestinationImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortImp.requestJob("Lisboa", "Braga", 50);
-    }
-
-    @Test(expected = BadPriceFault_Exception.class)
-    public void jobWithInvalidPriceImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortImp.requestJob("Faro", "Lisboa", -5);
-    }
-
-    @Test
-    public void clearJobImp(){
-        mTransporterPortImp.clearJobs();
-        assertEquals("Didn't delete all jobs.", mTransporterPortImp.listJobs().size(), 0);
+    public void jobWithInvalidRangeImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
+       assertNull("Origin out of range", mTransporterPortImp.requestJob("Porto", "Braga", 50));
     }
 
 //-------------------------------------------------------------------------------------------------------------
 
 //-------------------------- Par ---------------------------------------------------------------------------
-    @Test(expected = BadLocationFault_Exception.class)
-    public void jobWithInvalidOriginPar() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortPar.requestJob("Beja", "Lisboa", 50);
-    }
 
-    @Test(expected = BadLocationFault_Exception.class)
-    public void jobWithInvalidDestinationPar() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortPar.requestJob("Lisboa", "Faro", 50);
-    }
-
-    @Test(expected = BadPriceFault_Exception.class)
-    public void jobWithInvalidPricePar() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        mTransporterPortPar.requestJob("Porto", "Viseu", -5);
+    @Test
+    public void requestJobPriceOddPar() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        boolean  highprice = false;
+        int price =  mTransporterPortPar.requestJob("Lisboa", "Leiria",19).getJobPrice();
+        if ( price > 19)
+            highprice = true;
+        assertTrue("Price is below the client price",  highprice);
     }
 
     @Test
-    public void JobPar(){
-        assertNotNull("Job didn't exist.",  mTransporterPortPar.jobStatus(_idPar));
+    public void requestJobPriceEvenPar() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        boolean lowprice = false;
+        int price =  mTransporterPortPar.requestJob("Lisboa", "Leiria",18).getJobPrice();
+        if ( price < 18)
+            lowprice = true;
+        assertTrue("Price is above the client price", lowprice);
     }
 
     @Test
-    public void listJobPar(){
-        assertEquals("List doesn't have the right Jobs.", mTransporterPortPar.listJobs().size(), 1);
-    }
-
-    @Test
-    public void clearJobPar(){
-        mTransporterPortPar.clearJobs();
-        assertEquals("Didn't delete all jobs.", mTransporterPortPar.listJobs().size(), 0);
+    public void jobWithInvalidRangePar() throws BadLocationFault_Exception, BadPriceFault_Exception {
+       assertNull("Origin out of range", mTransporterPortPar.requestJob("Faro", "Beja", 50));
     }
 
 //-------------------------------------------------------------------------------------------------------------

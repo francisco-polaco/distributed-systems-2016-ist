@@ -1,6 +1,8 @@
 package pt.upa.transporter.ws.it;
 
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.BadLocationFault_Exception;
@@ -9,26 +11,50 @@ import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
 import javax.xml.registry.JAXRException;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
-public class TransporterClientTest implements AbstractTest{
+public class TransporterClientIT {
+
+    private static final String TEST_PROP_FILE = "/test.properties";
 
     private static TransporterClient client;
 
-    private static String uddiURL = "";             //TODO WHAT DO???
-    private static String name = "";                //TODO
+    private static Properties props = null;
+
+    private static String uddiURL = "";
+    private static String name = "";
 
     //SETUP
-    @Override
-    public void setUp() throws JAXRException {
+    @BeforeClass
+    public static void oneTimeSetUp() throws IOException {
+        props = new Properties();
+        try {
+            props.load(TransporterClientIT.class.getResourceAsStream(TEST_PROP_FILE));
+        } catch (IOException e) {
+            final String msg = String.format("Could not load properties file {}", TEST_PROP_FILE);
+            System.out.println(msg);
+            throw e;
+        }
+        uddiURL = props.getProperty("uddi.url");
+        name = props.getProperty("ws.name");
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+    }
+
+    @BeforeClass
+    public static void setUp() throws JAXRException {
         client = new TransporterClient(uddiURL, name);
     }
 
-    @Override
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         client = null;
     }
 
@@ -61,6 +87,7 @@ public class TransporterClientTest implements AbstractTest{
 
     @Test
     public void listJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        client.clearJobs();
         client.requestJob("Lisboa", "Porto", 10);
         List<JobView> result = client.listJobs();
         assertEquals("job not in the list", 1, result.size());
