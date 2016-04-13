@@ -194,11 +194,8 @@ public class BrokerPort implements BrokerPortType{
 
         bestOffer.setState(BOOKED);
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
-<<<<<<< HEAD
         jobOffers.put(bestOffer.getId(),bestOffer);
         jobOffers_aux.clear();
-=======
->>>>>>> 23c4e51c8feeea3ab77fe64fef3e20ee2e64fd16
         return bestOffer;
     }
 
