@@ -99,8 +99,10 @@ public class BrokerPort implements BrokerPortType{
         try{
             id = jobDecision(price).getId();
         }catch (BadJobFault_Exception e){
+            System.out.println("EXCEPCAO!!!!!");
             System.out.println(e.getMessage());
         }
+        System.out.println("ID A RETORNAR !!! : " + id);
         return id;
     }
 
@@ -162,7 +164,7 @@ public class BrokerPort implements BrokerPortType{
 
     private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception, BadJobFault_Exception {
 
-
+        System.out.println("SOU FIXE!!!!!!!!!");
         ArrayList<TransportView> transportViews = new ArrayList<>();
         transportViews.addAll(jobOffers.values());
 
@@ -173,6 +175,7 @@ public class BrokerPort implements BrokerPortType{
             }
         });
 
+        //TODO -> CASO EM QUE O PRIMEIRO CASO ESTA ACEITE
         TransportView bestOffer = transportViews.get(0);
 
         for (TransportView offer : transportViews){
@@ -180,6 +183,7 @@ public class BrokerPort implements BrokerPortType{
                 offer.setState(FAILED);
                 allTransporters.get(offer.getTransporterCompany()).decideJob(idConvTable.get(offer.getId()), false);
             }
+
         }
 
         if(bestOffer.getPrice() > price) {
@@ -191,6 +195,7 @@ public class BrokerPort implements BrokerPortType{
         bestOffer.setState(BOOKED);
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
 
+        //System.out.println("FDS " + bestOffer.getId());
         return bestOffer;
     }
 
