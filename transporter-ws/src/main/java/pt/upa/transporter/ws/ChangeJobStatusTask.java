@@ -27,7 +27,7 @@ public class ChangeJobStatusTask extends TimerTask {
         mRandom = random;
         mLock = new ReentrantLock();
         mStatePointer = statePointer;
-        mTimer.schedule(this, mRandom.nextInt(BOUND));
+        mTimer.schedule(this, mRandom.nextInt(BOUND) + 1000);
     }
 
     public void run() {

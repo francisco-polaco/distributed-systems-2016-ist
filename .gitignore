@@ -1,4 +1,6 @@
 # Created by https://www.gitignore.io/api/java,maven,eclipse
+# sh
+*.sh
 
 ### Java ###
 *.class
