@@ -4,6 +4,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+
+import java.util.TreeMap;
+
 import static org.junit.Assert.*;
 
 /**
@@ -68,25 +71,47 @@ public class TransporterPortTest implements AbstractTest {
         assertEquals("Didn't delete all jobs.", mTransporterPortPar.listJobs().size(), 0);
     }
 
-   /* @Test
-    public void jobWasCreated() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        assertEquals("Job was not created successfully", test, mTransporterPort.jobStatus(test.getJobIdentifier()));*/
+    @Test
+    public void VerifyState() throws BadJobFault_Exception, InterruptedException { //FIXME -> better name
+        int i;
+        TreeMap<Integer, Boolean> states = new TreeMap<>();
+        JobView work = mTransporterPortImp.decideJob(_idImp, true);
+        for (int j=1; j < 5; j++)
+            states.put(j, false);
+       for(i = 0; i < 3000  ; i++){
+            String _state = work.getJobState().value();
+            if (_state.equals("HEADING")) {
+                states.put(1, true);
+            }
+            else if (_state.equals("ONGOING")) {
+                states.put(2, true);
+            }
+            else if (_state.equals("COMPLETED")) {
+                states.put(3, true);
+            }
+            Thread.sleep(5);
+        }
+        if(states.get(1).equals(true) && states.get(2).equals(true) && states.get(3).equals(true))
+            states.put(4,true);
+        assertTrue("Failled completing the job.", states.get(4));
+    }
 
-   /* @Test
+
+    @Test
     public void jobWasCreated() throws BadLocationFault_Exception, BadPriceFault_Exception {
         JobView test;
-        test = mTransporterPort.requestJob("Porto", "Lisboa", 50);
-        assertEquals("Job was not created successfully", test, mTransporterPort.jobStatus(test.getJobIdentifier()));
+        test = mTransporterPortImp.requestJob("Porto", "Lisboa", 50);
+        assertEquals("Job was not created successfully", test, mTransporterPortImp.jobStatus(test.getJobIdentifier()));
 
     }
 
     @Test
     public void jobWithPriceAbove100() throws BadLocationFault_Exception, BadPriceFault_Exception {
         JobView test;
-        test = mTransporterPort.requestJob("Porto", "Lisboa", 200);
+        test = mTransporterPortPar.requestJob("Porto", "Lisboa", 200);
         assertNull("JobView was not null.", test);
     }
-*/
+
 
  //-------------------------- IMPAR ---------------------------------------------------------------------------
 
