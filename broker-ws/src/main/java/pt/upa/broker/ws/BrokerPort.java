@@ -45,6 +45,9 @@ public class BrokerPort implements BrokerPortType{
 
     @Override
     public String ping(String name){
+        if(name == null){
+            name = "";
+        }
         System.out.println("Received Ping: " + name);
         GregorianCalendar rightNow = new GregorianCalendar();
         String result = "Broker: " + rightNow.get(Calendar.HOUR_OF_DAY) + ":" +
@@ -66,7 +69,7 @@ public class BrokerPort implements BrokerPortType{
         if(invalidPrice(price))
             throw new InvalidPriceFault_Exception("Price is below 0.", new InvalidPriceFault());
 
-        if(isInvalidLocation(origin) || isInvalidLocation(destination))
+        if(origin == null || destination == null || isInvalidLocation(origin) || isInvalidLocation(destination))
             throw new UnknownLocationFault_Exception("Unknown Location.", new UnknownLocationFault());
         boolean jobOffer = false;
         for (String companyName : allTransporters.keySet()){
@@ -107,7 +110,7 @@ public class BrokerPort implements BrokerPortType{
 
     @Override
     public TransportView viewTransport(String id)  throws UnknownTransportFault_Exception{
-        if(!jobOffers.containsKey(id)){
+        if(id == null || !jobOffers.containsKey(id)){
             throw new UnknownTransportFault_Exception(id, new UnknownTransportFault());
         }
         updateView(jobOffers.get(id));

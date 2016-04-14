@@ -35,28 +35,35 @@ public class TransporterPort implements TransporterPortType {
     }
 
     public TransporterPort(String companyName){
-        mCompanyName = companyName;
-        int serverId = Integer.parseInt(companyName.substring(14));
-        mLocations.addAll(Arrays.asList("Lisboa",
-                "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
-        if(serverId % 2 == 0){
-            mLocations.addAll(Arrays.asList("Porto",
-                    "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
-            mNorthRegion = true;
-            mKnownLocations.addAll(Arrays.asList("Setubal",
-                    "Evora", "Portalegre", "Beja", "Faro"));
-        } else {
-            mLocations.addAll(Arrays.asList("Setubal",
-                    "Evora", "Portalegre", "Beja", "Faro"));
-            mNorthRegion = false;
-            mKnownLocations.addAll(Arrays.asList("Porto",
-                    "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
+        if(companyName == null){
+            new TransporterPort();
+        }else {
+            mCompanyName = companyName;
+            int serverId = Integer.parseInt(companyName.substring(14));
+            mLocations.addAll(Arrays.asList("Lisboa",
+                    "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
+            if (serverId % 2 == 0) {
+                mLocations.addAll(Arrays.asList("Porto",
+                        "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
+                mNorthRegion = true;
+                mKnownLocations.addAll(Arrays.asList("Setubal",
+                        "Evora", "Portalegre", "Beja", "Faro"));
+            } else {
+                mLocations.addAll(Arrays.asList("Setubal",
+                        "Evora", "Portalegre", "Beja", "Faro"));
+                mNorthRegion = false;
+                mKnownLocations.addAll(Arrays.asList("Porto",
+                        "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
+            }
+            mKnownLocations.addAll(mLocations);
         }
-        mKnownLocations.addAll(mLocations);
     }
 
     @Override
     public String ping(String name) {
+        if(name == null){
+            name = "";
+        }
         System.out.println("Ping Received: " + name);
         GregorianCalendar rightNow = new GregorianCalendar();
         return mCompanyName + ": " +  rightNow.get(Calendar.HOUR_OF_DAY) + ":" +
@@ -69,7 +76,7 @@ public class TransporterPort implements TransporterPortType {
     @Override
     public JobView requestJob(String origin, String destination, int price) throws BadLocationFault_Exception,
             BadPriceFault_Exception {
-        if(isAInvalidRegion(origin) || isAInvalidRegion(destination)){
+        if(origin == null || destination == null || isAInvalidRegion(origin) || isAInvalidRegion(destination)){
             throw new BadLocationFault_Exception("Unknown Region.", new BadLocationFault());
         }else if(price < 0){
             throw new BadPriceFault_Exception("Price is below 0.", new BadPriceFault());
@@ -117,7 +124,7 @@ public class TransporterPort implements TransporterPortType {
 
     @Override
     public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
-        if(!mJobs.containsKey(id) || mJobs.get(id).getJobState() != PROPOSED){
+        if(id == null || !mJobs.containsKey(id) || mJobs.get(id).getJobState() != PROPOSED){
             // This verification will avoid unnecessary work
             throw new BadJobFault_Exception("Unknown ID or Job is already accepted.", new BadJobFault());
         }
@@ -133,6 +140,9 @@ public class TransporterPort implements TransporterPortType {
 
     @Override
     public JobView jobStatus(String id) {
+        if(id == null){
+            return null;
+        }
         return mJobs.get(id);
     }
 
