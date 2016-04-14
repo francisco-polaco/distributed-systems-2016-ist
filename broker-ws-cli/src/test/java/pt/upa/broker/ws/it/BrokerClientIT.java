@@ -65,18 +65,20 @@ public class BrokerClientIT {
     }
 
     @Test
+    public void testPingNull(){
+        final String result= client.ping(null);
+        assertNotNull(result);
+    }
+
+    @Test
     public void requestTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
         String result = client.requestTransport("Lisboa", "Porto", 10);
-        System.out.println("=======================================1");
-        System.out.println(result);
         assertNotNull(result);
     }
 
     @Test
     public void viewTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnknownTransportFault_Exception {
         String id = client.requestTransport("Lisboa", "Porto", 10);
-        System.out.println("=======================================2");
-        System.out.println(id);
         TransportView result = client.viewTransport(id);
         assertNotNull(result);
     }
@@ -105,8 +107,28 @@ public class BrokerClientIT {
         client.requestTransport("Lisboa", "Vila Franca de Xira", 10);
     }
 
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void requestTransportFromUnknownLocation() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+        client.requestTransport("Vila Franca de Xira", "Lisboa", 10);
+    }
+
     @Test(expected = UnknownTransportFault_Exception.class)
     public void viewTransportWithInvalidID() throws UnknownTransportFault_Exception {
         client.viewTransport("potato");
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void requestTransportFromNull() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+        client.requestTransport(null, "Porto", 200);
+    }
+
+    @Test(expected = UnknownLocationFault_Exception.class)
+    public void requestTransportForNull() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+        client.requestTransport("Lisboa", null, 200);
+    }
+
+    @Test(expected = UnknownTransportFault_Exception.class)
+    public void viewTransportWithNullID() throws UnknownTransportFault_Exception {
+        client.viewTransport(null);
     }
 }

@@ -42,33 +42,31 @@ public class TransporterClient{
         mPort = port;
     }
 
-    public String ping(String message) {
+    public synchronized String ping(String message) {
         return mPort.ping(message);
     }
 
 
-    public JobView requestJob(String origin, String destination, int price) throws BadLocationFault_Exception, BadPriceFault_Exception {
-        JobView jobView = null;
-        jobView = mPort.requestJob(origin, destination, price);
-        return jobView;
+    public synchronized JobView requestJob(String origin, String destination, int price) throws BadLocationFault_Exception, BadPriceFault_Exception {
+        return mPort.requestJob(origin, destination, price);
     }
 
-    public JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
+    public synchronized JobView decideJob(String id, boolean accept) throws BadJobFault_Exception {
         return mPort.decideJob(id, accept);
     }
 
 
-    public JobView jobStatus(String id) {
+    public synchronized JobView jobStatus(String id) {
         return mPort.jobStatus(id);
     }
 
 
-    public List<JobView> listJobs() {
+    public synchronized List<JobView> listJobs() {
         return mPort.listJobs();
     }
 
 
-    public void clearJobs() {
+    public synchronized void clearJobs() {
         mPort.clearJobs();
     }
 

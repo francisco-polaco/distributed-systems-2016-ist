@@ -20,11 +20,6 @@ public class TransporterClientApplication {
 			System.err.printf("Usage: java %s uddiURL name%n", TransporterClient.class.getName());
 			return;
 		}
-
-
 		TransporterClient clnt = new TransporterClient(args[0], args[1]);
-		System.out.println(clnt.ping("hello"));
-		clnt.decideJob(clnt.requestJob("Lisboa", "Porto", 7).getJobIdentifier(), true);
-
 	}
 }

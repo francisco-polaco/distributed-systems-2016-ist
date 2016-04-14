@@ -1,36 +1,38 @@
 package pt.upa.transporter.ws;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 
 import java.util.TreeMap;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by xxlxpto on 06-04-2016.
- */
-public class TransporterPortTest implements AbstractTest {
 
-    private TransporterPort mTransporterPortImp;
-    private TransporterPort mTransporterPortPar;
-    private String _idPar;
-    private String _idImp;
+public class TransporterPortTest {
 
-    @Before
-    @Override
-    public void setUp() throws BadLocationFault_Exception, BadPriceFault_Exception {
+    private static TransporterPort mTransporterPortImp;
+    private static TransporterPort mTransporterPortPar;
+    private static String _idPar;
+    private static String _idImp;
+
+    @BeforeClass
+    public static void oneTimeSetUp() {
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+    }
+
+    @BeforeClass
+    public static void setUp() throws BadLocationFault_Exception, BadPriceFault_Exception {
         mTransporterPortImp = new TransporterPort("UpaTransporter1");
         mTransporterPortPar = new TransporterPort("UpaTransporter2");
         _idImp = mTransporterPortImp.requestJob("Lisboa", "Leiria",9).getJobIdentifier();
         _idPar = mTransporterPortPar.requestJob("Leiria", "Leiria",8).getJobIdentifier();
     }
 
-    @After
-    @Override
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         mTransporterPortPar = null;
         mTransporterPortImp = null;
     }
@@ -45,9 +47,47 @@ public class TransporterPortTest implements AbstractTest {
         mTransporterPortImp.requestJob("Lisboa", "Bragaa", 50);
     }
 
+    @Test(expected = BadLocationFault_Exception.class)
+    public void jobWithNullDestination() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        mTransporterPortImp.requestJob("Lisboa", null, 50);
+    }
+
+    @Test(expected = BadLocationFault_Exception.class)
+    public void jobWithNullOrigin() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        mTransporterPortImp.requestJob(null, "Braga", 50);
+    }
+
     @Test(expected = BadPriceFault_Exception.class)
     public void jobWithInvalidPrice() throws BadLocationFault_Exception, BadPriceFault_Exception {
         mTransporterPortImp.requestJob("Faro", "Lisboa", -5);
+    }
+
+    @Test(expected = BadJobFault_Exception.class)
+    public void decideJobWithNullID() throws BadJobFault_Exception {
+        mTransporterPortImp.decideJob(null, false);
+    }
+
+    @Test(expected = BadJobFault_Exception.class)
+    public void decideJobWithWrongID() throws BadJobFault_Exception {
+        mTransporterPortImp.decideJob("wrongid", false);
+    }
+
+    @Test
+    public void transporterPortWithNullArg() {
+        TransporterPort t = new TransporterPort(null);
+        assertNotNull(t);
+    }
+
+    @Test
+    public void ping() {
+        String t = mTransporterPortImp.ping("test");
+        assertNotNull(t);
+    }
+
+    @Test
+    public void pingWithNullArg() {
+        String t = mTransporterPortImp.ping(null);
+        assertNotNull(t);
     }
 
     @Test
@@ -61,8 +101,8 @@ public class TransporterPortTest implements AbstractTest {
     }
 
     @Test
-    public void listJob(){
-        assertEquals("List doesn't have the right Jobs.", mTransporterPortPar.listJobs().size(), 1);
+    public void listJob() {
+        assertEquals("List doesn't have the right Jobs.", mTransporterPortPar.listJobs().size(), 3);
     }
 
     @Test
@@ -72,7 +112,7 @@ public class TransporterPortTest implements AbstractTest {
     }
 
     @Test
-    public void VerifyState() throws BadJobFault_Exception, InterruptedException { //FIXME -> better name
+    public void verifyState() throws BadJobFault_Exception, InterruptedException {
         int i;
         TreeMap<Integer, Boolean> states = new TreeMap<>();
         JobView work = mTransporterPortImp.decideJob(_idImp, true);
@@ -96,13 +136,22 @@ public class TransporterPortTest implements AbstractTest {
         assertTrue("Failled completing the job.", states.get(4));
     }
 
+    @Test
+    public void rejectJob() throws BadJobFault_Exception {
+        JobView work = mTransporterPortPar.decideJob(_idPar, false);
+        assertEquals("Job not rejected ", work.getJobState().value(), "REJECTED");
+    }
 
     @Test
     public void jobWasCreated() throws BadLocationFault_Exception, BadPriceFault_Exception {
         JobView test;
         test = mTransporterPortImp.requestJob("Porto", "Lisboa", 50);
         assertEquals("Job was not created successfully", test, mTransporterPortImp.jobStatus(test.getJobIdentifier()));
+    }
 
+    @Test
+    public void jobStatusNullID() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        assertNull(mTransporterPortImp.jobStatus(null));
     }
 
     @Test

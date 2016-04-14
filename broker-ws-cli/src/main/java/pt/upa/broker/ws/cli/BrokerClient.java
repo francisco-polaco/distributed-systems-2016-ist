@@ -39,27 +39,18 @@ public class BrokerClient {
         requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
     }
 
-    public BrokerPortType getPort(){
-        return mPort;
-    }
-
-
     public String ping(String message) {
         return mPort.ping(message);
     }
 
 
     public String requestTransport(String origin, String destination, int price) throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
-        String request = null;
-        request = mPort.requestTransport(origin, destination, price);
-        return request;
+        return mPort.requestTransport(origin, destination, price);
     }
 
 
     public TransportView viewTransport(String id) throws UnknownTransportFault_Exception {
-        TransportView transportView = null;
-        transportView = mPort.viewTransport(id);
-        return transportView;
+        return mPort.viewTransport(id);
     }
 
 

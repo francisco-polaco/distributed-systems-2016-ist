@@ -66,6 +66,13 @@ public class TransporterClientIT {
     }
 
     @Test
+    public void testPingNull(){
+        final String result= client.ping(null);
+        assertNotNull(result);
+    }
+
+
+    @Test
     public void requestJob() throws BadLocationFault_Exception, BadPriceFault_Exception {
         JobView result = client.requestJob("Lisboa", "Porto", 10);
         assertNotNull(result);
@@ -104,8 +111,13 @@ public class TransporterClientIT {
 
     //ERRORCASES
     @Test(expected = BadLocationFault_Exception.class)
-    public void requestJobWithInvalidLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
+    public void requestJobForInvalidLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
         client.requestJob("Lisboa", "Vila Franca de Xira", 10);
+    }
+
+    @Test(expected = BadLocationFault_Exception.class)
+    public void requestJobFromInvalidLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        client.requestJob("Vila Franca de Xira", "Lisboa", 10);
     }
 
     @Test(expected = BadPriceFault_Exception.class)
@@ -116,5 +128,18 @@ public class TransporterClientIT {
     @Test(expected = BadJobFault_Exception.class)
     public void decideJobWithInvalidID() throws BadJobFault_Exception {
         client.decideJob("potato", true);
+    }
+
+    @Test(expected = BadLocationFault_Exception.class)
+    public void requestJobfromnullLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        client.requestJob(null, "Lisboa", 10);
+    }
+    @Test(expected = BadLocationFault_Exception.class)
+    public void requestJobfornullLocation() throws BadLocationFault_Exception, BadPriceFault_Exception {
+        client.requestJob("Lisboa", null, 10);
+    }
+    @Test(expected = BadJobFault_Exception.class)
+    public void decideJobWithNullID() throws BadJobFault_Exception {
+        client.decideJob(null, true);
     }
 }

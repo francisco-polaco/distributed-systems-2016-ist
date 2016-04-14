@@ -3,6 +3,7 @@ package pt.upa.broker.ws;
 import javax.jws.WebService;
 import javax.xml.registry.JAXRException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.JobView;
@@ -20,14 +21,14 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 )
 public class BrokerPort implements BrokerPortType{
 
-    private TreeMap<String, TransporterClient> allTransporters = new TreeMap<>();
-    private TreeMap<String, TransportView> jobOffers = new TreeMap<>();
-    private TreeMap<String, TransportView> jobOffers_aux = new TreeMap<>();
-    private TreeMap<String, String> idConvTable = new TreeMap<>();
+    private ConcurrentHashMap<String, TransporterClient> allTransporters = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, TransportView> jobOffers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, TransportView> jobOffers_aux = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, String> idConvTable = new ConcurrentHashMap<>();
     private ArrayList<String> north = new ArrayList<>(Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
     private ArrayList<String> center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
     private ArrayList<String> south =  new ArrayList<>(Arrays.asList("Setubal", "Evora", "Portalegre", "Beja", "Faro"));
-    private long idSeed = 0;
+    private int idSeed = 0;
 
 
     public BrokerPort() {
@@ -39,7 +40,7 @@ public class BrokerPort implements BrokerPortType{
         getAllTransporters(uddiURL);
     }
 
-    public BrokerPort(TreeMap<String, TransporterClient> transporters){
+    public BrokerPort(ConcurrentHashMap<String, TransporterClient> transporters){
         allTransporters = transporters;
     }
 
@@ -79,11 +80,9 @@ public class BrokerPort implements BrokerPortType{
                 offer = allTransporters.get(companyName).requestJob(transport.getOrigin(),
                         transport.getDestination(),transport.getPrice());
             }catch (Exception e){
-                // FIXME: JP
                 System.out.println(e.getMessage());
             }
             if((offer != null) && !(offer.getJobState().value().equals("REJECTED"))){
-                //FIXME
                 transport.setPrice(offer.getJobPrice());
                 transport.setState(BUDGETED);
                 jobOffers_aux.put(transport.getId(), transport);
@@ -96,9 +95,8 @@ public class BrokerPort implements BrokerPortType{
             }
         }
 
-        if(!jobOffer)
-            throw new UnavailableTransportFault_Exception("No Transport Available", new UnavailableTransportFault());
-        // FIXME: JP
+        if(!jobOffer){
+            throw new UnavailableTransportFault_Exception("No Transport Available", new UnavailableTransportFault());}
         String id = null;
         try{
             id = jobDecision(price).getId();
@@ -154,7 +152,7 @@ public class BrokerPort implements BrokerPortType{
 
     private TransportView createTransportView(String origin, String destination, int price, String companyName){
         TransportView transport = new TransportView();
-        String id = Long.toString(idSeed++);
+        String id = Integer.toString(idSeed++);
         transport.setTransporterCompany(companyName);
         transport.setDestination(destination);
         transport.setOrigin(origin);
@@ -169,13 +167,14 @@ public class BrokerPort implements BrokerPortType{
         ArrayList<TransportView> transportViews = new ArrayList<>();
         transportViews.addAll(jobOffers_aux.values());
 
-        Collections.sort(transportViews, new Comparator<TransportView>() {
-            @Override
-            public int compare(TransportView o1, TransportView o2) {
-                return o1.getPrice() - o2.getPrice();
-            }
-        });
-
+        if(transportViews.size() > 1) {
+            Collections.sort(transportViews, new Comparator<TransportView>() {
+                @Override
+                public int compare(TransportView o1, TransportView o2) {
+                    return o1.getPrice() - o2.getPrice();
+                }
+            });
+        }
         TransportView bestOffer = transportViews.get(0);
 
         for (TransportView offer : transportViews){
@@ -197,24 +196,24 @@ public class BrokerPort implements BrokerPortType{
         bestOffer.setState(BOOKED);
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
         jobOffers.put(bestOffer.getId(),bestOffer);
-
         jobOffers_aux.clear();
         return bestOffer;
-
     }
 
     private void updateView(TransportView transport){
         JobView job = allTransporters.get(transport.getTransporterCompany()).jobStatus(idConvTable.get(transport.getId()));
-        switch (job.getJobState().value()) {
-            case "HEADING":
-                transport.setState(HEADING);
-                break;
-            case "ONGOING":
-                transport.setState(ONGOING);
-                break;
-            case "COMPLETED":
-                transport.setState(COMPLETED);
-                break;
+        if(job != null){
+            switch (job.getJobState().value()) {
+                case "HEADING":
+                    transport.setState(HEADING);
+                    break;
+                case "ONGOING":
+                    transport.setState(ONGOING);
+                    break;
+                case "COMPLETED":
+                    transport.setState(COMPLETED);
+                    break;
+            }
         }
     }
 

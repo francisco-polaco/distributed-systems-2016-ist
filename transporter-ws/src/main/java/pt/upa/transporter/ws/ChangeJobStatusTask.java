@@ -6,9 +6,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Created by xxlxpto on 30-03-2016.
- */
+
+
 public class ChangeJobStatusTask extends TimerTask {
 
     private static final int BOUND = 4001;

@@ -11,13 +11,13 @@ import pt.upa.transporter.ws.cli.TransporterClient;
 
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-/**
- * Created by xxlxpto on 06-04-2016.
- */
+
+
 public class BrokerPortTest {
 
 
@@ -30,12 +30,10 @@ public class BrokerPortTest {
 
     @BeforeClass
     public static void oneTimeSetUp() {
-        // TODO
     }
 
     @AfterClass
     public static void oneTimeTearDown() {
-        // TODO
     }
 
     @Before
@@ -52,8 +50,8 @@ public class BrokerPortTest {
     *             Auxiliary functions
     *  ======================================================= */
 
-    private TreeMap<String, TransporterClient> getTransporterClientTreeMap(@Mocked @Injectable TransporterClient transporterClient1, @Mocked @Injectable TransporterClient transporterClient2, @Mocked @Injectable TransporterClient transporterClient3, @Mocked @Injectable TransporterClient transporterClient4) {
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+    private ConcurrentHashMap<String, TransporterClient> getTransporterClientTreeMap(@Mocked @Injectable TransporterClient transporterClient1, @Mocked @Injectable TransporterClient transporterClient2, @Mocked @Injectable TransporterClient transporterClient3, @Mocked @Injectable TransporterClient transporterClient4) {
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient1);
         transporterClientTreeMap.put(NAME + 2, transporterClient2);
         transporterClientTreeMap.put(NAME + 3, transporterClient3);
@@ -114,7 +112,7 @@ public class BrokerPortTest {
         }};
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort mBrokerPort = new BrokerPort(transporterClientTreeMap);
 
@@ -158,7 +156,7 @@ public class BrokerPortTest {
         }};
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
@@ -167,8 +165,31 @@ public class BrokerPortTest {
         new Verifications() {{
             transporterClient.requestJob(ORIGIN, DESTINATION, PRICE); maxTimes = 1;
         }};
-
     }
+
+
+    @Test(expected = UnknownTransportFault_Exception.class)
+    public void viewTransportWithNullID(@Mocked final TransporterClient transporterClient) throws Exception {
+
+        // Unit under test is exercised.
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
+        transporterClientTreeMap.put(NAME + 1, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        brokerPort.viewTransport(null);
+    }
+
+    @Test(expected = UnknownTransportFault_Exception.class)
+    public void viewTransportWithWrongID(@Mocked final TransporterClient transporterClient) throws Exception {
+
+        // Unit under test is exercised.
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
+        transporterClientTreeMap.put(NAME + 1, transporterClient);
+        BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
+
+        brokerPort.viewTransport("WrongID");
+    }
+
 
     @Test(expected = UnknownLocationFault_Exception.class)
     public void wrongDestination(@Mocked final TransporterClient transporterClient) throws Exception {
@@ -178,13 +199,11 @@ public class BrokerPortTest {
 
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
         brokerPort.requestTransport(ORIGIN, WRONG_DESTINATION, PRICE);
-
-
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
@@ -195,7 +214,7 @@ public class BrokerPortTest {
 
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
@@ -210,7 +229,7 @@ public class BrokerPortTest {
         final int WRONG_PRICE = -7;
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
@@ -367,7 +386,7 @@ public class BrokerPortTest {
 
 
         // Additional verification code, if any, either here or before the verification block.
-        finalAssert(IDs[0], mBrokerPort, returnedFromTest);
+        finalAssert(IDs[1], mBrokerPort, returnedFromTest);
 
     }
 
@@ -448,13 +467,11 @@ public class BrokerPortTest {
         }};
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
-
         assertNotNull("Server didn't answer", brokerPort.ping(HELLO));
-
     }
 
     @Test
@@ -463,7 +480,7 @@ public class BrokerPortTest {
 
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
@@ -479,7 +496,7 @@ public class BrokerPortTest {
 
 
         // Unit under test is exercised.
-        TreeMap<String, TransporterClient> transporterClientTreeMap = new TreeMap<>();
+        ConcurrentHashMap<String, TransporterClient> transporterClientTreeMap = new ConcurrentHashMap<>();
         transporterClientTreeMap.put(NAME + 1, transporterClient);
         BrokerPort brokerPort = new BrokerPort(transporterClientTreeMap);
 
