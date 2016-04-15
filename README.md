@@ -2,15 +2,16 @@
 
 Grupo de SD 43 - Campus Alameda
 
-João Serras 79664 <email>
+João Serras 79664 joao.serras@ist.utl.pt
 
-Daniel Caramujo 79714 <email>
+Daniel Caramujo 79714 daniel.caramujo@ist.utl.pt
 
 Francisco Santos 79719 franciscopolaco@tecnico.ulisboa.pt
 
 
 Repositório:
 [tecnico-distsys/A_43-project](https://github.com/tecnico-distsys/A_43-project/)
+
 
 -------------------------------------------------------------------------------
 
@@ -28,22 +29,23 @@ Linux
 
 JUDDI:
 ```
-...
+cd juddi-3.3.2_tomcat-7.0.64_909/bin
+./startup.sh
 ```
 
 
 [2] Criar pasta temporária
 
 ```
-cd ...
-mkdir ...
+cd                        ????
+mkdir A-43
 ```
 
 
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone ... 
+git clone https://github.com/tecnico-distsys/A_43-project 
 ```
 *(colocar aqui comandos git para obter a versão entregue a partir da tag e depois apagar esta linha)*
 
@@ -56,7 +58,7 @@ mvn clean install
 ```
 
 ```
-cd ...
+cd ...                       ???
 mvn clean install
 ```
 
@@ -68,7 +70,7 @@ mvn clean install
 [1] Construir e executar **servidor**
 
 ```
-cd ...-ws
+cd A_43-project/transporter-ws
 mvn clean install
 mvn exec:java
 ```
@@ -76,7 +78,7 @@ mvn exec:java
 [2] Construir **cliente** e executar testes
 
 ```
-cd ...-ws-cli
+cd A_43-project/transporter-ws-cli
 mvn clean install
 ```
 
@@ -90,7 +92,7 @@ mvn clean install
 [1] Construir e executar **servidor**
 
 ```
-cd ...-ws
+cd A_43-project/broker-ws
 mvn clean install
 mvn exec:java
 ```
@@ -99,7 +101,7 @@ mvn exec:java
 [2] Construir **cliente** e executar testes
 
 ```
-cd ...-ws-cli
+cd A_43-project/broker-ws-cli
 mvn clean install
 ```
 
