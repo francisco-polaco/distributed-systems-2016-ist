@@ -21,5 +21,9 @@ public class TransporterClientApplication {
 			return;
 		}
 		TransporterClient clnt = new TransporterClient(args[0], args[1]);
+
+		System.out.println(clnt.ping("Hello"));
+
+		System.out.println("Goodbye!");
 	}
 }

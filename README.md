@@ -38,20 +38,21 @@ cd juddi-3.3.2_tomcat-7.0.64_909/bin
 
 ```
 cd
-mkdir A-43
+mkdir A_43-project
 ```
 
 
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone --branch TAG_NAME_HERE https://github.com/tecnico-distsys/A_43-project
+git clone --branch SD_R1 https://github.com/tecnico-distsys/A_43-project
 ```
 
 
 [4] Instalar módulos de bibliotecas auxiliares
 
 ```
+wget http://disciplinas.tecnico.ulisboa.pt/leic-sod/2015-2016/labs/05-ws1/uddi-naming.zip
 cd uddi-naming
 mvn clean install
 ```

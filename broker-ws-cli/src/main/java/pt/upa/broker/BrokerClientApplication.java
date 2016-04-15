@@ -20,5 +20,8 @@ public class BrokerClientApplication {
 			return;
 		}
 		BrokerClient clnt = new BrokerClient(args[0], args[1]);
+		System.out.println(clnt.ping("Hello"));
+
+		System.out.println("Goodbye!");
 	}
 }
