@@ -37,7 +37,7 @@ cd juddi-3.3.2_tomcat-7.0.64_909/bin
 [2] Criar pasta temporária
 
 ```
-cd                        ????
+cd
 mkdir A-43
 ```
 
@@ -45,9 +45,8 @@ mkdir A-43
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone https://github.com/tecnico-distsys/A_43-project         ALTERAR ISTO APOS TAG
+git clone --branch TAG_NAME_HERE https://github.com/tecnico-distsys/A_43-project
 ```
-*(colocar aqui comandos git para obter a versão entregue a partir da tag e depois apagar esta linha)*
 
 
 [4] Instalar módulos de bibliotecas auxiliares
