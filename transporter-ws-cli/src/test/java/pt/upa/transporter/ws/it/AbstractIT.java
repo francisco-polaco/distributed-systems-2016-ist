@@ -50,14 +50,14 @@ public class AbstractIT {
 		System.out.println("uddi enabled: " + uddiEnabled);
 		System.out.println("uddi url: " + uddiURL);
 		System.out.println("ws name: " + wsName);
-		System.out.println("=================================");
+		System.out.println("=====================================");
 		// Note: CLIENT is defined to be an odd transporter in the pom file
 		// (UpaTransporter1).
 
 		if ("true".equalsIgnoreCase(uddiEnabled)) {
 			CLIENT = new TransporterClient(uddiURL, wsName);
 		} else {
-			//CLIENT = new TransporterClient(wsURL);
+			CLIENT = new TransporterClient(wsURL);
 		}
 		//CLIENT.setVerbose(true);
 

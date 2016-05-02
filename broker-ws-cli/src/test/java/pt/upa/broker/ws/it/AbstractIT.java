@@ -57,13 +57,13 @@ public class AbstractIT {
 		String uddiURL = PROPS.getProperty("uddi.url");
 		String wsName = PROPS.getProperty("ws.name");
 		String wsURL = PROPS.getProperty("ws.url");
-		CLIENT = new BrokerClient(uddiURL, wsName);
 
-		/*if ("true".equalsIgnoreCase(uddiEnabled)) {
+		if ("true".equalsIgnoreCase(uddiEnabled)) {
+			CLIENT = new BrokerClient(uddiURL, wsName);
 		} else {
 			CLIENT = new BrokerClient(wsURL);
 		}
-		CLIENT.setVerbose(true);*/
+		//CLIENT.setVerbose(true);
 
 	}
 
