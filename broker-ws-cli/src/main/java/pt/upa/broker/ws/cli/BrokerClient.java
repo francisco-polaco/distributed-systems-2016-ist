@@ -15,16 +15,23 @@ public class BrokerClient {
 
     private BrokerPortType mPort;
 
-    public BrokerClient(String uddiURL, String name) throws JAXRException {
-        System.out.printf("Contacting UDDI at %s%n", uddiURL);
-        UDDINaming uddiNaming = new UDDINaming(uddiURL);
+    public BrokerClient(String uddiURL, String name) throws JAXRException, BrokerClientException {
 
-        System.out.printf("Looking for '%s'%n", name);
-        String endpointAddress = uddiNaming.lookup(name);
+        String endpointAddress;
+        try {
+            System.out.printf("Contacting UDDI at %s%n", uddiURL);
+            UDDINaming uddiNaming = new UDDINaming(uddiURL);
 
+            System.out.printf("Looking for '%s'%n", name);
+            endpointAddress = uddiNaming.lookup(name);
+        }catch (Exception e) {
+            String msg = String.format("Client failed lookup on UDDI at %s!",
+                    uddiURL);
+            throw new BrokerClientException(msg, e);
+        }
         if (endpointAddress == null) {
-            System.out.println("Not found!");
-            return;
+            String msg = String.format("Service with name %s not found on UDDI at %s", name, uddiURL);
+            throw new BrokerClientException(msg);
         } else {
             System.out.printf("Found %s%n", endpointAddress);
         }

@@ -49,7 +49,7 @@ public class TransporterClientIT {
     }
 
     @BeforeClass
-    public static void setUp() throws JAXRException {
+    public static void setUp() throws Exception {
         client = new TransporterClient(uddiURL, name);
     }
 
