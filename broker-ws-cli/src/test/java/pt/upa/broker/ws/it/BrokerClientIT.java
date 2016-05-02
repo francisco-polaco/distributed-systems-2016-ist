@@ -6,6 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
+import pt.upa.broker.ws.cli.BrokerClientException;
 import pt.upa.transporter.ws.TransporterPortType;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class BrokerClientIT {
     }
 
     @BeforeClass
-    public static void setUp() throws JAXRException, IOException {
+    public static void setUp() throws JAXRException, IOException, BrokerClientException {
         client = new BrokerClient(uddiURL, name);
     }
 
