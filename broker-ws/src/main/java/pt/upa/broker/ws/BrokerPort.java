@@ -10,6 +10,7 @@ import pt.upa.transporter.ws.JobView;
 import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.upa.transporter.ws.cli.TransporterClientException;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",
@@ -35,7 +36,7 @@ public class BrokerPort implements BrokerPortType{
         super();
     }
 
-    public BrokerPort(String uddiURL) throws JAXRException {
+    public BrokerPort(String uddiURL) throws JAXRException, TransporterClientException {
         super();
         getAllTransporters(uddiURL);
     }
@@ -134,7 +135,7 @@ public class BrokerPort implements BrokerPortType{
         idSeed = 0;
     }
 
-    private void getAllTransporters(String uddiURL) throws JAXRException {
+    private void getAllTransporters(String uddiURL) throws JAXRException, TransporterClientException {
         UDDINaming uddiNaming = new UDDINaming(uddiURL);
         Collection<String> endpointAddress = uddiNaming.list("UpaTransporter%");
         for (String endpAdd :  endpointAddress) {

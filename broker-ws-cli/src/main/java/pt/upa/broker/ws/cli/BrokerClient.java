@@ -16,7 +16,16 @@ public class BrokerClient {
     private BrokerPortType mPort;
 
     public BrokerClient(String uddiURL, String name) throws JAXRException, BrokerClientException {
+        String endpointAddress = LookUp(uddiURL, name);
+        bind(endpointAddress);
+    }
 
+    public BrokerClient(String endpointAddress){
+        bind(endpointAddress);
+    }
+
+
+    private String LookUp(String uddiURL, String name) throws BrokerClientException {
         String endpointAddress;
         try {
             System.out.printf("Contacting UDDI at %s%n", uddiURL);
@@ -24,7 +33,7 @@ public class BrokerClient {
 
             System.out.printf("Looking for '%s'%n", name);
             endpointAddress = uddiNaming.lookup(name);
-        }catch (Exception e) {
+        } catch (Exception e) {
             String msg = String.format("Client failed lookup on UDDI at %s!",
                     uddiURL);
             throw new BrokerClientException(msg, e);
@@ -34,8 +43,11 @@ public class BrokerClient {
             throw new BrokerClientException(msg);
         } else {
             System.out.printf("Found %s%n", endpointAddress);
+            return endpointAddress;
         }
+    }
 
+    private void bind(String endpointAddress){
         System.out.println("Creating stub ...");
         BrokerService service = new BrokerService();
         mPort = service.getBrokerPort();

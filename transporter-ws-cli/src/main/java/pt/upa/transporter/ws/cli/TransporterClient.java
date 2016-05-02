@@ -14,8 +14,17 @@ public class TransporterClient{
 
     private TransporterPortType mPort;
 
-    public TransporterClient(String uddiURL, String name) throws JAXRException, TransporterClientException {
 
+    public TransporterClient(String uddiURL, String name) throws JAXRException, TransporterClientException {
+        String endpointAddress = LookUp(uddiURL, name);
+        bind(endpointAddress);
+    }
+
+    public TransporterClient(String endpointAddress){
+        bind(endpointAddress);
+    }
+
+    private String LookUp(String uddiURL, String name) throws TransporterClientException {
         String endpointAddress;
         try {
             System.out.printf("Contacting UDDI at %s%n", uddiURL);
@@ -23,7 +32,7 @@ public class TransporterClient{
 
             System.out.printf("Looking for '%s'%n", name);
             endpointAddress = uddiNaming.lookup(name);
-        }catch (Exception e) {
+        } catch (Exception e) {
             String msg = String.format("Client failed lookup on UDDI at %s!", uddiURL);
             throw new TransporterClientException(msg, e);
         }
@@ -33,8 +42,11 @@ public class TransporterClient{
             throw new TransporterClientException(msg);
         } else {
             System.out.printf("Found %s%n", endpointAddress);
+            return endpointAddress;
         }
+    }
 
+    private void bind(String endpointAddress){
         System.out.println("Creating stub ...");
         TransporterService service = new TransporterService();
         mPort = service.getTransporterPort();
