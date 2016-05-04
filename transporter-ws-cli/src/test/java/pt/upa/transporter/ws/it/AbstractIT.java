@@ -46,11 +46,7 @@ public class AbstractIT {
 		String uddiURL = PROPS.getProperty("uddi.url");
 		String wsName = PROPS.getProperty("ws.name");
 		String wsURL = PROPS.getProperty("ws.url");
-		System.out.println("===============TEST==================");
-		System.out.println("uddi enabled: " + uddiEnabled);
-		System.out.println("uddi url: " + uddiURL);
-		System.out.println("ws name: " + wsName);
-		System.out.println("=====================================");
+
 		// Note: CLIENT is defined to be an odd transporter in the pom file
 		// (UpaTransporter1).
 

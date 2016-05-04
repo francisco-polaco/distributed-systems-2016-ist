@@ -117,7 +117,7 @@ public class RequestTransportIT extends AbstractIT {
 		String id = CLIENT.requestTransport(SOUTH_1, CENTER_1, PRICE_SMALLEST_LIMIT);
 		TransportView tv = CLIENT.viewTransport(id);
 		final int price = tv.getPrice().intValue();
-		assertTrue(price >= UNITARY_PRICE && price < PRICE_SMALLEST_LIMIT);
+		assertTrue(price >= ZERO_PRICE && price < PRICE_SMALLEST_LIMIT);
 	}
 
 	@Test
@@ -125,7 +125,7 @@ public class RequestTransportIT extends AbstractIT {
 		String id = CLIENT.requestTransport(CENTER_1, CENTER_2, PRICE_SMALLEST_LIMIT);
 		TransportView tv = CLIENT.viewTransport(id);
 		final int price = tv.getPrice().intValue();
-		assertTrue(price >= UNITARY_PRICE && price < PRICE_SMALLEST_LIMIT);
+		assertTrue(price >= ZERO_PRICE && price < PRICE_SMALLEST_LIMIT);
 	}
 
 	@Test
@@ -133,7 +133,7 @@ public class RequestTransportIT extends AbstractIT {
 		String id = CLIENT.requestTransport(CENTER_1, NORTH_1, PRICE_SMALLEST_LIMIT);
 		TransportView tv = CLIENT.viewTransport(id);
 		final int price = tv.getPrice().intValue();
-		assertTrue(price >= UNITARY_PRICE && price < PRICE_SMALLEST_LIMIT);
+		assertTrue(price >= ZERO_PRICE && price < PRICE_SMALLEST_LIMIT);
 	}
 
 	
@@ -143,8 +143,8 @@ public class RequestTransportIT extends AbstractIT {
 	public void testRequestTransportSouthOddPriceBelowUpperLimit() throws Exception {
 		String id = CLIENT.requestTransport(SOUTH_1, CENTER_1, PRICE_SMALLEST_LIMIT + ODD_INCREMENT);
 		TransportView tv = CLIENT.viewTransport(id);
-		assertTrue(UNITARY_PRICE <= tv.getPrice().intValue()
-				&& tv.getPrice().intValue() < PRICE_SMALLEST_LIMIT + ODD_INCREMENT);
+		final int price = tv.getPrice().intValue();
+		assertTrue(price >= ZERO_PRICE && price < PRICE_SMALLEST_LIMIT + ODD_INCREMENT);
 		// should also check that it is an odd transporter (e.g. UpaTransporter1)
 	}
 
@@ -157,8 +157,8 @@ public class RequestTransportIT extends AbstractIT {
 	public void testRequestTransportCenterOddPriceBelowUpperLimit() throws Exception {
 		String id = CLIENT.requestTransport(CENTER_1, CENTER_2, PRICE_SMALLEST_LIMIT + ODD_INCREMENT);
 		TransportView tv = CLIENT.viewTransport(id);
-		assertTrue(UNITARY_PRICE <= tv.getPrice().intValue()
-				&& tv.getPrice().intValue() < PRICE_SMALLEST_LIMIT + ODD_INCREMENT);
+		final int price = tv.getPrice().intValue();
+		assertTrue(price >= ZERO_PRICE && price < PRICE_SMALLEST_LIMIT + ODD_INCREMENT);
 		// should also check that it is an odd transporter (e.g. UpaTransporter1)
 	}
 
@@ -166,8 +166,8 @@ public class RequestTransportIT extends AbstractIT {
 	public void testRequestTransportCenterEvenPriceBelowUpperLimit() throws Exception {
 		String id = CLIENT.requestTransport(CENTER_1, CENTER_2, PRICE_SMALLEST_LIMIT + EVEN_INCREMENT);
 		TransportView tv = CLIENT.viewTransport(id);
-		assertTrue(UNITARY_PRICE <= tv.getPrice().intValue()
-				&& tv.getPrice().intValue() < PRICE_SMALLEST_LIMIT + EVEN_INCREMENT);
+		final int price = tv.getPrice().intValue();
+		assertTrue(price >= ZERO_PRICE && price < PRICE_SMALLEST_LIMIT + EVEN_INCREMENT);
 		// should also check that it is an even transporter (e.g. UpaTransporter2)
 	}
 
@@ -180,8 +180,8 @@ public class RequestTransportIT extends AbstractIT {
 	public void testRequestTransportNorthEvenPriceBelowUpperLimit() throws Exception {
 		String id = CLIENT.requestTransport(CENTER_1, NORTH_1, PRICE_SMALLEST_LIMIT + EVEN_INCREMENT);
 		TransportView tv = CLIENT.viewTransport(id);
-		assertTrue(UNITARY_PRICE <= tv.getPrice().intValue()
-				&& tv.getPrice().intValue() < PRICE_SMALLEST_LIMIT + EVEN_INCREMENT);
+		final int price = tv.getPrice().intValue();
+		assertTrue(price >= ZERO_PRICE && price < PRICE_SMALLEST_LIMIT + EVEN_INCREMENT);
 		// should also check that it is an even transporter (e.g. UpaTransporter2)
 	}
 

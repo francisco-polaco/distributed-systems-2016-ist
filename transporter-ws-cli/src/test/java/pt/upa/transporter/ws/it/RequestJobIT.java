@@ -175,12 +175,12 @@ public class RequestJobIT extends AbstractIT {
 		final int referencePrice = PRICE_SMALLEST_LIMIT - UNITARY_PRICE;
 		JobView jv1 = CLIENT.requestJob(CENTRO_1, SUL_1, referencePrice);
 		final int price = jv1.getJobPrice();
-		assertTrue(price >= UNITARY_PRICE && price < referencePrice);
+		assertTrue(price >= ZERO_PRICE && price < referencePrice);
 	}
 
 	/**
 	 * Test a job request with a price of 10. The proposed price should be
-	 * greater or equal to 1 and lower than 10.
+	 * greater or equal to 0 and lower than 10.
 	 * 
 	 * @result JobView with a price value under the constraint mentioned above.
 	 * @throws Exception
@@ -190,7 +190,7 @@ public class RequestJobIT extends AbstractIT {
 		final int referencePrice = PRICE_SMALLEST_LIMIT;
 		JobView jv1 = CLIENT.requestJob(SUL_1, CENTRO_1, referencePrice);
 		final int price = jv1.getJobPrice();
-		assertTrue(price >= UNITARY_PRICE && price < referencePrice);
+		assertTrue(price >= ZERO_PRICE && price < referencePrice);
 	}
 
 	// -------------- reference price > 10 ---------------
@@ -210,7 +210,7 @@ public class RequestJobIT extends AbstractIT {
 
 		JobView jv1 = CLIENT.requestJob(CENTRO_1, SUL_1, oddReferencePrice);
 		final int price = jv1.getJobPrice();
-		assertTrue(price >= UNITARY_PRICE && price < oddReferencePrice);
+		assertTrue(price >= ZERO_PRICE && price < oddReferencePrice);
 	}
 
 	/**

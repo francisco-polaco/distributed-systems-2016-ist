@@ -134,6 +134,7 @@ public class TransporterClientTest {
 		try {
 			new TransporterClient(uddiURL, wsName);
 			fail();
+
 		} catch (TransporterClientException e) {
 			final String expectedMessage = String.format("Service with name %s not found on UDDI at %s", wsName,
 					uddiURL);
