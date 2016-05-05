@@ -1,5 +1,6 @@
 package pt.upa.transporter.ws;
 
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,7 @@ import static pt.upa.transporter.ws.JobStateView.*;
         targetNamespace="http://ws.transporter.upa.pt/",
         serviceName="TransporterService"
 )
+@HandlerChain(file = "/transporter_handler-chain.xml")
 public class TransporterPort implements TransporterPortType {
 
     private static final int DEFAULT_PRICE = 7;
