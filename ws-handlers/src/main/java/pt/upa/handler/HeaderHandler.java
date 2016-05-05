@@ -30,6 +30,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
 
     public static final String CONTEXT_PROPERTY = "my.property";
+    public static final String PREFIX = "sig";
+    public static final String NAMESPACE = "http://demo";
 
     //
     // Handler interface methods
@@ -59,7 +61,7 @@ public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
                     sh = se.addHeader();
 
                 // add header element (name, namespace prefix, namespace)
-                Name name = se.createName("myHeader", "d", "http://demo");
+                Name name = se.createName("myHeader", PREFIX, NAMESPACE);
                 SOAPHeaderElement element = sh.addHeaderElement(name);
 
                 // add header element value

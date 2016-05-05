@@ -1,7 +1,8 @@
 <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
     <handler-chain>
         <handler>
-            <handler-class>pt.upa.handler.LoggingHandler</handler-class>
+            <!--<handler-class>pt.upa.handler.LoggingHandler</handler-class>-->
+            <handler-class>pt.upa.handler.TransporterHandler</handler-class>
         </handler>
     </handler-chain>
 </handler-chains>
