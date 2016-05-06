@@ -4,6 +4,8 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.ca.ws.CAImplemention;
 
 import javax.xml.ws.Endpoint;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by xxlxpto on 06-05-2016.
@@ -16,7 +18,6 @@ public class CAApplication {
             System.err.printf("Usage: java %s uddiURL wsName wsURL%n", CAApplication.class.getName());
             return;
         }
-
         String uddiURL = args[0];
         String name = args[1];
         String url = args[2];
@@ -25,7 +26,6 @@ public class CAApplication {
         UDDINaming uddiNaming = null;
         try {
             endpoint = Endpoint.create(new CAImplemention());
-
             // publish endpoint
             System.out.printf("Starting %s%n", url);
             endpoint.publish(url);
@@ -33,6 +33,13 @@ public class CAApplication {
             // publish to UDDI
             System.out.printf("Publishing '%s' to UDDI at %s%n", name, uddiURL);
             uddiNaming = new UDDINaming(uddiURL);
+
+            // To clean uddi, comment after
+            uddiNaming.unbind("UpaTransporter3");
+            uddiNaming.unbind("UpaTransporter2");
+            uddiNaming.unbind("UpaTransporter1");
+            uddiNaming.unbind("UpaBroker");
+
             uddiNaming.rebind(name, url);
 
             // wait

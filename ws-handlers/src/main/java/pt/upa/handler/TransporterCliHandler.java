@@ -265,7 +265,7 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private boolean checkIfCertificateIsPresent(){
-        return new File("UpaBroker.cer").exists();
+        return new File(CERTIFICATE_FILE_PATH).exists();
     }
 
     /**
