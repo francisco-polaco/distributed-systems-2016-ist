@@ -6,14 +6,14 @@ import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
+import java.io.*;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.Iterator;
 import java.util.Set;
+import pt.upa.ca.ws.cli.CAClient;
 
 import static javax.xml.bind.DatatypeConverter.*;
 
@@ -21,7 +21,7 @@ import static javax.xml.bind.DatatypeConverter.*;
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  */
-public class CertificateHandler implements SOAPHandler<SOAPMessageContext> {
+public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
 
     private static final String CONTEXT_PROPERTY = "my.property";
     private static final String ELEMENT_NAME = "signature";
@@ -29,15 +29,10 @@ public class CertificateHandler implements SOAPHandler<SOAPMessageContext> {
     private static final String NAMESPACE = "pt.upa.handler";
     private static final String DIGEST_ALGORITHM = "SHA-1";
     private static final String ASSYMETRIC_KEY_ALGORITHM = "RSA/ECB/PKCS1Padding";
+    private static final String UPA_BROKER = "UpaBroker";
+    private static final String CERTIFICATE_FILE_PATH = "UpaBroker.cre";
     private KeyPair key;
 
-    /*static{
-        try {
-            KeyHelper.write("pubKeyO.key", "priKeyO.key");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 
 
     public Set<QName> getHeaders() {
@@ -52,6 +47,14 @@ public class CertificateHandler implements SOAPHandler<SOAPMessageContext> {
             key = KeyHelper.read("pubKeyO.key", "priKeyO.key");
             if (outbound) {
                 System.out.println("Outbound SOAP message.");
+                if(!checkIfCertificateIsPresent()){
+                    System.out.println("Certificate is not present, downloading...");
+                    CAClient caClient = new CAClient();
+                    caClient.getAndWriteEntityCertificate(UPA_BROKER, CERTIFICATE_FILE_PATH);
+                   // Certificate certificate = readCertificateFile(CERTIFICATE_FILE_PATH);
+
+                }
+
                 addSignatureToSoap(signSoap(getSOAPtoByteArray(smc)), smc.getMessage());
 
             } else {
@@ -59,8 +62,8 @@ public class CertificateHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.println("Inbound SOAP message.");
                 byte[] signature = getSignatureToSoap(smc);
                 // Don't delete this line or change its place. Xico: for some weird reason this line makes the code work.
-                smc.getMessage().writeTo(new OutputStream() { @Override public void write(int b) { } });
-
+                //smc.getMessage().writeTo(new OutputStream() { @Override public void write(int b) { } });
+                smc.getMessage().saveChanges();
                 verifySoap(signature, getSOAPtoByteArray(smc));
 
             }
@@ -261,4 +264,65 @@ public class CertificateHandler implements SOAPHandler<SOAPMessageContext> {
         return true;
     }
 
+    private boolean checkIfCertificateIsPresent(){
+        return new File("UpaBroker.cer").exists();
+    }
+
+    /**
+     * Reads a certificate from a file
+     *
+     * @return
+     * @throws Exception
+     */
+    private Certificate readCertificateFile(String certificateFilePath) throws Exception {
+        FileInputStream fis;
+
+        try {
+            fis = new FileInputStream(certificateFilePath);
+        } catch (FileNotFoundException e) {
+            System.err.println("Certificate file <" + certificateFilePath + "> not found.");
+            return null;
+        }
+        BufferedInputStream bis = new BufferedInputStream(fis);
+
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+        if (bis.available() > 0) {
+            Certificate cert = cf.generateCertificate(bis);
+            return cert;
+            // It is possible to print the content of the certificate file:
+            // System.out.println(cert.toString());
+        }
+        bis.close();
+        fis.close();
+        return null;
+    }
+
+    /**
+     * Verifica se um certificado foi devidamente assinado pela CA
+     *
+     * @param certificate
+     *            certificado a ser verificado
+     * @param caPublicKey
+     *            certificado da CA
+     * @return true se foi devidamente assinado
+     */
+    private boolean verifySignedCertificate(Certificate certificate, PublicKey caPublicKey) {
+        try {
+            certificate.verify(caPublicKey);
+        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+                | SignatureException e) {
+            // O método Certifecate.verify() não retorna qualquer valor (void).
+            // Quando um certificado é inválido, isto é, não foi devidamente
+            // assinado pela CA
+            // é lançada uma excepção: java.security.SignatureException:
+            // Signature does not match.
+            // também são lançadas excepções caso o certificado esteja num
+            // formato incorrecto ou tenha uma
+            // chave inválida.
+
+            return false;
+        }
+        return true;
+    }
 }

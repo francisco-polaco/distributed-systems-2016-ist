@@ -2,7 +2,8 @@
     <handler-chain>
         <handler>
             <!--<handler-class>pt.upa.handler.LoggingHandler</handler-class>-->
-            <handler-class>pt.upa.handler.TransporterHandler</handler-class>
+            <!--<handler-class>pt.upa.handler.TransporterHandler</handler-class>-->
+            <handler-class>pt.upa.handler.TransporterCliHandler</handler-class>
         </handler>
     </handler-chain>
 </handler-chains>

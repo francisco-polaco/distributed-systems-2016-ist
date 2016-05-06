@@ -17,7 +17,7 @@ import static pt.upa.transporter.ws.JobStateView.*;
         targetNamespace="http://ws.transporter.upa.pt/",
         serviceName="TransporterService"
 )
-//@HandlerChain(file = "/transporter_handler-chain.xml")
+@HandlerChain(file = "/transporter_handler-chain.xml")
 public class TransporterPort implements TransporterPortType {
 
     private static final int DEFAULT_PRICE = 7;

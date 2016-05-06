@@ -7,6 +7,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.KeyPair;
@@ -59,8 +60,8 @@ public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.println("Inbound SOAP message.");
                 byte[] signature = getSignatureToSoap(smc);
                 // Don't delete this line or change its place. Xico: for some weird reason this line makes the code work.
-                smc.getMessage().writeTo(new OutputStream() { @Override public void write(int b) { } });
-
+                //smc.getMessage().writeTo(new OutputStream() { @Override public void write(int b) { } });
+                smc.getMessage().saveChanges();
                 verifySoap(signature, getSOAPtoByteArray(smc));
 
             }
@@ -260,5 +261,6 @@ public class TransporterHandler implements SOAPHandler<SOAPMessageContext> {
                 return false;
         return true;
     }
+
 
 }
