@@ -50,6 +50,6 @@ public class CAClientApplication {
 
         // Start CA
         Cli cli = new Cli(port);
-        cli.getEntityCertificate("Broker");
+        //cli.getEntityCertificate("Broker");
     }
 }

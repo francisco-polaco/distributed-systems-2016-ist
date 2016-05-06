@@ -13,7 +13,7 @@ public class Cli {
         mCa = ca;
     }
 
-    public pt.upa.ca.ws.Certificate getEntityCertificate(String entity){
+    public byte[] getEntityCertificate(String entity) {
         return mCa.getEntityCertificate(entity);
     }
 

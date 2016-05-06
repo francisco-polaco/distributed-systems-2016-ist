@@ -1,13 +1,15 @@
 package pt.upa.ca.ws;
 
 import javax.jws.WebService;
-import javax.security.cert.Certificate;
+import java.io.IOException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 
 /**
  * Created by xxlxpto on 06-05-2016.
  */
 @WebService
 interface CA {
-    Certificate getEntityCertificate(String entity);
+    byte[] getEntityCertificate(String entity);
 
 }
