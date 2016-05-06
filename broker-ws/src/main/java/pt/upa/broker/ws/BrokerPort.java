@@ -24,7 +24,7 @@ public class BrokerPort implements BrokerPortType{
 
     private ConcurrentHashMap<String, TransporterClient> allTransporters = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, TransportView> jobOffers = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, TransportView> jobOffers_aux = new ConcurrentHashMap<>();
+    //private ConcurrentHashMap<String, TransportView> jobOffers_aux = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, String> idConvTable = new ConcurrentHashMap<>();
     private ArrayList<String> north = new ArrayList<>(Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
     private ArrayList<String> center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
@@ -68,6 +68,8 @@ public class BrokerPort implements BrokerPortType{
             throws InvalidPriceFault_Exception, UnavailableTransportFault_Exception, UnavailableTransportPriceFault_Exception,
             UnknownLocationFault_Exception {
 
+        ConcurrentHashMap<String, TransportView> jobOffers_aux = new ConcurrentHashMap<>();
+
         if(invalidPrice(price))
             throw new InvalidPriceFault_Exception("Price is below 0.", new InvalidPriceFault());
 
@@ -89,7 +91,6 @@ public class BrokerPort implements BrokerPortType{
                 jobOffers_aux.put(transport.getId(), transport);
                 idConvTable.put(transport.getId(), offer.getJobIdentifier());
                 jobOffer = true;
-
             }
             else {
                 transport.setState(FAILED);
@@ -100,7 +101,7 @@ public class BrokerPort implements BrokerPortType{
             throw new UnavailableTransportFault_Exception("No Transport Available", new UnavailableTransportFault());}
         String id = null;
         try{
-            id = jobDecision(price).getId();
+            id = jobDecision(price, jobOffers_aux).getId();
         }catch (BadJobFault_Exception e){
             System.out.println(e.getMessage());
         }
@@ -163,11 +164,10 @@ public class BrokerPort implements BrokerPortType{
         return transport;
     }
 
-    private TransportView jobDecision(int price) throws UnavailableTransportPriceFault_Exception, BadJobFault_Exception {
+    private TransportView jobDecision(int price, ConcurrentHashMap<String, TransportView> jobOffers_aux) throws UnavailableTransportPriceFault_Exception, BadJobFault_Exception {
 
         ArrayList<TransportView> transportViews = new ArrayList<>();
         transportViews.addAll(jobOffers_aux.values());
-
         if(transportViews.size() > 1) {
             Collections.sort(transportViews, new Comparator<TransportView>() {
                 @Override
@@ -184,7 +184,6 @@ public class BrokerPort implements BrokerPortType{
                 allTransporters.get(offer.getTransporterCompany()).decideJob(idConvTable.get(offer.getId()), false);
                 jobOffers.put(offer.getId(),offer);
             }
-
         }
 
         if(bestOffer.getPrice() > price) {
