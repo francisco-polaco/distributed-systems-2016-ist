@@ -27,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>pt.upa.a43</groupId>
-            <artifactId>ca-ws-CAClient</artifactId>
+            <artifactId>ca-ws-cli</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
