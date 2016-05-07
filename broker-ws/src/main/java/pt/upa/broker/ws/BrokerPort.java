@@ -162,9 +162,10 @@ public class BrokerPort implements BrokerPortType{
     }
 
     @Override
-    public String updateTransporters(List<String> list) {
+    public String updateTransporters(String companyName, String endpointAddress) {
         return null;
     }
+
 
     private void getAllTransporters(String uddiURL) throws JAXRException, TransporterClientException {
         UDDINaming uddiNaming = new UDDINaming(uddiURL);
