@@ -27,6 +27,7 @@
         <uddi.url>http://localhost:9090</uddi.url>
     </properties>
 
+
     <dependencies>
         <!-- JAX-WS -->
         <dependency>
