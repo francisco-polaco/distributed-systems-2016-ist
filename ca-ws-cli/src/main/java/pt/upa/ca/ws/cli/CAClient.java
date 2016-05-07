@@ -57,6 +57,7 @@ public class CAClient {
             fileOutputStream.write(certificate);
             fileOutputStream.close();
         }
+        System.out.println("============END: CA Client============");
     }
 
 

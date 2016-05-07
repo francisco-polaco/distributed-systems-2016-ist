@@ -1,5 +1,7 @@
 package pt.upa.handler;
 
+import pt.upa.ca.ws.cli.CAClient;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
@@ -12,20 +14,25 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Iterator;
 import java.util.Set;
-import pt.upa.ca.ws.cli.CAClient;
-import static pt.upa.handler.BrokerHandlerConstants.*;
 
-import static javax.xml.bind.DatatypeConverter.*;
-
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 /**
- * This SOAPHandler outputs the contents of inbound and outbound messages.
+ * Created by xxlxpto on 07-05-2016.
  */
-public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
+public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
+    protected HandlerConstants handlerConstants;
 
-
-
-
+    private static String cleanInvalidXmlChars(String text) {
+        String xml10pattern = "[^"
+                + "\u0009\r\n"
+                + "\u0020-\uD7FF"
+                + "\uE000-\uFFFD"
+                + "\ud800\udc00-\udbff\udfff"
+                + "]";
+        return text.replaceAll(xml10pattern, "");
+    }
 
     public Set<QName> getHeaders() {
         return null;
@@ -36,24 +43,25 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         try {
 
-
+            System.out.println("=======================================");
             if (outbound) {
                 System.out.println("Outbound SOAP message.");
-                if(!checkIfOwnCertificateIsPresent()){
+                /*if(!checkIfOwnCertificateIsPresent()){
                     System.out.println("Certificate is not present, downloading...");
                     getCertificateFromCA(SENDER_SERVICE_NAME, SENDER_CERTIFICATE_FILE_PATH);
-                }
+                }*/
                 signMessage(smc);
-
+                getSOAPtoByteArray(smc);
             } else {
                 System.out.println("Inbound SOAP message.");
                 if(!checkIfOtherCertificateIsPresent()){
                     System.out.println("Certificate is not present, downloading...");
-                    getCertificateFromCA(RCPT_SERVICE_NAME, RCPT_CERTIFICATE_FILE_PATH);
+                    getCertificateFromCA(handlerConstants.RCPT_SERVICE_NAME, handlerConstants.RCPT_CERTIFICATE_FILE_PATH);
                 }
                 verifySignature(smc);
 
             }
+            System.out.println("=======================================");
 
         } catch (Exception e) {
             System.out.println("Caught exception in handleMessage: ");
@@ -64,10 +72,26 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private void verifySignature(SOAPMessageContext smc) throws Exception {
-        System.out.println("Verifying Signature...");
+        System.out.println("Verifying Signature... ");
         byte[] signature = getSignatureFromSoap(smc);
         smc.getMessage().saveChanges();
-        Certificate certificate = readCertificateFile(RCPT_CERTIFICATE_FILE_PATH);
+        Certificate certificate = readCertificateFile(handlerConstants.RCPT_CERTIFICATE_FILE_PATH);
+        PublicKey publicKey = certificate.getPublicKey();
+        boolean isValid = verifyDigitalSignature(signature, getSOAPtoByteArray(smc), publicKey);
+        if (isValid) {
+            System.out.println("The digital signature is valid");
+        } else {
+            System.out.println("The digital signature is NOT valid");
+        }
+    }
+
+    private void checkOwnSignature(SOAPMessageContext smc, byte[] signature)
+            throws Exception {
+        System.out.println("Checking signature...");
+        //Certificate certificate = readCertificateFile(certificateFilePath);
+        //PublicKey publicKey = certificate.getPublicKey();
+        KeyStore keystore = readKeystoreFile(handlerConstants.KEYSTORE_FILE, handlerConstants.KEYSTORE_PASSWORD.toCharArray());
+        Certificate certificate = keystore.getCertificate(handlerConstants.KEY_ALIAS);
         PublicKey publicKey = certificate.getPublicKey();
         boolean isValid = verifyDigitalSignature(signature, getSOAPtoByteArray(smc), publicKey);
         if (isValid) {
@@ -78,23 +102,16 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private void signMessage(SOAPMessageContext smc) throws Exception {
+        System.out.println("Signing... ");
         byte[] plainBytes = getSOAPtoByteArray(smc);
-        System.out.println("Signing...");
         byte[] digitalSignature = makeDigitalSignature(plainBytes,
-                getPrivateKeyFromKeystore(KEYSTORE_FILE, KEYSTORE_PASSWORD.toCharArray(),
-                        KEY_ALIAS, KEY_PASSWORD.toCharArray()));
-        Certificate certificate = readCertificateFile(SENDER_CERTIFICATE_FILE_PATH);
-        PublicKey publicKey = certificate.getPublicKey();
+                getPrivateKeyFromKeystore(handlerConstants.KEYSTORE_FILE,
+                        handlerConstants.KEYSTORE_PASSWORD.toCharArray(),
+                        handlerConstants.KEY_ALIAS, handlerConstants.KEY_PASSWORD.toCharArray()));
 
-        // verify the signature
-        System.out.println("Verifying ...");
-        boolean isValid = verifyDigitalSignature(digitalSignature, plainBytes, publicKey);
+       // System.out.println("DigitalSig:\n"+printBase64Binary(digitalSignature));
+        checkOwnSignature(smc, digitalSignature);
 
-        if (isValid) {
-            System.out.println("The digital signature is valid");
-        } else {
-            System.out.println("The digital signature is NOT valid");
-        }
         System.out.println("Add signature to SOAP...");
         addSignatureToSoap(digitalSignature, smc.getMessage());
         smc.getMessage().saveChanges();
@@ -104,8 +121,11 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
         CAClient caClient = new CAClient();
         caClient.getAndWriteEntityCertificate(entity, filename);
         Certificate certificate = readCertificateFile(filename);
-        Certificate caCertificate = readCertificateFile(CA_CERTIFICATE_FILE);
+        KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE, handlerConstants.KEYSTORE_PASSWORD.toCharArray());
+        Certificate caCertificate =  keyStore.getCertificate("ca");
+        //Certificate caCertificate = readCertificateFile(CA_CERTIFICATE_FILE);
         PublicKey caPublicKey = caCertificate.getPublicKey();
+        System.out.println("Checking Certificate from CA...");
         if (verifySignedCertificate(certificate, caPublicKey)) {
             System.out.println("The signed certificate is valid");
         } else {
@@ -113,14 +133,17 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
         }
     }
 
-    private byte[] getSOAPtoByteArray(SOAPMessageContext smc) {
+    private byte[] getSOAPtoByteArray(SOAPMessageContext smc) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             smc.getMessage().writeTo(out);
         } catch (SOAPException | IOException e) {
             e.printStackTrace();
         }
-        return out.toByteArray();
+        //out.writeTo(System.out);
+        byte[] toReturn = out.toByteArray();
+
+        return toReturn;
     }
 
     private void addSignatureToSoap(byte[] signature, SOAPMessage msg) throws SOAPException {
@@ -133,7 +156,7 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
             sh = se.addHeader();
 
         // add header element (name, namespace prefix, namespace)
-        Name name = se.createName(ELEMENT_NAME, PREFIX, NAMESPACE);
+        Name name = se.createName(handlerConstants.ELEMENT_NAME, handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         SOAPHeaderElement element = sh.addHeaderElement(name);
        // System.out.println("Adding signature to SOAP...");
         // add header element value
@@ -155,7 +178,8 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
         }
 
         // get first header element
-        Name name = se.createName(ELEMENT_NAME, PREFIX, NAMESPACE);
+        Name name = se.createName(handlerConstants.ELEMENT_NAME,
+                handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         Iterator it = sh.getChildElements(name);
         // check header element
         if (!it.hasNext()) {
@@ -180,9 +204,9 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
         se.removeAttribute(name);*/
 
         // put header in a property context
-        smc.put(CONTEXT_PROPERTY, signature);
+        smc.put(handlerConstants.CONTEXT_PROPERTY, signature);
         // set property scope to application client/server class can access it
-        smc.setScope(CONTEXT_PROPERTY, MessageContext.Scope.APPLICATION);
+        smc.setScope(handlerConstants.CONTEXT_PROPERTY, MessageContext.Scope.APPLICATION);
         smc.getMessage().saveChanges();
         return signature;
     }
@@ -196,25 +220,12 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
     public void close(MessageContext messageContext) {
     }
 
-
-    private static String cleanInvalidXmlChars(String text) {
-        String xml10pattern = "[^"
-                + "\u0009\r\n"
-                + "\u0020-\uD7FF"
-                + "\uE000-\uFFFD"
-                + "\ud800\udc00-\udbff\udfff"
-                + "]";
-        return text.replaceAll(xml10pattern, "");
-    }
-
-    /*Digital Signature */
-
-
     private boolean checkIfOwnCertificateIsPresent(){
-        return new File(SENDER_CERTIFICATE_FILE_PATH).exists();
+        return new File(handlerConstants.SENDER_CERTIFICATE_FILE_PATH).exists();
     }
+
     private boolean checkIfOtherCertificateIsPresent(){
-        return new File(RCPT_CERTIFICATE_FILE_PATH).exists();
+        return new File(handlerConstants.RCPT_CERTIFICATE_FILE_PATH).exists();
     }
 
     /**
@@ -261,6 +272,7 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
             certificate.verify(caPublicKey);
         } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
                 | SignatureException e) {
+            System.err.println("ERRO VERIFICACAO CERTIFICADO:\n" + e.getMessage());
             // O método Certifecate.verify() não retorna qualquer valor (void).
             // Quando um certificado é inválido, isto é, não foi devidamente
             // assinado pela CA
