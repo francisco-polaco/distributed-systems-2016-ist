@@ -1,5 +1,7 @@
 package pt.upa.handler;
 
+import pt.upa.ca.ws.cli.CAClient;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
 import javax.xml.ws.handler.MessageContext;
@@ -12,16 +14,17 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Iterator;
 import java.util.Set;
-import pt.upa.ca.ws.cli.CAClient;
-import static pt.upa.handler.BrokerHandlerConstants.*;
 
-import static javax.xml.bind.DatatypeConverter.*;
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
+import static pt.upa.handler.TransporterHandlerConstants.*;
 
 
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  */
-public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
+public class TransporterWsHandler implements SOAPHandler<SOAPMessageContext> {
 
 
 
@@ -36,7 +39,7 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         try {
 
-
+            System.out.println("=======================================");
             if (outbound) {
                 System.out.println("Outbound SOAP message.");
                 if(!checkIfOwnCertificateIsPresent()){
@@ -44,7 +47,7 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
                     getCertificateFromCA(SENDER_SERVICE_NAME, SENDER_CERTIFICATE_FILE_PATH);
                 }
                 signMessage(smc);
-
+                getSOAPtoByteArray(smc);
             } else {
                 System.out.println("Inbound SOAP message.");
                 if(!checkIfOtherCertificateIsPresent()){
@@ -54,6 +57,7 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
                 verifySignature(smc);
 
             }
+            System.out.println("=======================================");
 
         } catch (Exception e) {
             System.out.println("Caught exception in handleMessage: ");
@@ -64,10 +68,16 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private void verifySignature(SOAPMessageContext smc) throws Exception {
-        System.out.println("Verifying Signature...");
+        System.out.println("Verifying Signature... ");
         byte[] signature = getSignatureFromSoap(smc);
         smc.getMessage().saveChanges();
-        Certificate certificate = readCertificateFile(RCPT_CERTIFICATE_FILE_PATH);
+        checkSignature(smc, signature, RCPT_CERTIFICATE_FILE_PATH);
+    }
+
+    private void checkSignature(SOAPMessageContext smc, byte[] signature, String certificateFilePath)
+            throws Exception {
+        System.out.println("Checking signature...");
+        Certificate certificate = readCertificateFile(certificateFilePath);
         PublicKey publicKey = certificate.getPublicKey();
         boolean isValid = verifyDigitalSignature(signature, getSOAPtoByteArray(smc), publicKey);
         if (isValid) {
@@ -78,23 +88,15 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private void signMessage(SOAPMessageContext smc) throws Exception {
+        System.out.println("Signing... ");
         byte[] plainBytes = getSOAPtoByteArray(smc);
-        System.out.println("Signing...");
         byte[] digitalSignature = makeDigitalSignature(plainBytes,
                 getPrivateKeyFromKeystore(KEYSTORE_FILE, KEYSTORE_PASSWORD.toCharArray(),
                         KEY_ALIAS, KEY_PASSWORD.toCharArray()));
-        Certificate certificate = readCertificateFile(SENDER_CERTIFICATE_FILE_PATH);
-        PublicKey publicKey = certificate.getPublicKey();
 
-        // verify the signature
-        System.out.println("Verifying ...");
-        boolean isValid = verifyDigitalSignature(digitalSignature, plainBytes, publicKey);
+       // System.out.println("DigitalSig:\n"+printBase64Binary(digitalSignature));
+        checkSignature(smc, digitalSignature, SENDER_CERTIFICATE_FILE_PATH);
 
-        if (isValid) {
-            System.out.println("The digital signature is valid");
-        } else {
-            System.out.println("The digital signature is NOT valid");
-        }
         System.out.println("Add signature to SOAP...");
         addSignatureToSoap(digitalSignature, smc.getMessage());
         smc.getMessage().saveChanges();
@@ -113,14 +115,17 @@ public class TransporterCliHandler implements SOAPHandler<SOAPMessageContext> {
         }
     }
 
-    private byte[] getSOAPtoByteArray(SOAPMessageContext smc) {
+    private byte[] getSOAPtoByteArray(SOAPMessageContext smc) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             smc.getMessage().writeTo(out);
         } catch (SOAPException | IOException e) {
             e.printStackTrace();
         }
-        return out.toByteArray();
+        //out.writeTo(System.out);
+        byte[] toReturn = out.toByteArray();
+
+        return toReturn;
     }
 
     private void addSignatureToSoap(byte[] signature, SOAPMessage msg) throws SOAPException {

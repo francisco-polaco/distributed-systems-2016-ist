@@ -35,8 +35,12 @@ public class CAImplemention implements CA {
                 }
 
                 break;
-            case "Transporter":
-                //mais llogo
+            case "UpaTransporter1":
+                try {
+                    return readCertificateFile("UpaBroker.cer");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
                 // exception maybe?

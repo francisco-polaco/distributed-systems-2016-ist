@@ -29,7 +29,7 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
     // tests
 
-    @Test
+    /*@Test
     public void testHeaderHandlerOutbound(
         @Mocked final SOAPMessageContext soapMessageContext)
         throws Exception {
@@ -118,5 +118,5 @@ public class HeaderHandlerTest extends AbstractHandlerTest {
 
         //soapMessage.writeTo(System.out);
     }
-
+*/
 }
