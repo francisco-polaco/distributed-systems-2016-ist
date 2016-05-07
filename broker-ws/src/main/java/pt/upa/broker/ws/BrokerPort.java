@@ -135,6 +135,36 @@ public class BrokerPort implements BrokerPortType{
         idConvTable.clear();
         idSeed = 0;
     }
+    // FIXME: DANIEL
+    @Override
+    public String iAmAlive(String in) {
+        return null;
+    }
+
+    @Override
+    public String updateClr(String in) {
+        return null;
+    }
+
+    @Override
+    public String updateSeed(int in) {
+        return null;
+    }
+
+    @Override
+    public String updateOffers(String id, TransportView transportView) {
+        return null;
+    }
+
+    @Override
+    public String updateTable(String id, String target) {
+        return null;
+    }
+
+    @Override
+    public String updateTransporters(List<String> list) {
+        return null;
+    }
 
     private void getAllTransporters(String uddiURL) throws JAXRException, TransporterClientException {
         UDDINaming uddiNaming = new UDDINaming(uddiURL);

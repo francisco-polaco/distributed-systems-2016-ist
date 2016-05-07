@@ -2,7 +2,6 @@ package pt.upa.ca;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.ca.ws.CAImplemention;
-import pt.upa.ca.ws.X509CertificateCheck;
 
 import javax.xml.ws.Endpoint;
 import java.util.Collection;

@@ -109,7 +109,7 @@
         
         
             <xs:complexType name="clearTransports">
-                <xs:sequence />
+                <xs:sequence/>
             </xs:complexType>
             <xs:element name="clearTransports" type="tns:clearTransports" />
         
@@ -155,76 +155,12 @@
             </xs:complexType>
             <xs:element name="UnknownTransportFault" type="tns:UnknownTransportFault" />
         
-            <xs:element name="updateOffers">
-            	<xs:complexType>
-            		<xs:sequence>
-
-            			<xs:element name="id" type="xs:string"></xs:element>
-            			<xs:element name="offer"
-            				type="tns:transportView">
-            			</xs:element>
-            		</xs:sequence>
-            	</xs:complexType>
-            </xs:element>
-            <xs:element name="updateOffersResponse">
-            	<xs:complexType>
-            		<xs:sequence>
-
-            			<xs:element name="out" type="xs:string"></xs:element>
-            		</xs:sequence>
-            	</xs:complexType>
-            </xs:element>
-            <xs:element name="updateTable">
-            	<xs:complexType>
-            		<xs:sequence>
-
-            			<xs:element name="myId" type="xs:string"></xs:element>
-            			<xs:element name="otherId"
-            				type="xs:string">
-            			</xs:element>
-            		</xs:sequence>
-            	</xs:complexType>
-            </xs:element>
-            <xs:element name="updateTableResponse">
-            	<xs:complexType>
-            		<xs:sequence>
-
-            			<xs:element name="out" type="xs:string"></xs:element>
-            		</xs:sequence>
-            	</xs:complexType>
-            </xs:element>
-            <xs:element name="updateSeed">
-            	<xs:complexType>
-            		<xs:sequence>
-
-            			<xs:element name="seed" type="xs:int"></xs:element>
-            		</xs:sequence>
-            	</xs:complexType>
-            </xs:element>
-            <xs:element name="updateSeedResponse">
-            	<xs:complexType>
-            		<xs:sequence>
-
-            			<xs:element name="out" type="xs:string"></xs:element>
-            		</xs:sequence>
-            	</xs:complexType>
-            </xs:element>
-            <xs:element name="updateClear">
-            	<xs:complexType>
-            	</xs:complexType>
-            </xs:element>
-            <xs:element name="updateClearResponse">
-            	<xs:complexType>
-            		<xs:sequence>
-
-            			<xs:element name="out" type="xs:string"></xs:element>
-            		</xs:sequence>
-            	</xs:complexType>
-            </xs:element>
+ 
             <xs:element name="iAmAlive">
             	<xs:complexType>
             		<xs:sequence>
 
+            			<xs:element name="in" type="xs:string"></xs:element>
             		</xs:sequence>
             	</xs:complexType>
             </xs:element>
@@ -235,6 +171,90 @@
             			<xs:element name="out" type="xs:string"></xs:element>
             		</xs:sequence>
             	</xs:complexType>
+            </xs:element>
+            
+            <xs:element name="updateClr">
+            	<xs:complexType>
+            		<xs:sequence>
+
+            			<xs:element name="in" type="xs:string"></xs:element>
+            		</xs:sequence>
+            	</xs:complexType>
+            </xs:element>
+            <xs:element name="updateClrResponse">
+            	<xs:complexType>
+            		<xs:sequence>
+
+            			<xs:element name="out" type="xs:string"></xs:element>
+            		</xs:sequence>
+            	</xs:complexType>
+            </xs:element>
+
+            <xs:element name="updateSeed">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element name="in" type="xs:int"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateSeedResponse">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element name="out" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="updateOffers">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element name="id" type="xs:string"></xs:element>
+                        <xs:element name="transportView" type="tns:transportView"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateOffersResponse">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element name="out" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="updateTable">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element name="id" type="xs:string"></xs:element>
+                        <xs:element name="target" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateTableResponse">
+                <xs:complexType>
+                    <xs:sequence>
+
+                        <xs:element name="out" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateTransporters">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="list" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateTransportersResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="out" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
             </xs:element>
         </xs:schema>
     </types>
@@ -291,37 +311,48 @@
         <part name="fault" element="tns:UnknownTransportFault" />
     </message>
 
-    <!-- Port Type (Interface) -->
-    <message name="updateOffersRequest">
-    	<part name="parameters" element="tns:updateOffers"></part>
-    </message>
-    <message name="updateOffersResponse">
-    	<part name="parameters" element="tns:updateOffersResponse"></part>
-    </message>
-    <message name="updateTableRequest">
-    	<part name="parameters" element="tns:updateTable"></part>
-    </message>
-    <message name="updateTableResponse">
-    	<part name="parameters" element="tns:updateTableResponse"></part>
-    </message>
-    <message name="updateSeedRequest">
-    	<part name="parameters" element="tns:updateSeed"></part>
-    </message>
-    <message name="updateSeedResponse">
-    	<part name="parameters" element="tns:updateSeedResponse"></part>
-    </message>
-    <message name="updateClearRequest">
-    	<part name="parameters" element="tns:updateClear"></part>
-    </message>
-    <message name="updateClearResponse">
-    	<part name="parameters" element="tns:updateClearResponse"></part>
-    </message>
+    
     <message name="iAmAliveRequest">
     	<part name="parameters" element="tns:iAmAlive"></part>
     </message>
     <message name="iAmAliveResponse">
     	<part name="parameters" element="tns:iAmAliveResponse"></part>
     </message>
+    <message name="updateClrRequest">
+    	<part name="parameters" element="tns:updateClr"></part>
+    </message>
+    <message name="updateClrResponse">
+    	<part name="parameters" element="tns:updateClrResponse"></part>
+    </message>
+
+    <message name="updateSeedRequest">
+    	<part name="parameters" element="tns:updateSeed"></part>
+    </message>
+    <message name="updateSeedResponse">
+    	<part name="parameters" element="tns:updateSeedResponse"></part>
+    </message>
+
+    <message name="updateOffersRequest">
+    	<part name="parameters" element="tns:updateOffers"></part>
+    </message>
+    <message name="updateOffersResponse">
+    	<part name="parameters" element="tns:updateOffersResponse"></part>
+    </message>
+
+    <message name="updateTableRequest">
+    	<part name="parameters" element="tns:updateTable"></part>
+    </message>
+    <message name="updateTableResponse">
+    	<part name="parameters" element="tns:updateTableResponse"></part>
+    </message>
+
+    <message name="updateTransportersRequest">
+    	<part name="parameters" element="tns:updateTransporters"></part>
+    </message>
+    <message name="updateTransportersResponse">
+    	<part name="parameters" element="tns:updateTransportersResponse"></part>
+    </message>
+
     <portType name="BrokerPortType">
 
         <operation name="ping">
@@ -377,26 +408,37 @@
                 wsam:Action="http://ws.broker.upa.pt/BrokerPort/clearTransportsResponse"
                 message="tns:clearTransportsResponse" />
         </operation>
-        <operation name="updateOffers">
-        	<input message="tns:updateOffersRequest"></input>
-        	<output message="tns:updateOffersResponse"></output>
-        </operation>
-        <operation name="updateTable">
-        	<input message="tns:updateTableRequest"></input>
-        	<output message="tns:updateTableResponse"></output>
-        </operation>
-        <operation name="updateSeed">
-        	<input message="tns:updateSeedRequest"></input>
-        	<output message="tns:updateSeedResponse"></output>
-        </operation>
-        <operation name="updateClear">
-        	<input message="tns:updateClearRequest"></input>
-        	<output message="tns:updateClearResponse"></output>
-        </operation>
+
         <operation name="iAmAlive">
         	<input message="tns:iAmAliveRequest"></input>
         	<output message="tns:iAmAliveResponse"></output>
         </operation>
+        
+        <operation name="updateClr">
+        	<input message="tns:updateClrRequest"></input>
+        	<output message="tns:updateClrResponse"></output>
+        </operation>
+
+        <operation name="updateSeed">
+        	<input message="tns:updateSeedRequest"></input>
+        	<output message="tns:updateSeedResponse"></output>
+        </operation>
+
+        <operation name="updateOffers">
+        	<input message="tns:updateOffersRequest"></input>
+        	<output message="tns:updateOffersResponse"></output>
+        </operation>
+
+        <operation name="updateTable">
+        	<input message="tns:updateTableRequest"></input>
+        	<output message="tns:updateTableResponse"></output>
+        </operation>
+
+        <operation name="updateTransporters">
+        	<input message="tns:updateTransportersRequest"></input>
+        	<output message="tns:updateTransportersResponse"></output>
+        </operation>
+
     </portType>
 
     <!-- SOAP/HTTP Binding -->
@@ -470,6 +512,67 @@
                 <soap:body use="literal" />
             </output>
         </operation>
+        
+        <operation name="iAmAlive">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        
+        <operation name="updateClr">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+
+        <operation name="updateSeed">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+
+        <operation name="updateOffers">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+
+        <operation name="updateTable">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+
+        <operation name="updateTransporters">
+            <soap:operation soapAction="" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+
     </binding>
 
     <service name="BrokerService">
