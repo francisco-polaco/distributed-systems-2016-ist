@@ -154,13 +154,13 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="UnknownTransportFault" type="tns:UnknownTransportFault" />
-        
- 
+
+
             <xs:element name="iAmAlive">
             	<xs:complexType>
             		<xs:sequence>
 
-            			<xs:element name="in" type="xs:string"></xs:element>
+                        <xs:element name="in" type="xs:string" minOccurs="0"/>
             		</xs:sequence>
             	</xs:complexType>
             </xs:element>
@@ -168,7 +168,7 @@
             	<xs:complexType>
             		<xs:sequence>
 
-            			<xs:element name="out" type="xs:string"></xs:element>
+                        <xs:element name="out" type="xs:string" minOccurs="0"/>
             		</xs:sequence>
             	</xs:complexType>
             </xs:element>
@@ -177,7 +177,7 @@
             	<xs:complexType>
             		<xs:sequence>
 
-            			<xs:element name="in" type="xs:string"></xs:element>
+                        <xs:element name="in" type="xs:string" minOccurs="0"/>
             		</xs:sequence>
             	</xs:complexType>
             </xs:element>
@@ -185,7 +185,7 @@
             	<xs:complexType>
             		<xs:sequence>
 
-            			<xs:element name="out" type="xs:string"></xs:element>
+                        <xs:element name="out" type="xs:string" minOccurs="0"/>
             		</xs:sequence>
             	</xs:complexType>
             </xs:element>
@@ -194,7 +194,7 @@
                 <xs:complexType>
                     <xs:sequence>
 
-                        <xs:element name="in" type="xs:int"></xs:element>
+                        <xs:element name="in" type="xs:int"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -202,7 +202,7 @@
                 <xs:complexType>
                     <xs:sequence>
 
-                        <xs:element name="out" type="xs:string"></xs:element>
+                        <xs:element name="out" type="xs:string" minOccurs="0"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -211,8 +211,8 @@
                 <xs:complexType>
                     <xs:sequence>
 
-                        <xs:element name="id" type="xs:string"></xs:element>
-                        <xs:element name="transportView" type="tns:transportView"></xs:element>
+                        <xs:element name="id" type="xs:string" minOccurs="0"/>
+                        <xs:element name="transportView" type="tns:transportView" minOccurs="0"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -220,7 +220,7 @@
                 <xs:complexType>
                     <xs:sequence>
 
-                        <xs:element name="out" type="xs:string"></xs:element>
+                        <xs:element name="out" type="xs:string" minOccurs="0"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -229,8 +229,8 @@
                 <xs:complexType>
                     <xs:sequence>
 
-                        <xs:element name="id" type="xs:string"></xs:element>
-                        <xs:element name="target" type="xs:string"></xs:element>
+                        <xs:element name="id" type="xs:string" minOccurs="0"/>
+                        <xs:element name="target" type="xs:string" minOccurs="0"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -238,22 +238,22 @@
                 <xs:complexType>
                     <xs:sequence>
 
-                        <xs:element name="out" type="xs:string"></xs:element>
+                        <xs:element name="out" type="xs:string" minOccurs="0"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="updateTransporters">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="companyName" type="xs:string"></xs:element>
-                        <xs:element name="endpointAddress" type="xs:string"></xs:element>
+                        <xs:element name="companyName" type="xs:string" minOccurs="0"/>
+                        <xs:element name="endpointAddress" type="xs:string" minOccurs="0"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="updateTransportersResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="out" type="xs:string"></xs:element>
+                        <xs:element name="out" type="xs:string" minOccurs="0"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -312,46 +312,46 @@
         <part name="fault" element="tns:UnknownTransportFault" />
     </message>
 
-    
+
     <message name="iAmAliveRequest">
-    	<part name="parameters" element="tns:iAmAlive"></part>
+        <part name="parameters" element="tns:iAmAlive"/>
     </message>
     <message name="iAmAliveResponse">
-    	<part name="parameters" element="tns:iAmAliveResponse"></part>
+        <part name="parameters" element="tns:iAmAliveResponse"/>
     </message>
     <message name="updateClrRequest">
-    	<part name="parameters" element="tns:updateClr"></part>
+        <part name="parameters" element="tns:updateClr"/>
     </message>
     <message name="updateClrResponse">
-    	<part name="parameters" element="tns:updateClrResponse"></part>
+        <part name="parameters" element="tns:updateClrResponse"/>
     </message>
 
     <message name="updateSeedRequest">
-    	<part name="parameters" element="tns:updateSeed"></part>
+        <part name="parameters" element="tns:updateSeed"/>
     </message>
     <message name="updateSeedResponse">
-    	<part name="parameters" element="tns:updateSeedResponse"></part>
+        <part name="parameters" element="tns:updateSeedResponse"/>
     </message>
 
     <message name="updateOffersRequest">
-    	<part name="parameters" element="tns:updateOffers"></part>
+        <part name="parameters" element="tns:updateOffers"/>
     </message>
     <message name="updateOffersResponse">
-    	<part name="parameters" element="tns:updateOffersResponse"></part>
+        <part name="parameters" element="tns:updateOffersResponse"/>
     </message>
 
     <message name="updateTableRequest">
-    	<part name="parameters" element="tns:updateTable"></part>
+        <part name="parameters" element="tns:updateTable"/>
     </message>
     <message name="updateTableResponse">
-    	<part name="parameters" element="tns:updateTableResponse"></part>
+        <part name="parameters" element="tns:updateTableResponse"/>
     </message>
 
     <message name="updateTransportersRequest">
-    	<part name="parameters" element="tns:updateTransporters"></part>
+        <part name="parameters" element="tns:updateTransporters"/>
     </message>
     <message name="updateTransportersResponse">
-    	<part name="parameters" element="tns:updateTransportersResponse"></part>
+        <part name="parameters" element="tns:updateTransportersResponse"/>
     </message>
 
     <portType name="BrokerPortType">
@@ -411,33 +411,57 @@
         </operation>
 
         <operation name="iAmAlive">
-        	<input message="tns:iAmAliveRequest"></input>
-        	<output message="tns:iAmAliveResponse"></output>
+            <input
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/iAmAliveRequest"
+                    message="tns:iAmAliveRequest"/>
+            <output
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/iAmAliveResponse"
+                    message="tns:iAmAliveResponse"/>
         </operation>
-        
+
         <operation name="updateClr">
-        	<input message="tns:updateClrRequest"></input>
-        	<output message="tns:updateClrResponse"></output>
+            <input
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateClrRequest"
+                    message="tns:updateClrRequest"/>
+            <output
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateClrResponse"
+                    message="tns:updateClrResponse"/>
         </operation>
 
         <operation name="updateSeed">
-        	<input message="tns:updateSeedRequest"></input>
-        	<output message="tns:updateSeedResponse"></output>
+            <input
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateSeedRequest"
+                    message="tns:updateSeedRequest"/>
+            <output
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateSeedResponse"
+                    message="tns:updateSeedResponse"/>
         </operation>
 
         <operation name="updateOffers">
-        	<input message="tns:updateOffersRequest"></input>
-        	<output message="tns:updateOffersResponse"></output>
+            <input
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateOffersRequest"
+                    message="tns:updateOffersRequest"/>
+            <output
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateOffersResponse"
+                    message="tns:updateOffersResponse"/>
         </operation>
 
         <operation name="updateTable">
-        	<input message="tns:updateTableRequest"></input>
-        	<output message="tns:updateTableResponse"></output>
+            <input
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateTableRequest"
+                    message="tns:updateTableRequest"/>
+            <output
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateTableResponse"
+                    message="tns:updateTableResponse"/>
         </operation>
 
         <operation name="updateTransporters">
-        	<input message="tns:updateTransportersRequest"></input>
-        	<output message="tns:updateTransportersResponse"></output>
+            <input
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateTransportersRequest"
+                    message="tns:updateTransportersRequest"/>
+            <output
+                    wsam:Action="http://ws.broker.upa.pt/BrokerPort/updateTransportersResponse"
+                    message="tns:updateTransportersResponse"/>
         </operation>
 
     </portType>
@@ -513,7 +537,7 @@
                 <soap:body use="literal" />
             </output>
         </operation>
-        
+
         <operation name="iAmAlive">
             <soap:operation soapAction="" />
             <input>
