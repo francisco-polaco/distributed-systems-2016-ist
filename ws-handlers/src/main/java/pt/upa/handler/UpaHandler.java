@@ -17,11 +17,13 @@ import java.util.Set;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 /**
  * Created by xxlxpto on 07-05-2016.
  */
-public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
+
+public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     protected HandlerConstants handlerConstants;
 
     private static String cleanInvalidXmlChars(String text) {
@@ -109,7 +111,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                         handlerConstants.KEYSTORE_PASSWORD.toCharArray(),
                         handlerConstants.KEY_ALIAS, handlerConstants.KEY_PASSWORD.toCharArray()));
 
-       // System.out.println("DigitalSig:\n"+printBase64Binary(digitalSignature));
+        System.out.println("Digital Sig. is: \n"+printBase64Binary(digitalSignature));
         checkOwnSignature(smc, digitalSignature);
 
         System.out.println("Add signature to SOAP...");
@@ -158,7 +160,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         // add header element (name, namespace prefix, namespace)
         Name name = se.createName(handlerConstants.ELEMENT_NAME, handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         SOAPHeaderElement element = sh.addHeaderElement(name);
-       // System.out.println("Adding signature to SOAP...");
+        System.out.println("Adding signature to SOAP...");
         // add header element value
         element.addTextNode(printBase64Binary(signature));
     }
@@ -194,9 +196,10 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         byte[] signature = parseBase64Binary(valueString);
 
         // print received header
-       // System.out.println("Signature value is:\n" + printHexBinary(signature));
+        System.out.println("Received Signature value is:\n" + printBase64Binary(signature));
 
         // Removing Signature
+        System.out.println("Removing signature from SOAP...");
         it.remove();
         element.removeAttribute(name);
         element.removeContents();

@@ -1,5 +1,8 @@
 package pt.upa.ca.ws;
 
+import com.sun.org.apache.bcel.internal.classfile.Unknown;
+import pt.upa.ca.ws.exception.UnknownServiceException;
+
 import javax.jws.WebService;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +24,7 @@ import java.util.Collection;
 public class CAImplemention implements CA {
 
     @Override
-    public byte[] getEntityCertificate(String entity) {
+    public byte[] getEntityCertificate(String entity) throws UnknownServiceException {
         if(entity == null){
             return null;
         }
@@ -37,14 +40,14 @@ public class CAImplemention implements CA {
                 break;
             case "UpaTransporter1":
                 try {
-                    return readCertificateFile("UpaBroker.cer");
+                    return readCertificateFile("UpaTransporter1.cer");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
             default:
-                // exception maybe?
-                return null;
+                System.err.println("INVALID REQUEST!!!!");
+                throw new UnknownServiceException();
         }
         return null;
     }

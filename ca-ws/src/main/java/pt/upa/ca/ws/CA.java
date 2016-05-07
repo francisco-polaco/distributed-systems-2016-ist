@@ -1,5 +1,7 @@
 package pt.upa.ca.ws;
 
+import pt.upa.ca.ws.exception.UnknownServiceException;
+
 import javax.jws.WebService;
 import java.io.IOException;
 import java.security.cert.Certificate;
@@ -10,6 +12,6 @@ import java.security.cert.CertificateException;
  */
 @WebService
 interface CA {
-    byte[] getEntityCertificate(String entity);
+    byte[] getEntityCertificate(String entity) throws UnknownServiceException;
 
 }

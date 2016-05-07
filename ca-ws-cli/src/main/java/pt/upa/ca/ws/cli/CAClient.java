@@ -3,10 +3,12 @@ package pt.upa.ca.ws.cli;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.ca.ws.CA;
 import pt.upa.ca.ws.CAImplementionService;
+import pt.upa.ca.ws.UnknownServiceException_Exception;
 
 import javax.xml.registry.JAXRException;
 import javax.xml.ws.BindingProvider;
 import java.io.*;
+import java.net.UnknownServiceException;
 import java.util.Map;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
@@ -48,7 +50,8 @@ public class CAClient {
         requestContext.put(ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
     }
 
-    public void getAndWriteEntityCertificate(String entity, String filename) throws IOException {
+    public void getAndWriteEntityCertificate(String entity, String filename) throws IOException,
+            UnknownServiceException_Exception {
         byte[] certificate = mCa.getEntityCertificate(entity);
         File f = new File(filename);
         if(f.createNewFile()) {

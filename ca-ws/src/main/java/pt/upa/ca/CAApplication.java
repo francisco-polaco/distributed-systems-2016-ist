@@ -2,6 +2,7 @@ package pt.upa.ca;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.ca.ws.CAImplemention;
+import pt.upa.ca.ws.X509CertificateCheck;
 
 import javax.xml.ws.Endpoint;
 import java.util.Collection;
@@ -12,11 +13,16 @@ import java.util.List;
  */
 public class CAApplication {
     public static void main(String[] args){
-        System.out.println(CAImplemention.class.getSimpleName() + " starting...");
+        System.out.println("CA starting...");
         if (args.length < 3) {
             System.err.println("Argument(s) missing!");
             System.err.printf("Usage: java %s uddiURL wsName wsURL%n", CAApplication.class.getName());
             return;
+        }
+        try {
+            new X509CertificateCheck().main(null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         String uddiURL = args[0];
         String name = args[1];
