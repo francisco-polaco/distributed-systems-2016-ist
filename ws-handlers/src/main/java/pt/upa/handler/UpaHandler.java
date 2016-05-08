@@ -48,10 +48,6 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("=======================================");
             if (outbound) {
                 System.out.println("Outbound SOAP message.");
-                /*if(!checkIfOwnCertificateIsPresent()){
-                    System.out.println("Certificate is not present, downloading...");
-                    getCertificateFromCA(SENDER_SERVICE_NAME, SENDER_CERTIFICATE_FILE_PATH);
-                }*/
                 signMessage(smc);
                 getSOAPtoByteArray(smc);
             } else {
@@ -84,6 +80,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("The digital signature is valid");
         } else {
             System.out.println("The digital signature is NOT valid");
+            throw new AuthenticationException();
         }
     }
 
@@ -125,7 +122,6 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         Certificate certificate = readCertificateFile(filename);
         KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE, handlerConstants.KEYSTORE_PASSWORD.toCharArray());
         Certificate caCertificate =  keyStore.getCertificate("ca");
-        //Certificate caCertificate = readCertificateFile(CA_CERTIFICATE_FILE);
         PublicKey caPublicKey = caCertificate.getPublicKey();
         System.out.println("Checking Certificate from CA...");
         if (verifySignedCertificate(certificate, caPublicKey)) {
