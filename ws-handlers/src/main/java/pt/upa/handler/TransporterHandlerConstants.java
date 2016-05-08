@@ -38,6 +38,6 @@ public class TransporterHandlerConstants extends HandlerConstants {
         }
         SENDER_SERVICE_NAME = props.getProperty("ws.name");
         System.out.println(SENDER_SERVICE_NAME);
-        SENDER_SERVICE_NAME = "UpaTransporter1"; //FIXME: Remove after solve the bug above
+        //SENDER_SERVICE_NAME = "UpaTransporter1"; //FIXME: Remove after solve the bug above
     }
 }
