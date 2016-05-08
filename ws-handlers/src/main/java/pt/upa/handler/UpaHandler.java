@@ -35,7 +35,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         try {
 
-            System.out.println("=======================================");
+            System.out.println("=================SOAP HANDLER=================");
             if (outbound) {
                 System.out.println("Outbound SOAP message.");
                 addSenderToSoap(smc.getMessage());
@@ -51,7 +51,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 getSenderFromSoap(smc, true);
 
             }
-            System.out.println("=======================================");
+            System.out.println("=============END SOAP HANDLER=================");
 
         }catch(AuthenticationException | MissedFormedSOAPException e){
             System.out.println(e.getMessage());
