@@ -121,7 +121,6 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     private void getCertificateFromCA(String entity, String filename) throws Exception {
         CAClient caClient = new CAClient();
-        System.out.println("wann write : " + filename);
         caClient.getAndWriteEntityCertificate(entity, filename);
         Certificate certificate = readCertificateFile(filename);
         KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE,
