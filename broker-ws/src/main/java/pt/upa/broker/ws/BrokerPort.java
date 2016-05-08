@@ -14,7 +14,7 @@ import pt.upa.transporter.ws.cli.TransporterClientException;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",
-        wsdlLocation="broker.1_0.wsdl",
+        wsdlLocation="broker.2_0.wsdl",
         name="BrokerWebService",
         portName="BrokerPort",
         targetNamespace="http://ws.broker.upa.pt/",
@@ -141,27 +141,22 @@ public class BrokerPort implements BrokerPortType{
         return null;
     }
 
-    @Override
     public String updateClr(String in) {
         return null;
     }
 
-    @Override
     public String updateSeed(int in) {
         return null;
     }
 
-    @Override
     public String updateOffers(String id, TransportView transportView) {
         return null;
     }
 
-    @Override
     public String updateTable(String id, String target) {
         return null;
     }
 
-    @Override
     public String updateTransporters(String companyName, String endpointAddress) {
         return null;
     }
