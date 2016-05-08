@@ -9,7 +9,7 @@ import java.util.Properties;
  */
 public class TransporterHandlerConstants extends HandlerConstants {
 
-    private static final String PROP_FILE =  "./src/main/resources/server.properties";
+    private static final String PROP_FILE =  "/server.properties";
 
 
     public TransporterHandlerConstants(){
@@ -30,7 +30,7 @@ public class TransporterHandlerConstants extends HandlerConstants {
     private void loadProperties() throws IOException {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream(PROP_FILE));
+            props.load(TransporterHandlerConstants.class.getResourceAsStream(PROP_FILE));
         } catch (IOException e) {
             final String msg = String.format("Could not load properties file {%s}", PROP_FILE);
             System.out.println(msg);
