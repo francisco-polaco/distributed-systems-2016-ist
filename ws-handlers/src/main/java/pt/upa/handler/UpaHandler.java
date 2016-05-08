@@ -53,7 +53,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             }
             System.out.println("=======================================");
 
-        }catch(AuthenticationException e){
+        }catch(AuthenticationException | MissedFormedSOAPException e){
             System.out.println(e.getMessage());
             throw e;
         }catch (Exception e) {
@@ -199,22 +199,15 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPHeader sh = se.getHeader();
 
         // check header
-        if (sh == null) {
-            System.out.println("Header not found.");
-            return null;
-            // FIXME: exception
-        }
+        checkSOAPHeader(sh);
 
         // get first header element
         Name name = se.createName(handlerConstants.SENDER_ELEMENT_NAME,
                 handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         Iterator it = sh.getChildElements(name);
         // check header element
-        if (!it.hasNext()) {
-            System.out.println("Header element not found.");
-            return null;
-            // FIXME: exception
-        }
+        checkSOAPHeaderElement(it);
+
         SOAPElement element = (SOAPElement) it.next();
         String sender = element.getValue();
         if(toRemove) {
@@ -227,6 +220,17 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         return sender;
     }
 
+    private void checkSOAPHeaderElement(Iterator it) {
+        if (!it.hasNext()) {
+            failMissedFormedSOAP("Header element not found.");
+        }
+    }
+
+    private void checkSOAPHeader(SOAPHeader sh) {
+        if (sh == null) {
+            failMissedFormedSOAP("Header not found.");
+        }
+    }
 
 
     private byte[] getSignatureFromSoap(SOAPMessageContext smc) throws SOAPException {
@@ -237,40 +241,26 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         SOAPHeader sh = se.getHeader();
 
         // check header
-        if (sh == null) {
-            System.out.println("Header not found.");
-            return null;
-            // FIXME: exception
-        }
+        checkSOAPHeader(sh);
 
         // get first header element
         Name name = se.createName(handlerConstants.SIG_ELEMENT_NAME,
                 handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         Iterator it = sh.getChildElements(name);
         // check header element
-        if (!it.hasNext()) {
-            System.out.println("Header element not found.");
-            return null;
-            // FIXME: exception
-        }
+        checkSOAPHeaderElement(it);
+
         SOAPElement element = (SOAPElement) it.next();
 
         // get header element value
         String valueString = element.getValue();
         byte[] signature = parseBase64Binary(valueString);
 
-        // print received header
-        System.out.println("Received Signature value is:\n" + printBase64Binary(signature));
-
         // Removing Signature
         System.out.println("Removing signature from SOAP...");
         it.remove();
         element.removeAttribute(name);
         element.removeContents();
-
-
-        /*sh.removeAttribute(name);
-        se.removeAttribute(name);*/
 
         // put header in a property context
         smc.put(handlerConstants.CONTEXT_PROPERTY, signature);
@@ -291,6 +281,10 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     private boolean checkIfOtherCertificateIsPresent(String entity){
         return new File(entity + handlerConstants.CERTIFICATE_EXTENSION).exists();
+    }
+
+    private void failMissedFormedSOAP(String info){
+        throw new MissedFormedSOAPException(info);
     }
 
     /**
