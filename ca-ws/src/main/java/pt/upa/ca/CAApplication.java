@@ -36,7 +36,8 @@ public class CAApplication {
             uddiNaming = new UDDINaming(uddiURL);
 
             // To clean uddi, uncomment this
-          /*  uddiNaming.unbind("UpaTransporter3");
+           /* uddiNaming.unbind(name);
+            uddiNaming.unbind("UpaTransporter3");
             uddiNaming.unbind("UpaTransporter2");
             uddiNaming.unbind("UpaTransporter1");
             uddiNaming.unbind("UpaBroker");*/
