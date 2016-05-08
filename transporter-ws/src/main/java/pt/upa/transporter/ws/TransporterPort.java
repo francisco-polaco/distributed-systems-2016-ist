@@ -58,6 +58,7 @@ public class TransporterPort implements TransporterPortType {
                         "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
             }
             mKnownLocations.addAll(mLocations);
+            System.out.print(mNorthRegion);
         }
     }
 
@@ -104,8 +105,11 @@ public class TransporterPort implements TransporterPortType {
                         jobView.setJobPrice(price + mRandom.nextInt(price));
 
                 } else { //odd id
-                    if (price % 2 == 0)
+                    if (price % 2 == 0) {
                         jobView.setJobPrice(price + mRandom.nextInt(price));
+                        System.out.print(price);
+                        System.out.print(jobView.getJobPrice());
+                    }
                     else
                         jobView.setJobPrice(mRandom.nextInt(price));
                 }
