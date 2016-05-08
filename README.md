@@ -29,8 +29,7 @@ Linux
 
 JUDDI:
 ```
-cd juddi-3.3.2_tomcat-7.0.64_909/bin
-./startup.sh
+juddi-startup
 ```
 
 
@@ -39,21 +38,64 @@ cd juddi-3.3.2_tomcat-7.0.64_909/bin
 ```
 cd
 mkdir A_43-project
+cd A_43-project
 ```
 
 
 [3] Obter código fonte do projeto (versão entregue)
 
 ```
-git clone --branch SD_R1 https://github.com/tecnico-distsys/A_43-project
+git clone --branch SD_R2 https://github.com/tecnico-distsys/A_43-project
 ```
 
 
 [4] Instalar módulos de bibliotecas auxiliares
 
 ```
-wget http://disciplinas.tecnico.ulisboa.pt/leic-sod/2015-2016/labs/05-ws1/uddi-naming.zip
+cd A_43-project
 cd uddi-naming
+mvn clean install
+```
+
+[5] Instalar módulos de bibliotecas auxiliares
+
+Será necessário gerar os Certificados e os KeyStores com o script fornecido.
+Após isto, copiar os ficheiros .cer e da CA para a raiz de /ca-ws.
+Depois copiar os .jks para o serviço correspondente.
+As instruções de uso do script estão nele próprio.
+
+```
+wget http://web.ist.utl.pt/~ist179719/sd/gen_keys.sh
+sh gen_keys.sh
+```
+
+-------------------------------------------------------------------------------
+
+### Serviço CA
+
+[1] Construir e executar **servidor**
+
+```
+cd A_43-project/ca-ws
+mvn clean install
+mvn exec:java
+```
+
+[2] Construir **cliente** e executar testes
+
+```
+cd A_43-project/ca-ws-cli
+mvn clean generate-sources install
+```
+
+-------------------------------------------------------------------------------
+
+### Handlers
+
+[1] Construir
+
+```
+cd A_43-project/ws-handlers
 mvn clean install
 ```
 
@@ -77,8 +119,6 @@ cd A_43-project/transporter-ws-cli
 mvn clean generate-sources install
 ```
 
-...
-
 
 -------------------------------------------------------------------------------
 
@@ -100,7 +140,6 @@ cd A_43-project/broker-ws-cli
 mvn clean generate-sources install
 ```
 
-...
 
 -------------------------------------------------------------------------------
 **FIM**

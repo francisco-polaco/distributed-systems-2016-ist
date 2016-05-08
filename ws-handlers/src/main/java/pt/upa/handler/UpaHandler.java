@@ -43,10 +43,11 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 signMessage(smc);
             } else {
                 System.out.println("Inbound SOAP message.");
-                String sender = getSenderFromSoap(smc, false);
-                if(!checkIfOtherCertificateIsPresent(sender)){
+                handlerConstants.RCPT_SERVICE_NAME = getSenderFromSoap(smc, false);
+                if(!checkIfOtherCertificateIsPresent(handlerConstants.RCPT_SERVICE_NAME )){
                     System.out.println("Certificate is not present, downloading...");
-                    getCertificateFromCA(sender,  sender + handlerConstants.CERTIFICATE_EXTENSION);
+                    getCertificateFromCA(handlerConstants.RCPT_SERVICE_NAME,
+                            handlerConstants.RCPT_SERVICE_NAME + handlerConstants.CERTIFICATE_EXTENSION);
                 }
                 verifySignature(smc);
                 getSenderFromSoap(smc, true);
