@@ -140,23 +140,23 @@ public class BrokerPort implements BrokerPortType{
     public String iAmAlive(String in) {
         return null;
     }
-
+    @Override
     public String updateClr(String in) {
         return null;
     }
-
+    @Override
     public String updateSeed(int in) {
         return null;
     }
-
+    @Override
     public String updateOffers(String id, TransportView transportView) {
         return null;
     }
-
+    @Override
     public String updateTable(String id, String target) {
         return null;
     }
-
+    @Override
     public String updateTransporters(String companyName, String endpointAddress) {
         return null;
     }
