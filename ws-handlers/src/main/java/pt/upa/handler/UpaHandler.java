@@ -1,5 +1,6 @@
 package pt.upa.handler;
 
+import pt.upa.ca.ws.CertificateDoesntExists_Exception;
 import pt.upa.ca.ws.cli.CAClient;
 
 import javax.xml.namespace.QName;
@@ -121,7 +122,11 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     private void getCertificateFromCA(String entity, String filename) throws Exception {
         CAClient caClient = new CAClient();
-        caClient.getAndWriteEntityCertificate(entity, filename);
+        try{
+            caClient.getAndWriteEntityCertificate(entity, filename);
+        }catch (IOException e){
+            failAuthentication("Error downloading certificate.");
+        }
         Certificate certificate = readCertificateFile(filename);
         KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE,
                 handlerConstants.KEYSTORE_PASSWORD.toCharArray());
