@@ -24,7 +24,6 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
-    private static final String CERTIFICATE_EXTENSION = ".cre";
     protected HandlerConstants handlerConstants;
 
     public Set<QName> getHeaders() {
@@ -46,7 +45,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 String sender = getSenderFromSoap(smc, false);
                 if(!checkIfOtherCertificateIsPresent(sender)){
                     System.out.println("Certificate is not present, downloading...");
-                    getCertificateFromCA(sender,  sender + CERTIFICATE_EXTENSION);
+                    getCertificateFromCA(sender,  sender + handlerConstants.CERTIFICATE_EXTENSION);
                 }
                 verifySignature(smc);
                 getSenderFromSoap(smc, true);
@@ -90,7 +89,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     private void checkOwnSignature(SOAPMessageContext smc, byte[] signature)
             throws Exception {
         System.out.println("Checking signature...");
-        KeyStore keystore = readKeystoreFile(handlerConstants.KEYSTORE_FILE, handlerConstants.KEYSTORE_PASSWORD.toCharArray());
+        KeyStore keystore = readKeystoreFile(handlerConstants.KEYSTORE_FILE,
+                handlerConstants.KEYSTORE_PASSWORD.toCharArray());
         if(keystore == null){
             failAuthentication("KeyStore doesn't exist.");
         }
@@ -117,14 +117,15 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
         System.out.println("Add signature to SOAP...");
         addSignatureToSoap(digitalSignature, smc.getMessage());
-        smc.getMessage().saveChanges();
     }
 
     private void getCertificateFromCA(String entity, String filename) throws Exception {
         CAClient caClient = new CAClient();
+        System.out.println("wann write : " + filename);
         caClient.getAndWriteEntityCertificate(entity, filename);
         Certificate certificate = readCertificateFile(filename);
-        KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE, handlerConstants.KEYSTORE_PASSWORD.toCharArray());
+        KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE,
+                handlerConstants.KEYSTORE_PASSWORD.toCharArray());
         if(keyStore == null){
             failAuthentication("KeyStore doesn't exist.");
         }
@@ -166,7 +167,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         System.out.println("Adding signature to SOAP...");
         // add header element value
         element.addTextNode(printBase64Binary(signature));
-
+        msg.saveChanges();
 
     }
 
@@ -289,7 +290,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private boolean checkIfOtherCertificateIsPresent(String entity){
-        return new File(entity + CERTIFICATE_EXTENSION).exists();
+        return new File(entity + handlerConstants.CERTIFICATE_EXTENSION).exists();
     }
 
     /**

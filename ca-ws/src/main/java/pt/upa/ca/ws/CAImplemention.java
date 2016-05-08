@@ -25,7 +25,7 @@ public class CAImplemention implements CA {
                 mFileNames.add(file.getName());
             }
         }
-        mFileNames.add("UpaBroker.cer");
+        mFileNames.add("UpaBroker1.cer");
         System.out.println("Number of certificates loaded: " + mFileNames.size());
     }
 

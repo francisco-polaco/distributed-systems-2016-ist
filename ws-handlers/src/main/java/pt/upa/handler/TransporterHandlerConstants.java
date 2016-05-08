@@ -19,9 +19,9 @@ public class TransporterHandlerConstants extends HandlerConstants {
             // If nothing is defined
             SENDER_SERVICE_NAME = "UpaTransporter1";
         }
-        RCPT_SERVICE_NAME = "UpaBroker";
-        SENDER_CERTIFICATE_FILE_PATH = SENDER_SERVICE_NAME + ".cre";
-        RCPT_CERTIFICATE_FILE_PATH = RCPT_SERVICE_NAME + ".cre";
+        RCPT_SERVICE_NAME = "UpaBroker1";
+        SENDER_CERTIFICATE_FILE_PATH = SENDER_SERVICE_NAME + CERTIFICATE_EXTENSION;
+        RCPT_CERTIFICATE_FILE_PATH = RCPT_SERVICE_NAME + CERTIFICATE_EXTENSION;
         KEYSTORE_FILE = SENDER_SERVICE_NAME + ".jks";
         KEY_ALIAS = SENDER_SERVICE_NAME;
     }
