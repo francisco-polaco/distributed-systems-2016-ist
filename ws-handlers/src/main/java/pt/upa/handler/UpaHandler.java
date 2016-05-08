@@ -31,7 +31,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         return null;
     }
 
-    public boolean handleMessage(SOAPMessageContext smc) {
+    public synchronized boolean handleMessage(SOAPMessageContext smc) {
         Boolean outbound = (Boolean) smc
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         try {
@@ -42,8 +42,9 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 addSenderToSoap(smc.getMessage());
                 signMessage(smc);
             } else {
-                System.out.println("Inbound SOAP message.");
+                System.out.print("Inbound SOAP message from: ");
                 handlerConstants.RCPT_SERVICE_NAME = getSenderFromSoap(smc, false);
+                System.out.println(handlerConstants.RCPT_SERVICE_NAME);
                 if(!checkIfOtherCertificateIsPresent(handlerConstants.RCPT_SERVICE_NAME )){
                     System.out.println("Certificate is not present, downloading...");
                     getCertificateFromCA(handlerConstants.RCPT_SERVICE_NAME,
