@@ -6,6 +6,7 @@ package pt.upa.handler;
  */
 public class TransporterWsHandler extends UpaHandler {
 
+
     public TransporterWsHandler(){
         super();
         super.handlerConstants = new TransporterHandlerConstants();

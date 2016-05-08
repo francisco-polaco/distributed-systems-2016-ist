@@ -3,36 +3,18 @@ package pt.upa.handler;
 /**
  * Created by xxlxpto on 07-05-2016.
  */
-public class HandlerConstants {
-    /*public  String CONTEXT_PROPERTY = "my.property";
-         public  String ELEMENT_NAME = "signature";
-         public  String PREFIX = "S";
-         public  String NAMESPACE = "pt.upa.handler";
-         public  String DIGEST_ALGORITHM = "SHA-1";
-         public  String ASSYMETRIC_KEY_ALGORITHM = "RSA/ECB/PKCS1Padding";
-         public  String SENDER_SERVICE_NAME = "UpaBroker";
-         public  String RCPT_SERVICE_NAME = "UpaTransporter1";
-         public  String SENDER_CERTIFICATE_FILE_PATH = SENDER_SERVICE_NAME + ".cre";
-         public  String RCPT_CERTIFICATE_FILE_PATH = RCPT_SERVICE_NAME + ".cre";
-        // This should be sent by the CA
-         public  String CA_CERTIFICATE_FILE = "../ca-ws/ca-certificate.pem.txt";
-
-          public String KEYSTORE_FILE = SENDER_SERVICE_NAME + ".jks";
-          public String KEYSTORE_PASSWORD = "ins3cur3";
-
-          public String KEY_ALIAS = SENDER_SERVICE_NAME;
-          public String KEY_PASSWORD = "1nsecure";*/
-     public  String CONTEXT_PROPERTY = "my.property";
-     public  String ELEMENT_NAME = "signature";
-     public  String PREFIX = "S";
-     public  String NAMESPACE = "pt.upa.handler";
-     public  String SENDER_SERVICE_NAME = "UpaBroker";
-     public  String RCPT_SERVICE_NAME = "UpaTransporter1";
-     public  String SENDER_CERTIFICATE_FILE_PATH = SENDER_SERVICE_NAME + ".cre";
-     public  String RCPT_CERTIFICATE_FILE_PATH = RCPT_SERVICE_NAME + ".cre";
-    // This should be sent by the CA
-     public String KEYSTORE_FILE = SENDER_SERVICE_NAME + ".jks";
-     public String KEYSTORE_PASSWORD = "ins3cur3";
-     public String KEY_ALIAS = SENDER_SERVICE_NAME;
-     public String KEY_PASSWORD = "1nsecure";
+public abstract class HandlerConstants {
+     final String CONTEXT_PROPERTY = "my.property";
+     final String SIG_ELEMENT_NAME = "signature";
+     final String SENDER_ELEMENT_NAME = "sender";
+     final String PREFIX = "S";
+     final String NAMESPACE = "pt.upa.handler";
+     String SENDER_SERVICE_NAME = "UpaBroker";
+     String RCPT_SERVICE_NAME = "UpaTransporter1";
+     String SENDER_CERTIFICATE_FILE_PATH = SENDER_SERVICE_NAME + ".cre";
+     String RCPT_CERTIFICATE_FILE_PATH = RCPT_SERVICE_NAME + ".cre";
+     String KEYSTORE_FILE = SENDER_SERVICE_NAME + ".jks";
+     final String KEYSTORE_PASSWORD = "ins3cur3";
+     String KEY_ALIAS = SENDER_SERVICE_NAME;
+     final String KEY_PASSWORD = "1nsecure";
 }

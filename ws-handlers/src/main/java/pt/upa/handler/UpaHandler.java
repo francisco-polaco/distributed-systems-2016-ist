@@ -17,24 +17,14 @@ import java.util.Set;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
-import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 /**
  * Created by xxlxpto on 07-05-2016.
  */
 
 public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
-    protected HandlerConstants handlerConstants;
 
-    private static String cleanInvalidXmlChars(String text) {
-        String xml10pattern = "[^"
-                + "\u0009\r\n"
-                + "\u0020-\uD7FF"
-                + "\uE000-\uFFFD"
-                + "\ud800\udc00-\udbff\udfff"
-                + "]";
-        return text.replaceAll(xml10pattern, "");
-    }
+    protected HandlerConstants handlerConstants;
 
     public Set<QName> getHeaders() {
         return null;
@@ -48,15 +38,17 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("=======================================");
             if (outbound) {
                 System.out.println("Outbound SOAP message.");
+                addSenderToSoap(smc.getMessage());
                 signMessage(smc);
-                getSOAPtoByteArray(smc);
             } else {
                 System.out.println("Inbound SOAP message.");
-                if(!checkIfOtherCertificateIsPresent()){
+                String sender = getSenderFromSoap(smc, false);
+                if(!checkIfOtherCertificateIsPresent(sender)){
                     System.out.println("Certificate is not present, downloading...");
-                    getCertificateFromCA(handlerConstants.RCPT_SERVICE_NAME, handlerConstants.RCPT_CERTIFICATE_FILE_PATH);
+                    getCertificateFromCA(sender,  sender + ".cre");
                 }
                 verifySignature(smc);
+                getSenderFromSoap(smc, true);
 
             }
             System.out.println("=======================================");
@@ -154,12 +146,71 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             sh = se.addHeader();
 
         // add header element (name, namespace prefix, namespace)
-        Name name = se.createName(handlerConstants.ELEMENT_NAME, handlerConstants.PREFIX, handlerConstants.NAMESPACE);
+        Name name = se.createName(handlerConstants.SIG_ELEMENT_NAME, handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         SOAPHeaderElement element = sh.addHeaderElement(name);
         System.out.println("Adding signature to SOAP...");
         // add header element value
         element.addTextNode(printBase64Binary(signature));
+
+
     }
+
+    private void addSenderToSoap(SOAPMessage msg) throws SOAPException {
+        SOAPPart sp = msg.getSOAPPart();
+        SOAPEnvelope se = sp.getEnvelope();
+
+        // add header
+        SOAPHeader sh = se.getHeader();
+        if (sh == null)
+            sh = se.addHeader();
+
+        // add header element (name, namespace prefix, namespace)
+        Name name = se.createName(handlerConstants.SENDER_ELEMENT_NAME, handlerConstants.PREFIX, handlerConstants.NAMESPACE);
+        SOAPHeaderElement element = sh.addHeaderElement(name);
+        System.out.println("Adding sender to SOAP...");
+        // add header element value
+        element.addTextNode(handlerConstants.SENDER_SERVICE_NAME);
+        msg.saveChanges();
+
+    }
+
+    private String getSenderFromSoap(SOAPMessageContext smc, boolean toRemove) throws SOAPException {
+        // get SOAP envelope header
+        SOAPMessage msg = smc.getMessage();
+        SOAPPart sp = msg.getSOAPPart();
+        SOAPEnvelope se = sp.getEnvelope();
+        SOAPHeader sh = se.getHeader();
+
+        // check header
+        if (sh == null) {
+            System.out.println("Header not found.");
+            return null;
+            // FIXME: exception
+        }
+
+        // get first header element
+        Name name = se.createName(handlerConstants.SENDER_ELEMENT_NAME,
+                handlerConstants.PREFIX, handlerConstants.NAMESPACE);
+        Iterator it = sh.getChildElements(name);
+        // check header element
+        if (!it.hasNext()) {
+            System.out.println("Header element not found.");
+            return null;
+            // FIXME: exception
+        }
+        SOAPElement element = (SOAPElement) it.next();
+        String sender = element.getValue();
+        if(toRemove) {
+            System.out.println("Removing sender from SOAP...");
+            it.remove();
+            element.removeAttribute(name);
+            element.removeContents();
+            smc.getMessage().saveChanges();
+        }
+        return sender;
+    }
+
+
 
     private byte[] getSignatureFromSoap(SOAPMessageContext smc) throws SOAPException {
         // get SOAP envelope header
@@ -176,7 +227,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         }
 
         // get first header element
-        Name name = se.createName(handlerConstants.ELEMENT_NAME,
+        Name name = se.createName(handlerConstants.SIG_ELEMENT_NAME,
                 handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         Iterator it = sh.getChildElements(name);
         // check header element
@@ -199,6 +250,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         it.remove();
         element.removeAttribute(name);
         element.removeContents();
+
+
         /*sh.removeAttribute(name);
         se.removeAttribute(name);*/
 
@@ -223,8 +276,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         return new File(handlerConstants.SENDER_CERTIFICATE_FILE_PATH).exists();
     }
 
-    private boolean checkIfOtherCertificateIsPresent(){
-        return new File(handlerConstants.RCPT_CERTIFICATE_FILE_PATH).exists();
+    private boolean checkIfOtherCertificateIsPresent(String entity){
+        return new File(entity + ".cre").exists();
     }
 
     /**
