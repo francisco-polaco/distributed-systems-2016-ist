@@ -27,6 +27,7 @@
 
         <ws.name>UpaBroker</ws.name>
         <uddi.url>http://localhost:9090</uddi.url>
+        <ws.i>1</ws.i>
     </properties>
 
 
@@ -128,6 +129,7 @@
                         <argument>${uddi.url}</argument>
                         <argument>${ws.name}</argument>
                         <argument>${ws.url}</argument>
+                        <argument>${ws.i}</argument>
                     </arguments>
                 </configuration>
             </plugin>
