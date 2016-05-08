@@ -24,6 +24,7 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
+    private static final String CERTIFICATE_EXTENSION = ".cre";
     protected HandlerConstants handlerConstants;
 
     public Set<QName> getHeaders() {
@@ -45,7 +46,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 String sender = getSenderFromSoap(smc, false);
                 if(!checkIfOtherCertificateIsPresent(sender)){
                     System.out.println("Certificate is not present, downloading...");
-                    getCertificateFromCA(sender,  sender + ".cre");
+                    getCertificateFromCA(sender,  sender + CERTIFICATE_EXTENSION);
                 }
                 verifySignature(smc);
                 getSenderFromSoap(smc, true);
@@ -53,8 +54,11 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             }
             System.out.println("=======================================");
 
-        } catch (Exception e) {
-            System.out.println("Caught exception in handleMessage: ");
+        }catch(AuthenticationException e){
+            System.out.println(e.getMessage());
+            throw e;
+        }catch (Exception e) {
+            System.out.println("Caught exception in handleMessage: " + e.getMessage());
             e.printStackTrace();
             System.out.println("Continue normal processing...");
         }
@@ -66,22 +70,30 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         byte[] signature = getSignatureFromSoap(smc);
         smc.getMessage().saveChanges();
         Certificate certificate = readCertificateFile(handlerConstants.RCPT_CERTIFICATE_FILE_PATH);
+        if(certificate == null){
+            failAuthentication("Could not open the Recipient's certificate.");
+        }
         PublicKey publicKey = certificate.getPublicKey();
         boolean isValid = verifyDigitalSignature(signature, getSOAPtoByteArray(smc), publicKey);
         if (isValid) {
             System.out.println("The digital signature is valid");
         } else {
             System.out.println("The digital signature is NOT valid");
-            throw new AuthenticationException();
+            failAuthentication("Recipient's authentication is not valid.");
         }
+    }
+
+    private void failAuthentication(String info) throws AuthenticationException {
+        throw new AuthenticationException(info);
     }
 
     private void checkOwnSignature(SOAPMessageContext smc, byte[] signature)
             throws Exception {
         System.out.println("Checking signature...");
-        //Certificate certificate = readCertificateFile(certificateFilePath);
-        //PublicKey publicKey = certificate.getPublicKey();
         KeyStore keystore = readKeystoreFile(handlerConstants.KEYSTORE_FILE, handlerConstants.KEYSTORE_PASSWORD.toCharArray());
+        if(keystore == null){
+            failAuthentication("KeyStore doesn't exist.");
+        }
         Certificate certificate = keystore.getCertificate(handlerConstants.KEY_ALIAS);
         PublicKey publicKey = certificate.getPublicKey();
         boolean isValid = verifyDigitalSignature(signature, getSOAPtoByteArray(smc), publicKey);
@@ -89,6 +101,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("The digital signature is valid");
         } else {
             System.out.println("The digital signature is NOT valid");
+            failAuthentication("Own signature is not valid.");
         }
     }
 
@@ -100,7 +113,6 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                         handlerConstants.KEYSTORE_PASSWORD.toCharArray(),
                         handlerConstants.KEY_ALIAS, handlerConstants.KEY_PASSWORD.toCharArray()));
 
-        System.out.println("Digital Sig. is: \n"+printBase64Binary(digitalSignature));
         checkOwnSignature(smc, digitalSignature);
 
         System.out.println("Add signature to SOAP...");
@@ -113,6 +125,9 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         caClient.getAndWriteEntityCertificate(entity, filename);
         Certificate certificate = readCertificateFile(filename);
         KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE, handlerConstants.KEYSTORE_PASSWORD.toCharArray());
+        if(keyStore == null){
+            failAuthentication("KeyStore doesn't exist.");
+        }
         Certificate caCertificate =  keyStore.getCertificate("ca");
         PublicKey caPublicKey = caCertificate.getPublicKey();
         System.out.println("Checking Certificate from CA...");
@@ -120,10 +135,11 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("The signed certificate is valid");
         } else {
             System.err.println("The signed certificate is not valid");
+            failAuthentication("Sender's certificate is not valid.");
         }
     }
 
-    private byte[] getSOAPtoByteArray(SOAPMessageContext smc) throws IOException {
+    private byte[] getSOAPtoByteArray(SOAPMessageContext smc) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             smc.getMessage().writeTo(out);
@@ -131,9 +147,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             e.printStackTrace();
         }
         //out.writeTo(System.out);
-        byte[] toReturn = out.toByteArray();
 
-        return toReturn;
+        return out.toByteArray();
     }
 
     private void addSignatureToSoap(byte[] signature, SOAPMessage msg) throws SOAPException {
@@ -165,7 +180,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             sh = se.addHeader();
 
         // add header element (name, namespace prefix, namespace)
-        Name name = se.createName(handlerConstants.SENDER_ELEMENT_NAME, handlerConstants.PREFIX, handlerConstants.NAMESPACE);
+        Name name = se.createName(handlerConstants.SENDER_ELEMENT_NAME,
+                handlerConstants.PREFIX, handlerConstants.NAMESPACE);
         SOAPHeaderElement element = sh.addHeaderElement(name);
         System.out.println("Adding sender to SOAP...");
         // add header element value
@@ -272,12 +288,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     public void close(MessageContext messageContext) {
     }
 
-    private boolean checkIfOwnCertificateIsPresent(){
-        return new File(handlerConstants.SENDER_CERTIFICATE_FILE_PATH).exists();
-    }
-
     private boolean checkIfOtherCertificateIsPresent(String entity){
-        return new File(entity + ".cre").exists();
+        return new File(entity + CERTIFICATE_EXTENSION).exists();
     }
 
     /**
@@ -300,8 +312,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
         if (bis.available() > 0) {
-            Certificate cert = cf.generateCertificate(bis);
-            return cert;
+            return cf.generateCertificate(bis);
             // It is possible to print the content of the certificate file:
             // System.out.println(cert.toString());
         }
@@ -349,9 +360,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                                                        String keyAlias, char[] keyPassword) throws Exception {
 
         KeyStore keystore = readKeystoreFile(keyStoreFilePath, keyStorePassword);
-        PrivateKey key = (PrivateKey) keystore.getKey(keyAlias, keyPassword);
 
-        return key;
+        return (PrivateKey) keystore.getKey(keyAlias, keyPassword);
     }
 
     /**
@@ -381,9 +391,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         Signature sig = Signature.getInstance("SHA1WithRSA");
         sig.initSign(privateKey);
         sig.update(bytes);
-        byte[] signature = sig.sign();
 
-        return signature;
+        return sig.sign();
     }
 
     /**
