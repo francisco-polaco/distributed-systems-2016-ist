@@ -22,7 +22,7 @@
 
         <mainclass>pt.upa.broker.BrokerClientApplication</mainclass>
 
-        <ws.name>UpaBroker</ws.name>
+        <ws.name>UpaBroker1</ws.name>
         <uddi.url>http://localhost:9090</uddi.url>
     </properties>
 

@@ -23,9 +23,9 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
  * Created by xxlxpto on 07-05-2016.
  */
 
-public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
+public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
-    protected HandlerConstants handlerConstants;
+    public static HandlerConstants handlerConstants = new HandlerConstants();
 
     public Set<QName> getHeaders() {
         return null;
