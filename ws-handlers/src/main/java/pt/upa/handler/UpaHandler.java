@@ -49,7 +49,9 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             } else {
                 System.out.print("Inbound SOAP message from: ");
                 handlerConstants.RCPT_SERVICE_NAME = getSenderFromSoap(smc, false);
+                handlerConstants.RCPT_CERTIFICATE_FILE_PATH = handlerConstants.RCPT_SERVICE_NAME + handlerConstants.CERTIFICATE_EXTENSION;
                 System.out.println(handlerConstants.RCPT_SERVICE_NAME);
+
                 if(!checkIfOtherCertificateIsPresent(handlerConstants.RCPT_SERVICE_NAME )){
                     System.out.println("Certificate is not present, downloading...");
                     getCertificateFromCA(handlerConstants.RCPT_SERVICE_NAME,
@@ -117,6 +119,8 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     private void signMessage(SOAPMessageContext smc) throws Exception {
         System.out.println("Signing... ");
         byte[] plainBytes = getSOAPtoByteArray(smc);
+        handlerConstants.KEYSTORE_FILE = handlerConstants.SENDER_SERVICE_NAME + ".jks";
+        handlerConstants.KEY_ALIAS = handlerConstants.SENDER_SERVICE_NAME;
         byte[] digitalSignature = makeDigitalSignature(plainBytes,
                 getPrivateKeyFromKeystore(handlerConstants.KEYSTORE_FILE,
                         handlerConstants.KEYSTORE_PASSWORD.toCharArray(),
@@ -205,9 +209,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     private void addTimeStampToSoap(SOAPMessage msg) throws SOAPException {
 
-        GregorianCalendar rightNow = new GregorianCalendar();
-        Timestamp date = new Timestamp(rightNow.get(Calendar.YEAR), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH),
-                rightNow.get(Calendar.HOUR_OF_DAY), rightNow.get(Calendar.MINUTE), rightNow.get(Calendar.SECOND),rightNow.get(Calendar.MILLISECOND));
+
 
         SOAPPart sp = msg.getSOAPPart();
         SOAPEnvelope se = sp.getEnvelope();
@@ -224,7 +226,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         System.out.println("Adding Timestamp to SOAP...");
         // add header element value
 
-        element.addTextNode(date.toString());
+        element.addTextNode(actualTime().toString());
 
         msg.saveChanges();
 
@@ -262,38 +264,38 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     private Timestamp actualTime(){
         GregorianCalendar rightNow = new GregorianCalendar();
-        Timestamp Stamp = new Timestamp(rightNow.get(Calendar.YEAR), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH),
-                rightNow.get(Calendar.HOUR_OF_DAY), rightNow.get(Calendar.MINUTE), rightNow.get(Calendar.SECOND), rightNow.get(Calendar.MILLISECOND));
-        return Stamp;
+        return new Timestamp(rightNow.getTimeInMillis());
     }
 
     private void VerifyTimestamp(String date) {
-        Timestamp Stamp = actualTime();
-        System.out.println(Stamp.toString());
-        System.out.println(Stamp.valueOf(date).toString());
+        Timestamp stamp = actualTime();
+        System.out.println(stamp.toString());
+        System.out.println(Timestamp.valueOf(date).toString());
 
-        if (Stamp.before(Stamp.valueOf(date))) {
+
+        if (stamp.before(Timestamp.valueOf(date))) {
             System.out.println("ERROR1!!!");
         }
 
-        if (Stamp.getMinutes() >= 1)
-            Stamp.setMinutes(Stamp.getMinutes() - 1);
-        else
-            Stamp.setSeconds(00);
+        if (stamp.getMinutes() >= 1) {
+            stamp.setMinutes(stamp.getMinutes() - 1);
+            System.out.println(stamp.toString());
+        }else
+            stamp.setSeconds(0);
 
-        if (Stamp.after(Stamp.valueOf(date))) {
+        if (stamp.after(Timestamp.valueOf(date))) {
             System.out.println("ERROR2!!!");
         }
 
         if (oldTimestamps.size() == 0)
-            oldTimestamps.add(Stamp.valueOf(date));
+            oldTimestamps.add(Timestamp.valueOf(date));
         else {
             for (Timestamp t : oldTimestamps) {
-                if (t.equals(Stamp.valueOf(date))) {
+                if (t.equals(Timestamp.valueOf(date))) {
                     System.out.println("ERROR3!!!");
                 }
             }
-            oldTimestamps.add(Stamp.valueOf(date));
+            oldTimestamps.add(Timestamp.valueOf(date));
         }
     }
 
