@@ -1,6 +1,7 @@
 package pt.upa.transporter;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.upa.handler.UpaHandler;
 import pt.upa.transporter.ws.TransporterPort;
 
 import javax.xml.ws.Endpoint;
@@ -35,6 +36,7 @@ public class TransporterApplication {
             uddiNaming = new UDDINaming(uddiURL);
             uddiNaming.rebind(name, url);
 
+            UpaHandler.handlerConstants.SENDER_SERVICE_NAME = name;
             // wait
             System.out.println("Awaiting connections");
             System.out.println("Press enter to shutdown");

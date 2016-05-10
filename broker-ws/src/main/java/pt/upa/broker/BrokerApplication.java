@@ -2,6 +2,8 @@ package pt.upa.broker;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.ws.BrokerPort;
+import pt.upa.handler.UpaHandler;
+
 import javax.xml.ws.Endpoint;
 
 public class BrokerApplication {
@@ -33,6 +35,7 @@ public class BrokerApplication {
 			System.out.printf("Publishing '%s' to UDDI at %s%n", name, uddiURL);
 			uddiNaming = new UDDINaming(uddiURL);
 			uddiNaming.rebind(name, url);
+			UpaHandler.handlerConstants.SENDER_SERVICE_NAME = name;
 
 			// wait
 			System.out.println("Awaiting connections");
