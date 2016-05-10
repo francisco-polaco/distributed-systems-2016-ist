@@ -1,6 +1,5 @@
 package pt.upa.handler;
 
-import pt.upa.ca.ws.CertificateDoesntExists_Exception;
 import pt.upa.ca.ws.cli.CAClient;
 
 import javax.xml.namespace.QName;
@@ -13,8 +12,9 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.util.Iterator;
-import java.util.Set;
+import java.sql.Time;
+import java.util.*;
+import java.sql.Timestamp;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
@@ -26,6 +26,7 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     protected HandlerConstants handlerConstants;
+    private ArrayList<Timestamp> oldTimestamps = new ArrayList<>();
 
     public Set<QName> getHeaders() {
         return null;
@@ -39,7 +40,9 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("=================SOAP HANDLER=================");
             if (outbound) {
                 System.out.println("Outbound SOAP message.");
+                System.out.println(smc.getMessage().getSOAPBody().toString());
                 addSenderToSoap(smc.getMessage());
+                addTimeStampToSoap(smc.getMessage());
                 signMessage(smc);
             } else {
                 System.out.print("Inbound SOAP message from: ");
@@ -51,6 +54,7 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                             handlerConstants.RCPT_SERVICE_NAME + handlerConstants.CERTIFICATE_EXTENSION);
                 }
                 verifySignature(smc);
+                getTimeStampFromSoap(smc);
                 getSenderFromSoap(smc, true);
 
             }
@@ -197,6 +201,100 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     }
 
+    private void addTimeStampToSoap(SOAPMessage msg) throws SOAPException {
+
+        GregorianCalendar rightNow = new GregorianCalendar();
+        Timestamp date = new Timestamp(rightNow.get(Calendar.YEAR), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH),
+                rightNow.get(Calendar.HOUR_OF_DAY), rightNow.get(Calendar.MINUTE), rightNow.get(Calendar.SECOND),rightNow.get(Calendar.MILLISECOND));
+
+        SOAPPart sp = msg.getSOAPPart();
+        SOAPEnvelope se = sp.getEnvelope();
+
+        // add header
+        SOAPHeader sh = se.getHeader();
+        if (sh == null)
+            sh = se.addHeader();
+
+        // add header element (name, namespace prefix, namespace)
+        Name name = se.createName(handlerConstants.NAUNCE,
+                handlerConstants.PREFIX, handlerConstants.NAMESPACE);
+        SOAPHeaderElement element = sh.addHeaderElement(name);
+        System.out.println("Adding Timestamp to SOAP...");
+        // add header element value
+
+        element.addTextNode(date.toString());
+
+        msg.saveChanges();
+
+    }
+
+    private void getTimeStampFromSoap(SOAPMessageContext smc) throws SOAPException {
+        // get SOAP envelope header
+        SOAPMessage msg = smc.getMessage();
+        SOAPPart sp = msg.getSOAPPart();
+        SOAPEnvelope se = sp.getEnvelope();
+        SOAPHeader sh = se.getHeader();
+
+        // check header
+        checkSOAPHeader(sh);
+
+        // get first header element
+        Name name = se.createName(handlerConstants.NAUNCE,
+                handlerConstants.PREFIX, handlerConstants.NAMESPACE);
+        Iterator it = sh.getChildElements(name);
+        // check header element
+        checkSOAPHeaderElement(it);
+
+        SOAPElement element = (SOAPElement) it.next();
+        String valueString = element.getValue();  //Getting Timestamp value
+
+        System.out.println("Verifying Timestamp");
+        VerifyTimestamp(valueString);
+
+        System.out.println("Removing TimeStamp from SOAP...");
+        it.remove();
+        element.removeAttribute(name);
+        element.removeContents();
+        smc.getMessage().saveChanges();
+    }
+
+    private Timestamp actualTime(){
+        GregorianCalendar rightNow = new GregorianCalendar();
+        Timestamp Stamp = new Timestamp(rightNow.get(Calendar.YEAR), rightNow.get(Calendar.MONTH), rightNow.get(Calendar.DAY_OF_MONTH),
+                rightNow.get(Calendar.HOUR_OF_DAY), rightNow.get(Calendar.MINUTE), rightNow.get(Calendar.SECOND), rightNow.get(Calendar.MILLISECOND));
+        return Stamp;
+    }
+
+    private void VerifyTimestamp(String date) {
+        Timestamp Stamp = actualTime();
+        System.out.println(Stamp.toString());
+        System.out.println(Stamp.valueOf(date).toString());
+
+        if (Stamp.before(Stamp.valueOf(date))) {
+            System.out.println("ERROR1!!!");
+        }
+
+        if (Stamp.getMinutes() >= 1)
+            Stamp.setMinutes(Stamp.getMinutes() - 1);
+        else
+            Stamp.setSeconds(00);
+
+        if (Stamp.after(Stamp.valueOf(date))) {
+            System.out.println("ERROR2!!!");
+        }
+
+        if (oldTimestamps.size() == 0)
+            oldTimestamps.add(Stamp.valueOf(date));
+        else {
+            for (Timestamp t : oldTimestamps) {
+                if (t.equals(Stamp.valueOf(date))) {
+                    System.out.println("ERROR3!!!");
+                }
+            }
+            oldTimestamps.add(Stamp.valueOf(date));
+        }
+    }
+
     private String getSenderFromSoap(SOAPMessageContext smc, boolean toRemove) throws SOAPException {
         // get SOAP envelope header
         SOAPMessage msg = smc.getMessage();
@@ -237,6 +335,8 @@ public abstract class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             failMissedFormedSOAP("Header not found.");
         }
     }
+
+
 
 
     private byte[] getSignatureFromSoap(SOAPMessageContext smc) throws SOAPException {

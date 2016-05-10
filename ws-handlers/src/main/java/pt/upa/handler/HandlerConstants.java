@@ -18,4 +18,5 @@ public abstract class HandlerConstants {
      final String KEYSTORE_PASSWORD = "ins3cur3";
      String KEY_ALIAS = SENDER_SERVICE_NAME;
      final String KEY_PASSWORD = "1nsecure";
+     final String NAUNCE = "timestamp";
 }
