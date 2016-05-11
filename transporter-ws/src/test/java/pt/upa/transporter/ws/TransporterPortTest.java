@@ -37,7 +37,7 @@ public class TransporterPortTest {
         mTransporterPortImp = null;
     }
 
-    @Test(expected = BadLocationFault_Exception.class)
+   /* @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidOrigin() throws BadLocationFault_Exception, BadPriceFault_Exception {
         mTransporterPortImp.requestJob("Lisboooa", "Braga", 50);
     }
@@ -159,7 +159,7 @@ public class TransporterPortTest {
         JobView test;
         test = mTransporterPortPar.requestJob("Porto", "Lisboa", 200);
         assertNull("JobView was not null.", test);
-    }
+    }*/
 
 
  //-------------------------- IMPAR ---------------------------------------------------------------------------
@@ -173,7 +173,7 @@ public class TransporterPortTest {
         assertTrue("Price is above the client price", lowprice);
     }
 
-    @Test
+/*    @Test
     public void requestJobPriceEvenImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
         boolean  highprice = false;
         int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",18).getJobPrice();
@@ -212,7 +212,7 @@ public class TransporterPortTest {
     @Test
     public void jobWithInvalidRangePar() throws BadLocationFault_Exception, BadPriceFault_Exception {
        assertNull("Origin out of range", mTransporterPortPar.requestJob("Faro", "Beja", 50));
-    }
+    }*/
 
 //-------------------------------------------------------------------------------------------------------------
 }

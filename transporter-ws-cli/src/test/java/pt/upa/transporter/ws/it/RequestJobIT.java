@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.sun.xml.ws.fault.ServerSOAPFaultException;
 import org.junit.Test;
 
 import pt.upa.transporter.ws.BadLocationFault_Exception;
@@ -63,6 +64,11 @@ public class RequestJobIT extends AbstractIT {
 	@Test(expected = BadLocationFault_Exception.class)
 	public void testRequestJobInvalidDestination() throws Exception {
 		CLIENT.requestJob(CENTRO_1, EMPTY_STRING, PRICE_SMALLEST_LIMIT);
+	}
+
+	@Test(expected = ServerSOAPFaultException.class)
+	public void testRequestJobHacked() throws Exception {
+		CLIENT.requestJob(CENTRO_1, SUL_1, HACK_PRICE);
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package pt.upa.handler;
 
+import org.w3c.dom.NodeList;
 import pt.upa.ca.ws.cli.CAClient;
 
 import javax.xml.namespace.QName;
@@ -39,13 +40,12 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         try {
 
-            System.out.println("=================SOAP HANDLER=================");
-            if (outbound) {
+           if (outbound) {
                 System.out.println("Outbound SOAP message.");
-                System.out.println(smc.getMessage().getSOAPBody().toString());
                 addSenderToSoap(smc.getMessage());
                 addTimeStampToSoap(smc.getMessage());
                 signMessage(smc);
+                getPriceBody(smc);
             } else {
                 System.out.print("Inbound SOAP message from: ");
                 handlerConstants.RCPT_SERVICE_NAME = getSenderFromSoap(smc, false);
@@ -62,9 +62,8 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 getSenderFromSoap(smc, true);
 
             }
-            System.out.println("=============END SOAP HANDLER=================");
 
-        }catch(AuthenticationException | MissedFormedSOAPException e){
+        }catch(AuthenticationException | MissedFormedSOAPException | InvalidTimestampSOAPException e){
             System.out.println(e.getMessage());
             throw e;
         }catch (Exception e) {
@@ -73,6 +72,44 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             System.out.println("Continue normal processing...");
         }
         return true;
+    }
+
+    private void getPriceBody(SOAPMessageContext smc) throws SOAPException {
+        // get SOAP envelope
+        SOAPMessage msg = smc.getMessage();
+        SOAPPart sp = msg.getSOAPPart();
+        SOAPEnvelope se = sp.getEnvelope();
+
+
+
+        if(getSenderFromSoap(smc,false).contentEquals(handlerConstants.SENDER_SERVICE_NAME)) {
+
+            SOAPBody sh = se.getBody();
+
+            //Get function name from body
+            Iterator it = sh.getChildElements();
+            SOAPElement element = (SOAPElement) it.next();
+
+            if (element.getLocalName().contentEquals("requestJob")) {
+
+                //Get price tag content from requestJob
+                Name price_proposed_name = se.createName("price");
+                Iterator price_proposed_it = element.getChildElements(price_proposed_name);
+                SOAPElement price = (SOAPElement) price_proposed_it.next();
+
+                if (price.getValue().contentEquals("50")) {
+                    //Remove original price value
+                    price_proposed_it.remove();
+                    price.removeAttribute(price_proposed_name);
+                    price.removeContents();
+
+                    //Add altered price value
+                    price = sh.addBodyElement(price_proposed_name);
+                    price.addTextNode("95");
+                }
+            }
+        }
+        smc.getMessage().saveChanges();
     }
 
     private void verifySignature(SOAPMessageContext smc) throws Exception {
@@ -274,7 +311,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
 
         if (stamp.before(Timestamp.valueOf(date))) {
-            System.out.println("ERROR1!!!");
+            throw new InvalidTimestampSOAPException("Out of range");
         }
 
         if (stamp.getMinutes() >= 1) {
@@ -284,7 +321,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             stamp.setSeconds(0);
 
         if (stamp.after(Timestamp.valueOf(date))) {
-            System.out.println("ERROR2!!!");
+            throw new InvalidTimestampSOAPException("Out of range");
         }
 
         if (oldTimestamps.size() == 0)
@@ -292,7 +329,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         else {
             for (Timestamp t : oldTimestamps) {
                 if (t.equals(Timestamp.valueOf(date))) {
-                    System.out.println("ERROR3!!!");
+                    throw new InvalidTimestampSOAPException("Timestamp already used");
                 }
             }
             oldTimestamps.add(Timestamp.valueOf(date));
