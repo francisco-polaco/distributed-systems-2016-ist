@@ -7,6 +7,7 @@ import org.junit.Test;
 import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
 import pt.upa.broker.ws.cli.BrokerClientException;
+import pt.upa.broker.ws.cli.ConnectionTimeOutException;
 import pt.upa.transporter.ws.TransporterPortType;
 
 import java.io.IOException;
@@ -60,32 +61,32 @@ public class BrokerClientIT {
 
     //TESTS
     @Test
-    public void testPing(){
+    public void testPing() throws ConnectionTimeOutException {
         final String result= client.ping("test");
         assertNotNull(result);
     }
 
     @Test
-    public void testPingNull(){
+    public void testPingNull() throws ConnectionTimeOutException {
         final String result= client.ping(null);
         assertNotNull(result);
     }
 
     @Test
-    public void requestTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void requestTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         String result = client.requestTransport("Lisboa", "Porto", 10);
         assertNotNull(result);
     }
 
     @Test
-    public void viewTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnknownTransportFault_Exception {
+    public void viewTransport() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, UnknownTransportFault_Exception, ConnectionTimeOutException {
         String id = client.requestTransport("Lisboa", "Porto", 10);
         TransportView result = client.viewTransport(id);
         assertNotNull(result);
     }
 
     @Test
-    public void clearTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void clearTransports() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         client.requestTransport("Lisboa", "Porto", 10);
         client.clearTransports();
         List<TransportView> result = client.listTransports();
@@ -94,42 +95,42 @@ public class BrokerClientIT {
 
     //ERRORCASES
     @Test(expected = UnavailableTransportFault_Exception.class)
-    public void requestTransportWithHighPrice() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void requestTransportWithHighPrice() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         client.requestTransport("Lisboa", "Porto", 200);
     }
 
     @Test(expected = InvalidPriceFault_Exception.class)
-    public void requestTransportWithInvalidPrice() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void requestTransportWithInvalidPrice() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         client.requestTransport("Lisboa", "Porto", -1);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
-    public void requestTransportToUnknownLocation() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void requestTransportToUnknownLocation() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         client.requestTransport("Lisboa", "Vila Franca de Xira", 10);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
-    public void requestTransportFromUnknownLocation() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void requestTransportFromUnknownLocation() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         client.requestTransport("Vila Franca de Xira", "Lisboa", 10);
     }
 
     @Test(expected = UnknownTransportFault_Exception.class)
-    public void viewTransportWithInvalidID() throws UnknownTransportFault_Exception {
+    public void viewTransportWithInvalidID() throws UnknownTransportFault_Exception, ConnectionTimeOutException {
         client.viewTransport("potato");
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
-    public void requestTransportFromNull() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void requestTransportFromNull() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         client.requestTransport(null, "Porto", 200);
     }
 
     @Test(expected = UnknownLocationFault_Exception.class)
-    public void requestTransportForNull() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception {
+    public void requestTransportForNull() throws UnavailableTransportPriceFault_Exception, UnavailableTransportFault_Exception, UnknownLocationFault_Exception, InvalidPriceFault_Exception, ConnectionTimeOutException {
         client.requestTransport("Lisboa", null, 200);
     }
 
     @Test(expected = UnknownTransportFault_Exception.class)
-    public void viewTransportWithNullID() throws UnknownTransportFault_Exception {
+    public void viewTransportWithNullID() throws UnknownTransportFault_Exception, ConnectionTimeOutException {
         client.viewTransport(null);
     }
 }
