@@ -2,19 +2,25 @@ package pt.upa.broker.ws;
 
 import javax.jws.WebService;
 import javax.xml.registry.JAXRException;
+import javax.xml.ws.WebServiceException;
+import java.net.ConnectException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
+import pt.upa.broker.ws.cli.BrokerClient;
+import pt.upa.broker.ws.cli.BrokerClientException;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.JobView;
 import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.ws.cli.TransporterClientException;
+import sun.font.TrueTypeFont;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",
-        wsdlLocation="broker.2_0.wsdl",
+        wsdlLocation="broker.2_1.wsdl",
         name="BrokerWebService",
         portName="BrokerPort",
         targetNamespace="http://ws.broker.upa.pt/",
@@ -24,25 +30,41 @@ public class BrokerPort implements BrokerPortType{
 
     private ConcurrentHashMap<String, TransporterClient> allTransporters = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, TransportView> jobOffers = new ConcurrentHashMap<>();
-    //private ConcurrentHashMap<String, TransportView> jobOffers_aux = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, String> idConvTable = new ConcurrentHashMap<>();
     private ArrayList<String> north = new ArrayList<>(Arrays.asList("Porto", "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
     private ArrayList<String> center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
     private ArrayList<String> south =  new ArrayList<>(Arrays.asList("Setubal", "Evora", "Portalegre", "Beja", "Faro"));
     private int idSeed = 0;
-
+    private boolean isBackup = false;
+    private String mUddiURL;
+    private String mURLT2;
+    private BrokerClient mBrokerCli;
+    private boolean firstCall = true;
+    private boolean heLives = false;
+    private int maxTryKeepAlive = 0;
+    private boolean mAlive = true;
 
     public BrokerPort() {
         super();
     }
 
-    public BrokerPort(String uddiURL) throws JAXRException, TransporterClientException {
+    public BrokerPort(String uddiURL, String serverNumber) throws JAXRException, TransporterClientException, BrokerClientException {
         super();
-        getAllTransporters(uddiURL);
+        mUddiURL = uddiURL;
+        int serverId = Integer.parseInt(serverNumber);
+        if(serverId == 1) {
+            System.out.println("Main Server");
+            mBrokerCli = new BrokerClient(uddiURL, "UpaBroker2");
+            getAllTransporters(uddiURL);
+        }else{
+            System.out.println("Backup Server");
+            isBackup = true;
+        }
     }
 
     public BrokerPort(ConcurrentHashMap<String, TransporterClient> transporters){
         allTransporters = transporters;
+        //TODO update send
     }
 
     @Override
@@ -76,6 +98,7 @@ public class BrokerPort implements BrokerPortType{
         if(origin == null || destination == null || isInvalidLocation(origin) || isInvalidLocation(destination))
             throw new UnknownLocationFault_Exception("Unknown Location.", new UnknownLocationFault());
         boolean jobOffer = false;
+
         for (String companyName : allTransporters.keySet()){
             TransportView transport = createTransportView(origin, destination, price, companyName);
             JobView offer = null;
@@ -90,6 +113,9 @@ public class BrokerPort implements BrokerPortType{
                 transport.setState(BUDGETED);
                 jobOffers_aux.put(transport.getId(), transport);
                 idConvTable.put(transport.getId(), offer.getJobIdentifier());
+                if(!isBackup) {
+                    sendUpdateTable(transport.getId(), offer.getJobIdentifier());
+                }
                 jobOffer = true;
             }
             else {
@@ -134,31 +160,9 @@ public class BrokerPort implements BrokerPortType{
         jobOffers.clear();
         idConvTable.clear();
         idSeed = 0;
-    }
-    // FIXME: DANIEL
-    @Override
-    public String iAmAlive(String in) {
-        return null;
-    }
-    @Override
-    public String updateClr(String in) {
-        return null;
-    }
-    @Override
-    public String updateSeed(int in) {
-        return null;
-    }
-    @Override
-    public String updateOffers(String id, TransportView transportView) {
-        return null;
-    }
-    @Override
-    public String updateTable(String id, String target) {
-        return null;
-    }
-    @Override
-    public String updateTransporters(String companyName, String endpointAddress) {
-        return null;
+        if(!isBackup) {
+            sendUpdateClear();
+        }
     }
 
 
@@ -167,7 +171,10 @@ public class BrokerPort implements BrokerPortType{
         Collection<String> endpointAddress = uddiNaming.list("UpaTransporter%");
         for (String endpAdd :  endpointAddress) {
             TransporterClient transporter = new TransporterClient(uddiURL, getCompanyName(endpAdd));
-           allTransporters.put(getCompanyName(endpAdd), transporter);
+            allTransporters.put(getCompanyName(endpAdd), transporter);
+            if(!isBackup) {
+                sendUpdateTransporters(getCompanyName(endpAdd), endpAdd);
+            }
         }
     }
 
@@ -180,7 +187,11 @@ public class BrokerPort implements BrokerPortType{
 
     private TransportView createTransportView(String origin, String destination, int price, String companyName){
         TransportView transport = new TransportView();
-        String id = Integer.toString(idSeed++);
+        idSeed++;
+        String id = Integer.toString(idSeed);
+        if(!isBackup) {
+            sendUpdateSeed(idSeed);
+        }
         transport.setTransporterCompany(companyName);
         transport.setDestination(destination);
         transport.setOrigin(origin);
@@ -209,6 +220,9 @@ public class BrokerPort implements BrokerPortType{
                 offer.setState(FAILED);
                 allTransporters.get(offer.getTransporterCompany()).decideJob(idConvTable.get(offer.getId()), false);
                 jobOffers.put(offer.getId(),offer);
+                if(!isBackup) {
+                    sendUpdateOffers(offer.getId(), offer);
+                }
             }
         }
 
@@ -216,12 +230,18 @@ public class BrokerPort implements BrokerPortType{
             bestOffer.setState(FAILED);
             allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), false);
             jobOffers.put(bestOffer.getId(),bestOffer);
+            if(!isBackup) {
+                sendUpdateOffers(bestOffer.getId(), bestOffer);
+            }
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
         }
 
         bestOffer.setState(BOOKED);
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
         jobOffers.put(bestOffer.getId(),bestOffer);
+        if(!isBackup) {
+            sendUpdateOffers(bestOffer.getId(), bestOffer);
+        }
         jobOffers_aux.clear();
         return bestOffer;
     }
@@ -251,7 +271,137 @@ public class BrokerPort implements BrokerPortType{
         return (price < 0);
     }
 
+//============================================================================================================
+
+
+    private void sendUpdateTransporters(String s, String t){
+        System.out.println("Transporters update sent to backup.");
+        mBrokerCli.updateTransporters(s, t);
+    }
+    private void sendUpdateOffers(String s, TransportView t){
+        System.out.println("Offers update sent to backup.");
+        mBrokerCli.updateOffers(s, t);
+    }
+    private void sendUpdateTable(String s, String t){
+        System.out.println("Conversion table update sent to backup.");
+        mBrokerCli.updateTable(s, t);
+    }
+    private void sendUpdateSeed(int seed){
+        System.out.println("Seed update sent to backup.");
+        mBrokerCli.updateSeed(seed);
+    }
+    private void sendUpdateClear(){
+        System.out.println("Clear update sent to backup.");
+        mBrokerCli.updateClear();
+    }
+
+
+    public String updateTransporters(String s, String t) {
+        System.out.println("Transporters update recieved from main.");
+        try {
+            TransporterClient transporter = new TransporterClient(mUddiURL, getCompanyName(t));
+            allTransporters.put(s, transporter);
+            return "";
+        }catch (JAXRException | TransporterClientException e){
+            return "";
+        }
+    }
+    public String updateOffers(String s, TransportView t){
+        System.out.println("Offers update recieved from main.");
+        jobOffers.put(s, t);return "";
+    }
+    public String updateTable(String s, String t){
+        System.out.println("Conversion table update recieved from main.");
+        idConvTable.put(s, t);return "";
+    }
+    public String updateSeed(int seed){
+        System.out.println("Seed update recieved from main.");
+        idSeed = seed;return "";
+    }
+    public String updateClr(String i){
+        System.out.println("Clear update recieved from main.");
+        clearTransports();return "";
+    }
+
+
+
+
+    @Override
+    public String areYouAlive(String i) {
+        if(isBackup){
+            if(firstCall) {
+                System.out.println("Connected to main server\nAwaiting updates\nPress enter to shutdown");
+                firstCall = false;
+                heLives = true;
+                Thread poke = new Thread() {
+                    public void run() {
+                        try {
+                            while (true) {
+                                if (maxTryKeepAlive < 3) {
+                                    if (heLives) {
+                                        heLives = false;
+                                        maxTryKeepAlive = 0;
+                                    } else {
+                                        maxTryKeepAlive++;
+                                    }
+                                    Thread.sleep(1000);
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (maxTryKeepAlive >= 3) {
+                                System.out.println("Main server down, stepping up...");
+                                UDDINaming uddiNaming = null;
+                                try {
+                                    uddiNaming = new UDDINaming(mUddiURL);
+                                } catch (JAXRException e1) {
+                                    e1.printStackTrace();
+                                }
+                                try {
+                                    mURLT2 = uddiNaming.lookup("UpaBroker2");
+                                    uddiNaming.unbind("UpaBroker1");
+                                    uddiNaming.rebind("UpaBroker1", mURLT2);
+                                    uddiNaming.unbind("UpaBroker2");
+                                } catch (JAXRException e1) {
+                                    e1.printStackTrace();
+                                }
+                                System.out.println("Acting as main server\nPress enter to shutdown");
+                                Thread.currentThread().interrupt();
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                poke.start();
+            }else{
+                heLives = true;
+            }
+        }
+        return "";
+    }
+
+    public void killNotify(){
+        mAlive = false;
+    }
+
+    public void iAmAlive(){
+        System.out.println("Setting up Keep Alive with backup server...");
+        Thread notify = new Thread() {
+            public void run() {
+                try {
+                    while (mAlive){
+                        mBrokerCli.areYouAlive();
+                        Thread.sleep(1000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        notify.start();
+    }
+
+
 
 }
-
-
