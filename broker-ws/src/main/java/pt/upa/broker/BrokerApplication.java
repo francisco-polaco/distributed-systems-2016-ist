@@ -20,11 +20,11 @@ public class BrokerApplication {
 		String name = args[1];
 		String url = args[2];
 		String serverNumber = args[3];
-
+		BrokerPort port = null;
 		Endpoint endpoint = null;
 		UDDINaming uddiNaming = null;
 		try {
-			BrokerPort port = new BrokerPort(uddiURL);
+			port = new BrokerPort(uddiURL, serverNumber);
 			endpoint = Endpoint.create(port);
 
 			// publish endpoint
@@ -35,10 +35,17 @@ public class BrokerApplication {
 			System.out.printf("Publishing '%s' to UDDI at %s%n", name, uddiURL);
 			uddiNaming = new UDDINaming(uddiURL);
 			uddiNaming.rebind(name, url);
-			UpaHandler.handlerConstants.SENDER_SERVICE_NAME = name;
+			if(serverNumber.equals("1")) {
+				port.iAmAlive();
+			}
+			UpaHandler.handlerConstants.SENDER_SERVICE_NAME = "UpaBroker1";
 
 			// wait
-			System.out.println("Awaiting connections");
+			if(serverNumber.equals("1")) {
+				System.out.println("Awaiting connections");
+			}else{
+				System.out.println("Awaiting connection from main server");
+			}
 			System.out.println("Press enter to shutdown");
 			System.in.read();
 
@@ -47,6 +54,7 @@ public class BrokerApplication {
 			e.printStackTrace();
 
 		} finally {
+			port.killNotify();
 			try {
 				if (endpoint != null) {
 					// stop endpoint

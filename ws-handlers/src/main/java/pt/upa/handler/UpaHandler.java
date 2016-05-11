@@ -13,9 +13,9 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.sql.Time;
 import java.util.*;
 import java.sql.Timestamp;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
@@ -27,8 +27,11 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
 
-    private ArrayList<Timestamp> oldTimestamps = new ArrayList<>();
+    private static final int MAX_MESSAGES_WITHOUT_GETTING_CERTIFICATE_AGAIN = 10;
     public static HandlerConstants handlerConstants = new HandlerConstants();
+
+    private ArrayList<Timestamp> oldTimestamps = new ArrayList<>();
+    private ConcurrentHashMap<String, Integer> numberMessagesReceived = new ConcurrentHashMap<>();
 
 
     public Set<QName> getHeaders() {
@@ -49,13 +52,13 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             } else {
                 System.out.print("Inbound SOAP message from: ");
                 handlerConstants.RCPT_SERVICE_NAME = getSenderFromSoap(smc, false);
-                handlerConstants.RCPT_CERTIFICATE_FILE_PATH = handlerConstants.RCPT_SERVICE_NAME + handlerConstants.CERTIFICATE_EXTENSION;
                 System.out.println(handlerConstants.RCPT_SERVICE_NAME);
 
-                if(!checkIfOtherCertificateIsPresent(handlerConstants.RCPT_SERVICE_NAME )){
-                    System.out.println("Certificate is not present, downloading...");
+                if(!checkIfOtherCertificateIsPresent(handlerConstants.RCPT_SERVICE_NAME)){
+                    //System.out.println("Certificate is not present, downloading...");
                     getCertificateFromCA(handlerConstants.RCPT_SERVICE_NAME,
                             handlerConstants.RCPT_SERVICE_NAME + handlerConstants.CERTIFICATE_EXTENSION);
+                    numberMessagesReceived.put(handlerConstants.RCPT_SERVICE_NAME, 0);
                 }
                 verifySignature(smc);
                 getTimeStampFromSoap(smc);
@@ -116,7 +119,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         System.out.println("Verifying Signature... ");
         byte[] signature = getSignatureFromSoap(smc);
         smc.getMessage().saveChanges();
-        Certificate certificate = readCertificateFile(handlerConstants.RCPT_CERTIFICATE_FILE_PATH);
+        Certificate certificate = readCertificateFile(handlerConstants.RCPT_SERVICE_NAME + handlerConstants.CERTIFICATE_EXTENSION);
         if(certificate == null){
             failAuthentication("Could not open the Recipient's certificate.");
         }
@@ -137,12 +140,12 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     private void checkOwnSignature(SOAPMessageContext smc, byte[] signature)
             throws Exception {
         System.out.println("Checking signature...");
-        KeyStore keystore = readKeystoreFile(handlerConstants.KEYSTORE_FILE,
+        KeyStore keystore = readKeystoreFile(handlerConstants.SENDER_SERVICE_NAME + handlerConstants.KEYSTORE_EXTENSION,
                 handlerConstants.KEYSTORE_PASSWORD.toCharArray());
         if(keystore == null){
             failAuthentication("KeyStore doesn't exist.");
         }
-        Certificate certificate = keystore.getCertificate(handlerConstants.KEY_ALIAS);
+        Certificate certificate = keystore.getCertificate(handlerConstants.SENDER_SERVICE_NAME);
         PublicKey publicKey = certificate.getPublicKey();
         boolean isValid = verifyDigitalSignature(signature, getSOAPtoByteArray(smc), publicKey);
         if (isValid) {
@@ -156,12 +159,10 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     private void signMessage(SOAPMessageContext smc) throws Exception {
         System.out.println("Signing... ");
         byte[] plainBytes = getSOAPtoByteArray(smc);
-        handlerConstants.KEYSTORE_FILE = handlerConstants.SENDER_SERVICE_NAME + ".jks";
-        handlerConstants.KEY_ALIAS = handlerConstants.SENDER_SERVICE_NAME;
         byte[] digitalSignature = makeDigitalSignature(plainBytes,
-                getPrivateKeyFromKeystore(handlerConstants.KEYSTORE_FILE,
+                getPrivateKeyFromKeystore(handlerConstants.SENDER_SERVICE_NAME + handlerConstants.KEYSTORE_EXTENSION,
                         handlerConstants.KEYSTORE_PASSWORD.toCharArray(),
-                        handlerConstants.KEY_ALIAS, handlerConstants.KEY_PASSWORD.toCharArray()));
+                        handlerConstants.SENDER_SERVICE_NAME, handlerConstants.KEY_PASSWORD.toCharArray()));
 
         checkOwnSignature(smc, digitalSignature);
 
@@ -177,7 +178,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
             failAuthentication("Error downloading certificate.");
         }
         Certificate certificate = readCertificateFile(filename);
-        KeyStore keyStore = readKeystoreFile(handlerConstants.KEYSTORE_FILE,
+        KeyStore keyStore = readKeystoreFile(handlerConstants.SENDER_SERVICE_NAME + ".jks",
                 handlerConstants.KEYSTORE_PASSWORD.toCharArray());
         if(keyStore == null){
             failAuthentication("KeyStore doesn't exist.");
@@ -290,7 +291,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         String valueString = element.getValue();  //Getting Timestamp value
 
         System.out.println("Verifying Timestamp");
-        VerifyTimestamp(valueString);
+        verifyTimestamp(valueString);
 
         System.out.println("Removing TimeStamp from SOAP...");
         it.remove();
@@ -304,7 +305,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         return new Timestamp(rightNow.getTimeInMillis());
     }
 
-    private void VerifyTimestamp(String date) {
+    private void verifyTimestamp(String date) {
         Timestamp stamp = actualTime();
         System.out.println(stamp.toString());
         System.out.println(Timestamp.valueOf(date).toString());
@@ -427,7 +428,21 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     private boolean checkIfOtherCertificateIsPresent(String entity){
-        return new File(entity + handlerConstants.CERTIFICATE_EXTENSION).exists();
+        if(!(new File(entity + handlerConstants.CERTIFICATE_EXTENSION)).exists() ||
+                !numberMessagesReceived.containsKey(entity) ||
+                numberMessagesReceived.get(entity) >= MAX_MESSAGES_WITHOUT_GETTING_CERTIFICATE_AGAIN){
+            System.out.printf("We need to refresh the %s certificate.\n", entity);
+            return false;
+        } else {
+            Integer i = numberMessagesReceived.get(entity);
+            ++i;
+            numberMessagesReceived.put(entity, i);
+            System.out.printf("%s certificate is present. Times until renewal: %d\n", entity,
+                    MAX_MESSAGES_WITHOUT_GETTING_CERTIFICATE_AGAIN - i);
+            return true;
+        }
+
+
     }
 
     private void failMissedFormedSOAP(String info){
