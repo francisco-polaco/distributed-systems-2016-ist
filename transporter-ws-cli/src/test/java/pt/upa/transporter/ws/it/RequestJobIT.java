@@ -177,7 +177,7 @@ public class RequestJobIT extends AbstractIT {
 	 * @throws Exception
 	 */
 	@Test
-	public void testPriceBelowSmallestLimit() throws Exception {
+		public void testPriceBelowSmallestLimit() throws Exception {
 		final int referencePrice = PRICE_SMALLEST_LIMIT - UNITARY_PRICE;
 		JobView jv1 = CLIENT.requestJob(CENTRO_1, SUL_1, referencePrice);
 		final int price = jv1.getJobPrice();

@@ -328,13 +328,11 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         if (oldTimestamps.size() == 0)
             oldTimestamps.add(Timestamp.valueOf(date));
         else {
-            for (Timestamp t : oldTimestamps) {
-                if (t.equals(Timestamp.valueOf(date))) {
-                    throw new InvalidTimestampSOAPException("Timestamp already used");
-                }
+            if (oldTimestamps.contains(Timestamp.valueOf(date))) {
+                throw new InvalidTimestampSOAPException("Timestamp already used");
             }
-            oldTimestamps.add(Timestamp.valueOf(date));
         }
+        oldTimestamps.add(Timestamp.valueOf(date));
     }
 
     private String getSenderFromSoap(SOAPMessageContext smc, boolean toRemove) throws SOAPException {

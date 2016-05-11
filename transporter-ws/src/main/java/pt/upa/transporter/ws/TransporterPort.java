@@ -58,7 +58,7 @@ public class TransporterPort implements TransporterPortType {
                         "Braga", "Viana do Castelo", "Vila Real", "Braganca"));
             }
             mKnownLocations.addAll(mLocations);
-            System.out.print(mNorthRegion);
+
         }
     }
 
@@ -85,7 +85,7 @@ public class TransporterPort implements TransporterPortType {
             throw new BadPriceFault_Exception("Price is below 0.", new BadPriceFault());
         }else {
             JobView jobView = null;
-            if (price <= 100 && (doIWorkHere(origin) || doIWorkHere(destination))) {
+            if (price <= 100 && doIWorkHere(origin) && doIWorkHere(destination)) {
                 jobView = new JobView();
                 String id = Long.toString(TransporterPort.idSeed.getAndIncrement());
                 jobView.setJobDestination(destination);
@@ -107,8 +107,6 @@ public class TransporterPort implements TransporterPortType {
                 } else { //odd id
                     if (price % 2 == 0) {
                         jobView.setJobPrice(price + mRandom.nextInt(price));
-                        System.out.print(price);
-                        System.out.print(jobView.getJobPrice());
                     }
                     else
                         jobView.setJobPrice(mRandom.nextInt(price));
