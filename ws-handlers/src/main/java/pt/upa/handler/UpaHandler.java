@@ -14,6 +14,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.*;
 import java.sql.Timestamp;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
@@ -29,7 +30,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     public static HandlerConstants handlerConstants = new HandlerConstants();
 
     private ArrayList<Timestamp> oldTimestamps = new ArrayList<>();
-    private TreeMap<String, Integer> numberMessagesReceived = new TreeMap<>();
+    private ConcurrentHashMap<String, Integer> numberMessagesReceived = new ConcurrentHashMap<>();
 
 
     public Set<QName> getHeaders() {
