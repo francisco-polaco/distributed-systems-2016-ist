@@ -43,18 +43,26 @@ public class BrokerPort implements BrokerPortType{
     private boolean heLives = false;
     private int maxTryKeepAlive = 0;
     private boolean mAlive = true;
+    private boolean mBackupExists;
+    private boolean mBackAlive;
 
     public BrokerPort() {
         super();
     }
 
-    public BrokerPort(String uddiURL, String serverNumber) throws JAXRException, TransporterClientException, BrokerClientException {
+    public BrokerPort(String uddiURL, String serverNumber) throws JAXRException, TransporterClientException {
         super();
         mUddiURL = uddiURL;
         int serverId = Integer.parseInt(serverNumber);
         if(serverId == 1) {
             System.out.println("Main Server");
-            mBrokerCli = new BrokerClient(uddiURL, "UpaBroker2");
+            try {
+                mBrokerCli = new BrokerClient(uddiURL, "UpaBroker2");
+                mBackupExists = true;
+            }catch (BrokerClientException e){
+                System.out.println("No Backup Server found");
+                mBackupExists = false;
+            }
             getAllTransporters(uddiURL);
         }else{
             System.out.println("Backup Server");
@@ -113,7 +121,7 @@ public class BrokerPort implements BrokerPortType{
                 transport.setState(BUDGETED);
                 jobOffers_aux.put(transport.getId(), transport);
                 idConvTable.put(transport.getId(), offer.getJobIdentifier());
-                if(!isBackup) {
+                if(!isBackup && mBackupExists) {
                     sendUpdateTable(transport.getId(), offer.getJobIdentifier());
                 }
                 jobOffer = true;
@@ -160,7 +168,7 @@ public class BrokerPort implements BrokerPortType{
         jobOffers.clear();
         idConvTable.clear();
         idSeed = 0;
-        if(!isBackup) {
+        if(!isBackup && mBackupExists) {
             sendUpdateClear();
         }
     }
@@ -172,7 +180,7 @@ public class BrokerPort implements BrokerPortType{
         for (String endpAdd :  endpointAddress) {
             TransporterClient transporter = new TransporterClient(uddiURL, getCompanyName(endpAdd));
             allTransporters.put(getCompanyName(endpAdd), transporter);
-            if(!isBackup) {
+            if(!isBackup && mBackupExists) {
                 sendUpdateTransporters(getCompanyName(endpAdd), endpAdd);
             }
         }
@@ -189,7 +197,7 @@ public class BrokerPort implements BrokerPortType{
         TransportView transport = new TransportView();
         idSeed++;
         String id = Integer.toString(idSeed);
-        if(!isBackup) {
+        if(!isBackup && mBackupExists) {
             sendUpdateSeed(idSeed);
         }
         transport.setTransporterCompany(companyName);
@@ -220,7 +228,7 @@ public class BrokerPort implements BrokerPortType{
                 offer.setState(FAILED);
                 allTransporters.get(offer.getTransporterCompany()).decideJob(idConvTable.get(offer.getId()), false);
                 jobOffers.put(offer.getId(),offer);
-                if(!isBackup) {
+                if(!isBackup && mBackupExists) {
                     sendUpdateOffers(offer.getId(), offer);
                 }
             }
@@ -230,7 +238,7 @@ public class BrokerPort implements BrokerPortType{
             bestOffer.setState(FAILED);
             allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), false);
             jobOffers.put(bestOffer.getId(),bestOffer);
-            if(!isBackup) {
+            if(!isBackup && mBackupExists) {
                 sendUpdateOffers(bestOffer.getId(), bestOffer);
             }
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
@@ -239,7 +247,7 @@ public class BrokerPort implements BrokerPortType{
         bestOffer.setState(BOOKED);
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
         jobOffers.put(bestOffer.getId(),bestOffer);
-        if(!isBackup) {
+        if(!isBackup && mBackupExists) {
             sendUpdateOffers(bestOffer.getId(), bestOffer);
         }
         jobOffers_aux.clear();
@@ -325,10 +333,14 @@ public class BrokerPort implements BrokerPortType{
 
 
 
+    public void killRecieveNotifycation(){
+        mBackAlive = false;
+    }
 
     @Override
     public String areYouAlive(String i) {
         if(isBackup){
+            mBackAlive = true;
             if(firstCall) {
                 System.out.println("Connected to main server\nAwaiting updates\nPress enter to shutdown");
                 firstCall = false;
@@ -349,7 +361,7 @@ public class BrokerPort implements BrokerPortType{
                                     break;
                                 }
                             }
-                            if (maxTryKeepAlive >= 3) {
+                            if (maxTryKeepAlive >= 3 && mBackAlive) {
                                 System.out.println("Main server down, stepping up...");
                                 UDDINaming uddiNaming = null;
                                 try {
@@ -386,20 +398,28 @@ public class BrokerPort implements BrokerPortType{
     }
 
     public void iAmAlive(){
-        System.out.println("Setting up Keep Alive with backup server...");
-        Thread notify = new Thread() {
-            public void run() {
-                try {
-                    while (mAlive){
-                        mBrokerCli.areYouAlive();
-                        Thread.sleep(1000);
+        if(mBackupExists) {
+            System.out.println("Setting up Keep Alive with backup server...");
+            Thread notify = new Thread() {
+                public void run() {
+                    try {
+                        while (mAlive) {
+                            try {
+                                mBrokerCli.areYouAlive();
+                            }catch (javax.xml.ws.WebServiceException e){
+                                mBackupExists = false;
+                                System.out.println("Backup Server is Offline.");
+                                killNotify();
+                            }
+                            Thread.sleep(1000);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
-            }
-        };
-        notify.start();
+            };
+            notify.start();
+        }
     }
 
 
