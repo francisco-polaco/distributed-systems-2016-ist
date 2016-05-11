@@ -55,6 +55,7 @@ public class BrokerApplication {
 
 		} finally {
 			port.killNotify();
+			port.killRecieveNotifycation();
 			try {
 				if (endpoint != null) {
 					// stop endpoint
