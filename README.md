@@ -124,20 +124,33 @@ mvn clean generate-sources install
 
 ### Serviço BROKER
 
-[1] Construir e executar **servidor**
+[1] Construir **cliente**
+
+```
+cd A_43-project/broker-ws-cli
+mvn clean generate-sources install -Dmaven.test.skip=true
+```
+
+[2] Construir e executar **servidor** de backup
 
 ```
 cd A_43-project/broker-ws
 mvn clean generate-sources install
+mvn -Dws.i=2 exec:java
+```
+
+[3] Executar **servidor**
+
+```
+cd A_43-project/broker-ws
 mvn exec:java
 ```
 
-
-[2] Construir **cliente** e executar testes
+[4] Executar testes do **cliente**
 
 ```
 cd A_43-project/broker-ws-cli
-mvn clean generate-sources install
+mvn verify
 ```
 
 
