@@ -133,12 +133,13 @@ public class BrokerPort implements BrokerPortType{
 
         if(!jobOffer){
             throw new UnavailableTransportFault_Exception("No Transport Available", new UnavailableTransportFault());}
-        String id = null;
+        String id = "";
         try{
             id = jobDecision(price, jobOffers_aux).getId();
         }catch (BadJobFault_Exception e){
             System.out.println(e.getMessage());
         }
+
         return id;
     }
 
@@ -155,8 +156,10 @@ public class BrokerPort implements BrokerPortType{
     public List<TransportView> listTransports(){
         ArrayList<TransportView> result = new ArrayList<>();
         for(TransportView entry : jobOffers.values()) {
-            updateView(entry);
-            result.add(entry);
+            if(!entry.getState().value().equals("FAILED")) {
+                updateView(entry);
+                result.add(entry);
+            }
         }
         return result;
     }
@@ -221,6 +224,7 @@ public class BrokerPort implements BrokerPortType{
                 }
             });
         }
+
         TransportView bestOffer = transportViews.get(0);
 
         for (TransportView offer : transportViews){
