@@ -59,7 +59,8 @@ mvn clean install
 
 [5] Instalar módulos de bibliotecas auxiliares
 
-Será necessário gerar os Certificados e os KeyStores com o script fornecido.
+Estão guardados por defeito 3 KeyStores  e certificados de transportadoras e um para broker no próprio repositório, para acelerar a demonstração.
+No entanto, para experimentar com outras chaves,  será necessário gerar os Certificados e os KeyStores com o script fornecido.
 Após isto, copiar os ficheiros .cer e da CA para a raiz de /ca-ws.
 Depois copiar os .jks para o serviço correspondente.
 As instruções de uso do script estão nele próprio.
