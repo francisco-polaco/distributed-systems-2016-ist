@@ -131,7 +131,7 @@ cd A_43-project/broker-ws-cli
 mvn clean generate-sources install -Dmaven.test.skip=true
 ```
 
-[1] Construir e executar **servidor** de backup
+[2] Construir e executar **servidor** de backup
 
 ```
 cd A_43-project/broker-ws
@@ -139,14 +139,14 @@ mvn clean generate-sources install
 mvn -Dws.i=2 exec:java
 ```
 
-[1] Executar **servidor**
+[3] Executar **servidor**
 
 ```
 cd A_43-project/broker-ws
 mvn exec:java
 ```
 
-[2] Executar testes do **cliente**
+[4] Executar testes do **cliente**
 
 ```
 cd A_43-project/broker-ws-cli
