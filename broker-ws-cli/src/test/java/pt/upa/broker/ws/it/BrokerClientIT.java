@@ -8,13 +8,11 @@ import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
 import pt.upa.broker.ws.cli.BrokerClientException;
 import pt.upa.broker.ws.cli.ConnectionTimeOutException;
-import pt.upa.transporter.ws.TransporterPortType;
-
-import java.io.IOException;
-import java.util.Properties;
 
 import javax.xml.registry.JAXRException;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;

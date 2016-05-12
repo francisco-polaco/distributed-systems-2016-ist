@@ -7,7 +7,9 @@ import pt.upa.ca.ws.CertificateDoesntExists_Exception;
 
 import javax.xml.registry.JAXRException;
 import javax.xml.ws.BindingProvider;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;

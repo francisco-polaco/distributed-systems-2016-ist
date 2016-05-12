@@ -1,12 +1,11 @@
 package pt.upa.transporter.ws.it;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-
 import pt.upa.transporter.ws.cli.TransporterClient;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Integration Test suite abstract class. Test classes inherit this one to

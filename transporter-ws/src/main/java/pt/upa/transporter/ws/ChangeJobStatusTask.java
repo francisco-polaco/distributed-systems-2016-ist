@@ -1,6 +1,5 @@
 package pt.upa.transporter.ws;
 
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;

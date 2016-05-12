@@ -1,22 +1,19 @@
 package pt.upa.broker.ws;
 
-import javax.jws.WebService;
-import javax.xml.registry.JAXRException;
-import javax.xml.ws.WebServiceException;
-import java.net.ConnectException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.ws.cli.BrokerClient;
 import pt.upa.broker.ws.cli.BrokerClientException;
 import pt.upa.transporter.ws.BadJobFault_Exception;
 import pt.upa.transporter.ws.JobView;
-import static pt.upa.broker.ws.TransportStateView.*;
 import pt.upa.transporter.ws.cli.TransporterClient;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.transporter.ws.cli.TransporterClientException;
-import sun.font.TrueTypeFont;
+
+import javax.jws.WebService;
+import javax.xml.registry.JAXRException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static pt.upa.broker.ws.TransportStateView.*;
 
 @WebService(
         endpointInterface="pt.upa.broker.ws.BrokerPortType",

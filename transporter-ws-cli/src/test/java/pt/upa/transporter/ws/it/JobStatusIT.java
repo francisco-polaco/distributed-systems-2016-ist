@@ -1,15 +1,14 @@
 package pt.upa.transporter.ws.it;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import pt.upa.transporter.ws.BadJobFault_Exception;
+import pt.upa.transporter.ws.JobStateView;
+import pt.upa.transporter.ws.JobView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
-import pt.upa.transporter.ws.BadJobFault_Exception;
-import pt.upa.transporter.ws.JobStateView;
-import pt.upa.transporter.ws.JobView;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test suite

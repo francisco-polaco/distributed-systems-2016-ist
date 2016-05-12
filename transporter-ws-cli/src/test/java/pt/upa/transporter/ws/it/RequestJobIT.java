@@ -1,15 +1,12 @@
 package pt.upa.transporter.ws.it;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import com.sun.xml.ws.fault.ServerSOAPFaultException;
 import org.junit.Test;
-
 import pt.upa.transporter.ws.BadLocationFault_Exception;
 import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
+
+import static org.junit.Assert.*;
 
 
 /**

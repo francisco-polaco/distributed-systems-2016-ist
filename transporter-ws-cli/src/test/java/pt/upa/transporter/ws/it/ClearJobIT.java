@@ -1,8 +1,8 @@
 package pt.upa.transporter.ws.it;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test suite - simple test of clearing a transporter's jobs.

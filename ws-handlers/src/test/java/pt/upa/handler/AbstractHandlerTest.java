@@ -1,15 +1,14 @@
 package pt.upa.handler;
 
-import java.io.ByteArrayInputStream;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.stream.StreamSource;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import java.io.ByteArrayInputStream;
 
 
 /**

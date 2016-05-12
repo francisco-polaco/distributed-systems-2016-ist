@@ -2,14 +2,11 @@ package pt.upa.broker.ws.cli;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.broker.ws.*;
-import pt.upa.transporter.ws.cli.TransporterClient;
 
 import javax.xml.registry.JAXRException;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.WebServiceException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 

@@ -1,6 +1,5 @@
 package pt.upa.handler;
 
-import org.w3c.dom.NodeList;
 import pt.upa.ca.ws.cli.CAClient;
 
 import javax.xml.namespace.QName;
@@ -13,8 +12,11 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.util.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;

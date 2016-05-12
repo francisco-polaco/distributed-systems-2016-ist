@@ -1,15 +1,10 @@
 package pt.upa.broker.ws.it;
 
+import org.junit.Test;
+import pt.upa.broker.ws.*;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
-import pt.upa.broker.ws.InvalidPriceFault_Exception;
-import pt.upa.broker.ws.TransportView;
-import pt.upa.broker.ws.UnavailableTransportFault_Exception;
-import pt.upa.broker.ws.UnavailableTransportPriceFault_Exception;
-import pt.upa.broker.ws.UnknownLocationFault_Exception;
 
 public class RequestTransportIT extends AbstractIT {
 

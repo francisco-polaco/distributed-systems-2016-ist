@@ -1,27 +1,5 @@
 package pt.upa.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Iterator;
-
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.MessageContext.Scope;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
-
-import org.junit.Test;
-
-import mockit.Mocked;
-import mockit.StrictExpectations;
-
-
 /**
  *  Handler test suite
  */

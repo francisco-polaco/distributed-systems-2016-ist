@@ -1,11 +1,10 @@
 package pt.upa.transporter.ws;
 
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-
-import java.util.TreeMap;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 
 public class TransporterPortTest {

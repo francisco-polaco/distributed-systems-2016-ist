@@ -1,8 +1,8 @@
 package pt.upa.transporter.ws.it;
 
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test suite

@@ -1,11 +1,9 @@
 package pt.upa.broker.ws.it;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Test;
-
 import pt.upa.broker.ws.UnknownTransportFault_Exception;
+
+import static org.junit.Assert.assertEquals;
 
 public class ClearTransportsIT extends AbstractIT {
 

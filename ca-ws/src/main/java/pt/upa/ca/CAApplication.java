@@ -4,8 +4,6 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.upa.ca.ws.CAImplemention;
 
 import javax.xml.ws.Endpoint;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by xxlxpto on 06-05-2016.

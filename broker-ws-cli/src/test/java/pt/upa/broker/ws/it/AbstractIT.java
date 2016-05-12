@@ -1,12 +1,11 @@
 package pt.upa.broker.ws.it;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-
 import pt.upa.broker.ws.cli.BrokerClient;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Integration Test suite abstract class

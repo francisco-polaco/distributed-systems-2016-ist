@@ -1,12 +1,11 @@
 package pt.upa.handler;
 
-import java.util.Set;
-
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.Set;
 
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.

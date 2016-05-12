@@ -1,7 +1,5 @@
 package pt.upa.ca.ws.exception;
 
-import javax.jws.WebService;
-
 /**
  * Created by xxlxpto on 08-05-2016.
  */

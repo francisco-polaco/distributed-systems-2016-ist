@@ -1,10 +1,9 @@
 package pt.upa.broker.ws.it;
 
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
-import pt.upa.broker.ws.cli.BrokerClientException;
 import pt.upa.broker.ws.cli.ConnectionTimeOutException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test suite

@@ -1,13 +1,6 @@
 package pt.upa.broker;
 
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.upa.broker.ws.*;
 import pt.upa.broker.ws.cli.BrokerClient;
-
-import javax.xml.ws.BindingProvider;
-
-import java.util.Map;
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 public class BrokerClientApplication {
 

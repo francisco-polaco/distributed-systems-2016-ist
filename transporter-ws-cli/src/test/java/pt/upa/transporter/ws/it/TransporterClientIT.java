@@ -10,7 +10,6 @@ import pt.upa.transporter.ws.BadPriceFault_Exception;
 import pt.upa.transporter.ws.JobView;
 import pt.upa.transporter.ws.cli.TransporterClient;
 
-import javax.xml.registry.JAXRException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
