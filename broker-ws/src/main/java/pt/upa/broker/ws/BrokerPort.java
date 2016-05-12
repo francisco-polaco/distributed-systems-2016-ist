@@ -32,13 +32,13 @@ public class BrokerPort implements BrokerPortType{
     private ArrayList<String> center = new ArrayList<>(Arrays.asList("Lisboa", "Leiria", "Santarem", "Castelo Branco", "Coimbra", "Aveiro", "Viseu", "Guarda"));
     private ArrayList<String> south =  new ArrayList<>(Arrays.asList("Setubal", "Evora", "Portalegre", "Beja", "Faro"));
     private int idSeed = 0;
-    private boolean isBackup = false;
+    private boolean mIsBackup = false;
     private String mUddiURL;
     private String mURLT2;
     private BrokerClient mBrokerCli;
-    private boolean firstCall = true;
-    private boolean heLives = false;
-    private int maxTryKeepAlive = 0;
+    private boolean mFirstCall = true;
+    private boolean mHeLives = false;
+    private int mMaxTryKeepAlive = 0;
     private boolean mAlive = true;
     private boolean mBackupExists;
     private boolean mBackAlive;
@@ -63,7 +63,7 @@ public class BrokerPort implements BrokerPortType{
             getAllTransporters(uddiURL);
         }else{
             System.out.println("Backup Server");
-            isBackup = true;
+            mIsBackup = true;
         }
     }
 
@@ -118,7 +118,7 @@ public class BrokerPort implements BrokerPortType{
                 transport.setState(BUDGETED);
                 jobOffers_aux.put(transport.getId(), transport);
                 idConvTable.put(transport.getId(), offer.getJobIdentifier());
-                if(!isBackup && mBackupExists) {
+                if(!mIsBackup && mBackupExists) {
                     sendUpdateTable(transport.getId(), offer.getJobIdentifier());
                 }
                 jobOffer = true;
@@ -168,7 +168,7 @@ public class BrokerPort implements BrokerPortType{
         jobOffers.clear();
         idConvTable.clear();
         idSeed = 0;
-        if(!isBackup && mBackupExists) {
+        if(!mIsBackup && mBackupExists) {
             sendUpdateClear();
         }
     }
@@ -180,7 +180,7 @@ public class BrokerPort implements BrokerPortType{
         for (String endpAdd :  endpointAddress) {
             TransporterClient transporter = new TransporterClient(uddiURL, getCompanyName(endpAdd));
             allTransporters.put(getCompanyName(endpAdd), transporter);
-            if(!isBackup && mBackupExists) {
+            if(!mIsBackup && mBackupExists) {
                 sendUpdateTransporters(getCompanyName(endpAdd), endpAdd);
             }
         }
@@ -197,7 +197,7 @@ public class BrokerPort implements BrokerPortType{
         TransportView transport = new TransportView();
         idSeed++;
         String id = Integer.toString(idSeed);
-        if(!isBackup && mBackupExists) {
+        if(!mIsBackup && mBackupExists) {
             sendUpdateSeed(idSeed);
         }
         transport.setTransporterCompany(companyName);
@@ -229,7 +229,7 @@ public class BrokerPort implements BrokerPortType{
                 offer.setState(FAILED);
                 allTransporters.get(offer.getTransporterCompany()).decideJob(idConvTable.get(offer.getId()), false);
                 jobOffers.put(offer.getId(),offer);
-                if(!isBackup && mBackupExists) {
+                if(!mIsBackup && mBackupExists) {
                     sendUpdateOffers(offer.getId(), offer);
                 }
             }
@@ -239,7 +239,7 @@ public class BrokerPort implements BrokerPortType{
             bestOffer.setState(FAILED);
             allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), false);
             jobOffers.put(bestOffer.getId(),bestOffer);
-            if(!isBackup && mBackupExists) {
+            if(!mIsBackup && mBackupExists) {
                 sendUpdateOffers(bestOffer.getId(), bestOffer);
             }
             throw new UnavailableTransportPriceFault_Exception("Price is above the client offer", new UnavailableTransportPriceFault());
@@ -248,7 +248,7 @@ public class BrokerPort implements BrokerPortType{
         bestOffer.setState(BOOKED);
         allTransporters.get(bestOffer.getTransporterCompany()).decideJob(idConvTable.get(bestOffer.getId()), true);
         jobOffers.put(bestOffer.getId(),bestOffer);
-        if(!isBackup && mBackupExists) {
+        if(!mIsBackup && mBackupExists) {
             sendUpdateOffers(bestOffer.getId(), bestOffer);
         }
         jobOffers_aux.clear();
@@ -281,6 +281,7 @@ public class BrokerPort implements BrokerPortType{
     }
 
 //============================================================================================================
+    //functions for communication from and to backup
 
 
     private void sendUpdateTransporters(String s, String t){
@@ -340,29 +341,29 @@ public class BrokerPort implements BrokerPortType{
 
     @Override
     public String areYouAlive(String i) {
-        if(isBackup){
+        if(mIsBackup){
             mBackAlive = true;
-            if(firstCall) {
+            if(mFirstCall) {
                 System.out.println("Connected to main server\nAwaiting updates\nPress enter to shutdown");
-                firstCall = false;
-                heLives = true;
+                mFirstCall = false;
+                mHeLives = true;
                 Thread poke = new Thread() {
                     public void run() {
                         try {
                             while (true) {
-                                if (maxTryKeepAlive < 3) {
-                                    if (heLives) {
-                                        heLives = false;
-                                        maxTryKeepAlive = 0;
+                                if (mMaxTryKeepAlive < 3) {
+                                    if (mHeLives) {
+                                        mHeLives = false;
+                                        mMaxTryKeepAlive = 0;
                                     } else {
-                                        maxTryKeepAlive++;
+                                        mMaxTryKeepAlive++;
                                     }
                                     Thread.sleep(1000);
                                 } else {
                                     break;
                                 }
                             }
-                            if (maxTryKeepAlive >= 3 && mBackAlive) {
+                            if (mMaxTryKeepAlive >= 3 && mBackAlive) {
                                 System.out.println("Main server down, stepping up...");
                                 UDDINaming uddiNaming = null;
                                 try {
@@ -388,7 +389,7 @@ public class BrokerPort implements BrokerPortType{
                 };
                 poke.start();
             }else{
-                heLives = true;
+                mHeLives = true;
             }
         }
         return "";
