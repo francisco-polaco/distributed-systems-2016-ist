@@ -68,6 +68,11 @@ public class RequestJobIT extends AbstractIT {
 		CLIENT.requestJob(CENTRO_1, SUL_1, HACK_PRICE);
 	}
 
+	@Test(expected = ServerSOAPFaultException.class)
+	public void testRequestJobHackedTimestamp() throws Exception {
+		CLIENT.requestJob(CENTRO_1, SUL_1, HACK_PRICE2);
+	}
+
 	/**
 	 * Invoke CLIENT.requestJob on an invalid (null) destination.
 	 * 

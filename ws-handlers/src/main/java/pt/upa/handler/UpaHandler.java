@@ -78,7 +78,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         return true;
     }
 
-    private void getPriceBody(SOAPMessageContext smc) throws SOAPException {
+    private void getPriceBody(SOAPMessageContext smc) throws SOAPException, InterruptedException {
         // get SOAP envelope
         SOAPMessage msg = smc.getMessage();
         SOAPPart sp = msg.getSOAPPart();
@@ -110,6 +110,10 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                     //Add altered price value
                     price = sh.addBodyElement(price_proposed_name);
                     price.addTextNode("95");
+                }
+
+                else if (price.getValue().contentEquals("55")) {
+                    Thread.sleep(70000);
                 }
             }
         }
