@@ -124,7 +124,7 @@ cd A_43-project/transporter-ws
 mvn -Dws.i=2 exec:java
 ```
 
-[4] Construir **cliente** e executar testes
+[4] Construir **cliente** e executar testes (um teste vai demorar cerca de um minuto a concluir. Isto é normal visto testar a frescura das mensagens.)
 
 ```
 cd A_43-project/transporter-ws-cli

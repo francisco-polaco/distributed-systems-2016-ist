@@ -4,7 +4,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import java.util.TreeMap;
+
+import static org.junit.Assert.*;
 
 
 public class TransporterPortTest {
@@ -36,7 +38,7 @@ public class TransporterPortTest {
         mTransporterPortImp = null;
     }
 
-   /* @Test(expected = BadLocationFault_Exception.class)
+    @Test(expected = BadLocationFault_Exception.class)
     public void jobWithInvalidOrigin() throws BadLocationFault_Exception, BadPriceFault_Exception {
         mTransporterPortImp.requestJob("Lisboooa", "Braga", 50);
     }
@@ -99,10 +101,6 @@ public class TransporterPortTest {
         assertNotNull("Job didn't exist.",  mTransporterPortPar.jobStatus(_idPar));
     }
 
-    @Test
-    public void listJob() {
-        assertEquals("List doesn't have the right Jobs.", mTransporterPortPar.listJobs().size(), 3);
-    }
 
     @Test
     public void clearJob(){
@@ -132,20 +130,13 @@ public class TransporterPortTest {
         }
         if(states.get(1).equals(true) && states.get(2).equals(true) && states.get(3).equals(true))
             states.put(4,true);
-        assertTrue("Failled completing the job.", states.get(4));
+        assertTrue("Failed completing the job.", states.get(4));
     }
 
     @Test
     public void rejectJob() throws BadJobFault_Exception {
         JobView work = mTransporterPortPar.decideJob(_idPar, false);
         assertEquals("Job not rejected ", work.getJobState().value(), "REJECTED");
-    }
-
-    @Test
-    public void jobWasCreated() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        JobView test;
-        test = mTransporterPortImp.requestJob("Porto", "Lisboa", 50);
-        assertEquals("Job was not created successfully", test, mTransporterPortImp.jobStatus(test.getJobIdentifier()));
     }
 
     @Test
@@ -158,7 +149,7 @@ public class TransporterPortTest {
         JobView test;
         test = mTransporterPortPar.requestJob("Porto", "Lisboa", 200);
         assertNull("JobView was not null.", test);
-    }*/
+    }
 
 
  //-------------------------- IMPAR ---------------------------------------------------------------------------
@@ -172,7 +163,7 @@ public class TransporterPortTest {
         assertTrue("Price is above the client price", lowprice);
     }
 
-/*    @Test
+    @Test
     public void requestJobPriceEvenImp() throws BadLocationFault_Exception, BadPriceFault_Exception {
         boolean  highprice = false;
         int price =  mTransporterPortImp.requestJob("Lisboa", "Leiria",18).getJobPrice();
@@ -211,7 +202,7 @@ public class TransporterPortTest {
     @Test
     public void jobWithInvalidRangePar() throws BadLocationFault_Exception, BadPriceFault_Exception {
        assertNull("Origin out of range", mTransporterPortPar.requestJob("Faro", "Beja", 50));
-    }*/
+    }
 
 //-------------------------------------------------------------------------------------------------------------
 }
