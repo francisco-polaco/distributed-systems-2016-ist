@@ -105,15 +105,26 @@ mvn clean install
 
 ### Serviço TRANSPORTER
 
-[1] Construir e executar **servidor**
+[1] Construir **servidor**
 
 ```
 cd A_43-project/transporter-ws
 mvn clean generate-sources install
+```
+
+[2] Executar primeiro **servidor**
+```
+cd A_43-project/transporter-ws
 mvn exec:java
 ```
 
-[2] Construir **cliente** e executar testes
+[3] Executar segundo **servidor**
+```
+cd A_43-project/transporter-ws
+mvn -Dws.i=2 exec:java
+```
+
+[4] Construir **cliente** e executar testes
 
 ```
 cd A_43-project/transporter-ws-cli
@@ -132,22 +143,28 @@ cd A_43-project/broker-ws-cli
 mvn clean generate-sources install -Dmaven.test.skip=true
 ```
 
-[2] Construir e executar **servidor** de backup
+[2] Construir **servidor**
 
 ```
 cd A_43-project/broker-ws
 mvn clean generate-sources install
+```
+
+[3] Executar **servidor de backup**
+
+```
+cd A_43-project/broker-ws
 mvn -Dws.i=2 exec:java
 ```
 
-[3] Executar **servidor**
+[4] Executar **servidor**
 
 ```
 cd A_43-project/broker-ws
 mvn exec:java
 ```
 
-[4] Executar testes do **cliente**
+[5] Executar testes do **cliente**
 
 ```
 cd A_43-project/broker-ws-cli
