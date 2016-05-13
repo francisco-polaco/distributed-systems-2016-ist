@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 
-public class ChangeJobStatusTask extends TimerTask {
+class ChangeJobStatusTask extends TimerTask {
 
     private static final int BOUND = 4001;
     private static final JobStateView[] states = {JobStateView.HEADING, JobStateView.ONGOING, JobStateView.COMPLETED};

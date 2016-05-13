@@ -20,8 +20,6 @@ import static pt.upa.transporter.ws.JobStateView.*;
 @HandlerChain(file = "/transporter_handler-chain.xml")
 public class TransporterPort implements TransporterPortType {
 
-    private static final int DEFAULT_PRICE = 7;
-
     private static AtomicLong idSeed = new AtomicLong(0);
     private String mCompanyName;
     private boolean mNorthRegion;

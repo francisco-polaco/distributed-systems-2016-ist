@@ -57,7 +57,6 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                 System.out.println(handlerConstants.RCPT_SERVICE_NAME);
 
                 if(!checkIfOtherCertificateIsPresent(handlerConstants.RCPT_SERVICE_NAME)){
-                    //System.out.println("Certificate is not present, downloading...");
                     getCertificateFromCA(handlerConstants.RCPT_SERVICE_NAME,
                             handlerConstants.RCPT_SERVICE_NAME + handlerConstants.CERTIFICATE_EXTENSION);
                     numberMessagesReceived.put(handlerConstants.RCPT_SERVICE_NAME, 0);
@@ -203,7 +202,6 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
         } catch (SOAPException | IOException e) {
             e.printStackTrace();
         }
-        //out.writeTo(System.out);
 
         return out.toByteArray();
     }
@@ -309,8 +307,6 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
     private void verifyTimestamp(String date) {
         Timestamp stamp = actualTime();
-        System.out.println(stamp.toString());
-        System.out.println(Timestamp.valueOf(date).toString());
 
 
         if (stamp.before(Timestamp.valueOf(date))) {
@@ -319,7 +315,6 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
 
         if (stamp.getMinutes() >= 1) {
             stamp.setMinutes(stamp.getMinutes() - 1);
-            System.out.println(stamp.toString());
         }else
             stamp.setSeconds(0);
 
@@ -452,7 +447,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
     /**
      * Reads a certificate from a file
      *
-     * @return
+     * @return Certificate
      * @throws Exception
      */
     private Certificate readCertificateFile(String certificateFilePath) throws Exception {
