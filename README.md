@@ -93,7 +93,7 @@ mvn clean generate-sources install
 
 ### Handlers
 
-[1] Construir
+[1] Construir **handlers**
 
 ```
 cd A_43-project/ws-handlers
