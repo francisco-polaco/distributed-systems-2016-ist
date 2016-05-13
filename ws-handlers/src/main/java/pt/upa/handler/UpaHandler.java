@@ -112,7 +112,7 @@ public class UpaHandler implements SOAPHandler<SOAPMessageContext> {
                     price.addTextNode("95");
                 }
 
-                else if (price.getValue().contentEquals("55")) {
+                else if (price.getValue().contentEquals("120")) {
                     Thread.sleep(70000);
                 }
             }

@@ -21,7 +21,7 @@ public class AbstractIT {
 	protected static final int PRICE_UPPER_LIMIT = 100;
 	protected static final int PRICE_SMALLEST_LIMIT = 10;
 	protected static final int HACK_PRICE = 50;
-	protected static final int HACK_PRICE2 = 55;
+	protected static final int HACK_PRICE2 = 120;
 	protected static final int UNITARY_PRICE = 1;
 	protected static final int ZERO_PRICE = 0;
 	protected static final int INVALID_PRICE = -1;
