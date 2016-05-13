@@ -21,6 +21,7 @@ public class TransporterClientIT {
 
     private static final String TEST_PROP_FILE = "/test.properties";
 
+
     private static TransporterClient client;
 
     private static Properties props = null;
@@ -73,20 +74,20 @@ public class TransporterClientIT {
 
     @Test
     public void requestJob() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        JobView result = client.requestJob("Lisboa", "Porto", 10);
+        JobView result = client.requestJob("Lisboa", "Faro", 10);
         assertNotNull(result);
     }
 
     @Test
     public void decideJob() throws BadLocationFault_Exception, BadPriceFault_Exception, BadJobFault_Exception {
-        JobView id = client.requestJob("Lisboa", "Porto", 10);
+        JobView id = client.requestJob("Lisboa", "Faro", 10);
         JobView result = client.decideJob(id.getJobIdentifier(), true);
         assertNotNull(result);
     }
 
     @Test
     public void jobStatus() throws BadLocationFault_Exception, BadPriceFault_Exception {
-        JobView id = client.requestJob("Lisboa", "Porto", 10);
+        JobView id = client.requestJob("Lisboa", "Faro", 10);
         JobView result = client.jobStatus(id.getJobIdentifier());
         assertNotNull(result);
     }
@@ -94,7 +95,7 @@ public class TransporterClientIT {
     @Test
     public void listJobs() throws BadLocationFault_Exception, BadPriceFault_Exception {
         client.clearJobs();
-        client.requestJob("Lisboa", "Porto", 10);
+        client.requestJob("Lisboa", "Faro", 10);
         List<JobView> result = client.listJobs();
         assertEquals("job not in the list", 1, result.size());
     }

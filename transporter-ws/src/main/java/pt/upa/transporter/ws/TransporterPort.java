@@ -95,18 +95,21 @@ public class TransporterPort implements TransporterPortType {
                 jobView.setJobState(PROPOSED);
 
                 if (price <= 10)
-                    jobView.setJobPrice(DEFAULT_PRICE);
+                    if(price == 0)
+                        jobView.setJobPrice(price);
+                    else
+                        jobView.setJobPrice(price-1);
 
                 else if (mNorthRegion) { // even id
                     //TODO : Refactor
                     if (price % 2 == 0)
                         jobView.setJobPrice(mRandom.nextInt(price));
                     else
-                        jobView.setJobPrice(price + mRandom.nextInt(price));
+                        randomPrice(price, jobView);
 
                 } else { //odd id
                     if (price % 2 == 0) {
-                        jobView.setJobPrice(price + mRandom.nextInt(price));
+                        randomPrice(price, jobView);
                     }
                     else
                         jobView.setJobPrice(mRandom.nextInt(price));
@@ -115,6 +118,12 @@ public class TransporterPort implements TransporterPortType {
             }
             return jobView;
         }
+    }
+
+    private void randomPrice(int price, JobView jobView) {
+        int p = mRandom.nextInt(price);
+        if(p == 0) p++;
+        jobView.setJobPrice(price + p);
     }
 
     private boolean isAInvalidRegion(String location) {

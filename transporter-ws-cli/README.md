@@ -1,0 +1,1 @@
+The Upa Broker key store is present, only to assure that we can test the client separately.
