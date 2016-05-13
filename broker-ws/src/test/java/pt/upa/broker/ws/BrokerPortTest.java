@@ -95,7 +95,7 @@ public class BrokerPortTest {
     @Test
     public void simpleAccept(@Mocked final TransporterClient transporterClient) throws Exception {
         // Preparation code not specific to JMockit, if any.
-        final String ID = "0";
+        final String ID = "1";
         final int PRICE = 7;
 
         // an "expectation block"
