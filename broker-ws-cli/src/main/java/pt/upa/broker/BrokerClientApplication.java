@@ -15,13 +15,21 @@ public class BrokerClientApplication {
 		BrokerClient clnt = new BrokerClient(args[0], args[1]);
 		System.out.println("starting");
 		clnt.ping("hi");
-		System.out.println("Hello");
+		System.out.println("pinged");
 		String a = clnt.requestTransport("Lisboa", "Faro", 8);
 		System.out.println("requested");
+		clnt.ping("hi");
+		System.out.println("pinged");
+		clnt.viewTransport(a);
+		System.out.println("viewed");
+		clnt.ping("hi");
+		System.out.println("pinged");
 		clnt.viewTransport(a);
 		System.out.println("viewed");
 		clnt.clearTransports();
 		System.out.println("cleared");
+		clnt.ping("hi");
+		System.out.println("pinged");
 		System.out.println("Goodbye!");
 	}
 }
