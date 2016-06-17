@@ -29,6 +29,11 @@ Linux
 
 JUDDI:
 ```
+wget http://disciplinas.tecnico.ulisboa.pt/leic-sod/2015-2016/download/juddi-3.3.2_tomcat-7.0.64_9090.zip
+unzip juddi-3.3.2_tomcat-7.0.64_9090.zip
+juddi-3.3.2_tomcat-7.0.64_9090/bin/startup.sh
+
+// Nos computadores da RNL basta:
 juddi-startup
 ```
 
