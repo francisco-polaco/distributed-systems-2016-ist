@@ -71,7 +71,7 @@ Depois copiar os .jks para o serviço correspondente.
 As instruções de uso do script estão nele próprio.
 
 ```
-wget http://web.ist.utl.pt/~ist179719/sd/gen_keys.sh
+wget http://web.ist.utl.pt/~ist179719/ist/sd/gen_keys.sh
 sh gen_keys.sh
 ```
 
